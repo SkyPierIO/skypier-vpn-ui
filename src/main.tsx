@@ -6,10 +6,8 @@ import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 
 import { WagmiConfig } from "wagmi";
 import {
+	goerli,
 	arbitrum,
-	avalanche,
-	bsc,
-	fantom,
 	gnosis,
 	mainnet,
 	optimism,
@@ -19,23 +17,19 @@ import {
 const chains = [
 	mainnet,
 	polygon,
-	avalanche,
+	goerli,
 	arbitrum,
-	bsc,
 	optimism,
 	gnosis,
-	fantom,
 ];
-
-// 1. Get projectID at https://cloud.walletconnect.com
 
 const projectId = import.meta.env.VITE_PROJECT_ID || "";
 
 const metadata = {
-	name: "React Starter Template",
-	description: "A React starter template with Web3Modal v3 + Wagmi",
-	url: "https://web3modal.com",
-	icons: ["https://avatars.githubusercontent.com/u/37784886"],
+	name: "Skypier VPN",
+	description: "Skypier VPN",
+	url: "https://skypier.io",
+	icons: ["https://avatars.githubusercontent.com/u/145208723"],
 };
 
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });

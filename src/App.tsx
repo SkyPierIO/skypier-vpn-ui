@@ -26,7 +26,7 @@ export default function App() {
 					<div className={styles.logo}>
 						<img
 							src="/logo.svg"
-							alt="WalletConnect Logo"
+							alt="Skypier Logo"
 							height="32"
 							width="203"
 						/>
@@ -58,7 +58,7 @@ export default function App() {
 			<main className={styles.main}>
 				<div className={styles.wrapper}>
 					<div className={styles.container}>
-						<h1>React Starter Template</h1>
+						<h1>Skypier VPN</h1>
 						<div className={styles.content}>
 							<ul>
 								<li>
