@@ -1,0 +1,24 @@
+{
+	"name": "react-starter-template",
+	"version": "0.1.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@web3modal/wagmi": "3.5.7",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"viem": "^1.13.1",
+		"wagmi": "^1.4.2"
+	},
+	"devDependencies": {
+		"@types/react": "^18.0.28",
+		"@types/react-dom": "^18.0.11",
+		"@vitejs/plugin-react": "^4.0.0",
+		"typescript": "^5.0.4",
+		"vite": "^5.0.0"
+	}
+}
