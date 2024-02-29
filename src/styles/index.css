@@ -6,7 +6,7 @@
 	--h: 180;
 	--s: 2%;
 	--l: 20%;
-	--color-bg: hsl(0, 0%, 4%);
+	--color-bg: hsl(0, 0%, 8%);
 	--color-grey-100: #fff;
 	--color-grey-300: #e4e7e7;
 	--color-grey-400: #c9cfcf;
@@ -44,7 +44,7 @@ body {
 	font-family: var(--font-base);
 	background-color: var(--color-bg);
 	color: var(--color-grey-100);
-	background-image: url("/pattern.png");
+	/* background-image: url("/pattern.png"); */
 }
 
 pre,

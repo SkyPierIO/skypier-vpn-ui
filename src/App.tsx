@@ -62,10 +62,6 @@ export default function App() {
 						<div className={styles.content}>
 							<ul>
 								<li>
-									Edit <code>src/App.tsx</code> and save to
-									reload.
-								</li>
-								<li>
 									Click{" "}
 									<span
 										onClick={() => {
@@ -97,6 +93,9 @@ export default function App() {
 										Select Network
 									</span>{" "}
 									to change networks.
+								</li>
+								<li>
+									Select your node.
 								</li>
 							</ul>
 						</div>
