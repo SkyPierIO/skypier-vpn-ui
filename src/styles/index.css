@@ -44,7 +44,7 @@ body {
 	font-family: var(--font-base);
 	background-color: var(--color-bg);
 	color: var(--color-grey-100);
-	/* background-image: url("/pattern.png"); */
+	background-image: url("/pattern.png");
 }
 
 pre,

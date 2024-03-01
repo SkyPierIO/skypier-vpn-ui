@@ -1,5 +1,9 @@
 import styles from "./styles/Home.module.css";
 import { useState } from "react";
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
+import ResponsiveAppBar from "./components/ResponsiveAppBar";
+
 
 export default function App() {
 	const [isNetworkSwitchHighlighted, setIsNetworkSwitchHighlighted] =
@@ -13,6 +17,21 @@ export default function App() {
 	return (
 		<>
 			<header>
+				<ResponsiveAppBar />
+			</header>
+			<div className={styles.main}>
+				Hello
+				
+				<Grid container spacing={2}>
+					<Grid item xs={4}>
+						<Card>xs=4</Card>
+					</Grid>
+					<Grid item xs={8}>
+						<Card>xs=8</Card>
+					</Grid>
+				</Grid>
+			</div>
+			{/* <header>
 				<div
 					className={styles.backdrop}
 					style={{
@@ -124,7 +143,7 @@ export default function App() {
 						</a>
 					</div>
 				</div>
-			</main>
+			</main> */}
 		</>
 	);
 }

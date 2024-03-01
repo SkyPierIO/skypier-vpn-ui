@@ -12,6 +12,15 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
+
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 
 import { WagmiConfig } from "wagmi";
@@ -46,8 +55,8 @@ const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
 const router = createBrowserRouter([
 	{
-		path: "/",
-		element: <div>Hello world!</div>,
+		path: "/test",
+		element: <div>Test</div>,
 	},
 ]);
 
@@ -65,8 +74,11 @@ createWeb3Modal({
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
 		<WagmiConfig config={wagmiConfig}>
-			<App />
-			<RouterProvider router={router} />
+			<ThemeProvider theme={darkTheme}>
+				<CssBaseline />
+				<App />
+				<RouterProvider router={router} />
+			</ThemeProvider>
 		</WagmiConfig>
 	</React.StrictMode>
 );
