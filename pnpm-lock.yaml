@@ -23,6 +23,9 @@ dependencies:
   '@mui/styled-engine-sc':
     specifier: 6.0.0-alpha.17
     version: 6.0.0-alpha.17(styled-components@6.1.8)
+  '@mui/x-data-grid':
+    specifier: ^6.19.5
+    version: 6.19.5(@mui/material@5.15.11)(@mui/system@5.15.11)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
   '@web3modal/wagmi':
     specifier: 3.5.7
     version: 3.5.7(@types/react@18.2.60)(@wagmi/core@1.4.13)(typescript@5.3.3)(viem@1.21.4)
@@ -1004,6 +1007,28 @@ packages:
       prop-types: 15.8.1
       react: 18.2.0
       react-is: 18.2.0
+    dev: false
+
+  /@mui/x-data-grid@6.19.5(@mui/material@5.15.11)(@mui/system@5.15.11)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-jV1ZqwyFslKqFScSn4t+xc/tNxLHOeJjz3HoeK+Wdf5t3bPM69pg/jLeg8TmOkAUY62JmQKCLVmcGWiR3AqUKQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@mui/material': ^5.4.1
+      '@mui/system': ^5.4.1
+      react: ^17.0.0 || ^18.0.0
+      react-dom: ^17.0.0 || ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.24.0
+      '@mui/material': 5.15.11(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
+      '@mui/system': 5.15.11(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.60)(react@18.2.0)
+      '@mui/utils': 5.15.11(@types/react@18.2.60)(react@18.2.0)
+      clsx: 2.1.0
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      reselect: 4.1.8
+    transitivePeerDependencies:
+      - '@types/react'
     dev: false
 
   /@noble/curves@1.2.0:
@@ -4161,6 +4186,10 @@ packages:
 
   /require-main-filename@2.0.0:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
+    dev: false
+
+  /reselect@4.1.8:
+    resolution: {integrity: sha512-ab9EmR80F/zQTMNeneUr4cv+jSwPJgIlvEmVwLerwrWVbpLlBuls9XHzIeTFy4cegU2NHBp3va0LKOzU5qFEYQ==}
     dev: false
 
   /resolve-from@4.0.0:

@@ -77,7 +77,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 			<ThemeProvider theme={darkTheme}>
 				<CssBaseline />
 				<App />
-				<RouterProvider router={router} />
+				{/* <RouterProvider router={router} /> */}
 			</ThemeProvider>
 		</WagmiConfig>
 	</React.StrictMode>

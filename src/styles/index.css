@@ -6,7 +6,7 @@
 	--h: 180;
 	--s: 2%;
 	--l: 20%;
-	--color-bg: hsl(0, 0%, 8%);
+	--color-bg: hsl(0, 0%, 4%);
 	--color-grey-100: #fff;
 	--color-grey-300: #e4e7e7;
 	--color-grey-400: #c9cfcf;
@@ -47,6 +47,19 @@ body {
 	background-image: url("/pattern.png");
 }
 
+.main {
+	/* display: grid; */
+	/* place-items: center; */
+	height: 100%;
+	background: linear-gradient(
+			to bottom,
+			var(--color-bg),
+			transparent,
+			var(--color-bg)
+		),
+		radial-gradient(circle, transparent 0%, var(--color-bg) 70%);
+}
+
 pre,
 code {
 	font-family: var(--font-mono);
@@ -73,4 +86,35 @@ li {
 header {
 	position: fixed;
 	width: 100%;
+}
+
+.main-toolbar{
+	background: rgb(63,50,92);
+	background: radial-gradient(circle, rgba(54,42,82,1) 0%, rgba(18,18,18,1) 98%);
+}
+
+.MuiDrawer-root {
+	backdrop-filter: blur(8px);
+	background-color: rgba(0, 0, 0, 0.411)!important;
+}
+
+.backdrop {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 4;
+	pointer-events: none;
+	background: hsla(0, 0%, 4%, 0.75);
+	transition: opacity 0.2s;
+}
+
+@keyframes animateGlow {
+	0% {
+		background-position: 0% 50%;
+	}
+	100% {
+		background-position: 200% 50%;
+	}
 }
