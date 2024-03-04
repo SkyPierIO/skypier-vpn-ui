@@ -1,4 +1,9 @@
 import * as React from "react";
+import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
+
+import Dashboard from "./pages/Dashboard";
+import Peers from "./pages/Peers";
+
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -104,7 +109,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-export default function MiniDrawer() {
+export default function App() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -176,11 +181,11 @@ export default function MiniDrawer() {
                   }}
                 >
                    {{	0: <InsightsIcon color="disabled"/>,
-						1: <ExploreIcon color="disabled"/>,
-						2: <AutoAwesomeIcon color="disabled"/>,
-						3: <ViewInArIcon color="disabled"/>,
-						4: <CardMembershipIcon color="disabled"/>,
-					}[index]}
+                      1: <ExploreIcon color="disabled"/>,
+                      2: <AutoAwesomeIcon color="disabled"/>,
+                      3: <ViewInArIcon color="disabled"/>,
+                      4: <CardMembershipIcon color="disabled"/>,
+                    }[index]}
                 </ListItemIcon>
                 <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>
@@ -215,9 +220,13 @@ export default function MiniDrawer() {
       </Drawer>
       <Box component="main" className="main" sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
         <DrawerHeader />
-        <Typography paragraph>
-          TODO...
-        </Typography>
+
+          <BrowserRouter>      
+            <Routes>
+              <Route path="/" element={<Dashboard/>}/>
+              <Route path="/peers" element={<Peers/>}/>
+            </Routes>
+          </BrowserRouter>
 
           <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
             <ElectricalServicesIcon />

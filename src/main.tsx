@@ -1,28 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {
-	createBrowserRouter,
-	RouterProvider,
-  } from "react-router-dom";
 import App from "./App";
 import "./styles/index.css";
-
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-  },
-});
-
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
-
 import { WagmiConfig } from "wagmi";
 import {
 	goerli,
@@ -32,6 +18,13 @@ import {
 	optimism,
 	polygon,
 } from "wagmi/chains";
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
+
 
 const chains = [
 	mainnet,
@@ -53,13 +46,6 @@ const metadata = {
 
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
-const router = createBrowserRouter([
-	{
-		path: "/test",
-		element: <div>Test</div>,
-	},
-]);
-
 createWeb3Modal({ 
 	wagmiConfig, 
 	projectId, 
@@ -77,7 +63,6 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 			<ThemeProvider theme={darkTheme}>
 				<CssBaseline />
 				<App />
-				{/* <RouterProvider router={router} /> */}
 			</ThemeProvider>
 		</WagmiConfig>
 	</React.StrictMode>
