@@ -1,4 +1,3 @@
-import {Link } from 'react-router-dom';
 
 const SavedPeers = () => {
 
@@ -10,8 +9,6 @@ const SavedPeers = () => {
         <li>2</li>
         <li>3</li>
       </ul>
-      <Link to="/">Home</Link>
-      <Link to="/peers">Peers</Link>
     </div>
   );
 };

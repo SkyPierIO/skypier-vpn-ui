@@ -1,5 +1,3 @@
-import {Link } from 'react-router-dom';
-
 const Peers = () => {
 
   return (
@@ -10,7 +8,6 @@ const Peers = () => {
         <li>2</li>
         <li>3</li>
       </ul>
-      <Link to="/">Home</Link>
     </div>
   );
 };
