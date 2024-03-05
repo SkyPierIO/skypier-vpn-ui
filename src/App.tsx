@@ -3,6 +3,10 @@ import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
 
 import Dashboard from "./pages/Dashboard";
 import Peers from "./pages/Peers";
+import SavedPeers from "./pages/SavedPeers";
+import Subscription from "./pages/Subscription";
+import Settings from "./pages/Settings";
+import Host from "./pages/Host";
 
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -138,11 +142,13 @@ export default function App() {
             <MenuIcon />
           </IconButton>
 		  <Typography component="div" sx={{ flexGrow: 1 }}>
-			<img
-				src="/logo.svg"
-				alt="Skypier Logo"
-				height="35"
-			/>
+        <a href="/">
+          <img
+            src="/logo.svg"
+            alt="Skypier Logo"
+            height="35"
+          />
+        </a>
           </Typography>
           <Box>
 			<Stack direction="row" spacing={1}>
@@ -167,6 +173,7 @@ export default function App() {
           {["Dashboard", "Explore peers", "Saved peers", "Host a node", "My subscription"].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: "block", color: "#eee"}}>
               <ListItemButton
+                href={text.replace(/\s/g, "_")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
@@ -197,6 +204,7 @@ export default function App() {
           {["Settings"].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
+                href={text}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
@@ -224,7 +232,12 @@ export default function App() {
           <BrowserRouter>      
             <Routes>
               <Route path="/" element={<Dashboard/>}/>
-              <Route path="/peers" element={<Peers/>}/>
+              <Route path="/Dashboard" element={<Dashboard/>}/>
+              <Route path="/Explore_peers" element={<Peers/>}/>
+              <Route path="/Saved_peers" element={<SavedPeers/>}/>
+              <Route path="/My_subscription" element={<Subscription/>}/>
+              <Route path="/Host_a_node" element={<Host/>}/>
+              <Route path="/Settings" element={<Settings/>}/>
             </Routes>
           </BrowserRouter>
 
