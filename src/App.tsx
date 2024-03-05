@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
+import { HashRouter, Route, Routes, Link } from 'react-router-dom';
 
 import Dashboard from "./pages/Dashboard";
 import Peers from "./pages/Peers";
@@ -229,7 +229,7 @@ export default function App() {
       <Box component="main" className="main" sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
         <DrawerHeader />
 
-          <BrowserRouter>      
+          <HashRouter>      
             <Routes>
               <Route path="/" element={<Dashboard/>}/>
               <Route path="/Dashboard" element={<Dashboard/>}/>
@@ -239,7 +239,7 @@ export default function App() {
               <Route path="/Host_a_node" element={<Host/>}/>
               <Route path="/Settings" element={<Settings/>}/>
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
 
           <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
             <ElectricalServicesIcon />
