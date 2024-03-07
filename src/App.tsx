@@ -1,5 +1,5 @@
 import * as React from "react";
-import { HashRouter, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
 
 import Dashboard from "./pages/Dashboard";
 import Peers from "./pages/Peers";
@@ -13,12 +13,12 @@ import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import List from "@mui/material/List";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -229,7 +229,7 @@ export default function App() {
       <Box component="main" className="main" sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
         <DrawerHeader />
 
-          <HashRouter>      
+          <BrowserRouter>      
             <Routes>
               <Route path="/" element={<Dashboard/>}/>
               <Route path="/Dashboard" element={<Dashboard/>}/>
@@ -239,7 +239,7 @@ export default function App() {
               <Route path="/Host_a_node" element={<Host/>}/>
               <Route path="/Settings" element={<Settings/>}/>
             </Routes>
-          </HashRouter>
+          </BrowserRouter>
 
           <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
             <ElectricalServicesIcon />
