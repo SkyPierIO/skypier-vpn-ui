@@ -11,6 +11,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 import { WagmiConfig } from "wagmi";
 import {
+	sepolia,
 	goerli,
 	arbitrum,
 	gnosis,
@@ -30,6 +31,7 @@ const chains = [
 	mainnet,
 	polygon,
 	goerli,
+	sepolia,
 	arbitrum,
 	optimism,
 	gnosis,

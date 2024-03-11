@@ -14,6 +14,7 @@ import Paper from '@mui/material/Paper';
 import Divider from '@mui/material/Divider';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 
 
@@ -35,6 +36,11 @@ const wipPeers =  [
 ]
 
 const Peers = () => {
+
+  const handleClick = () => {
+    console.info('Connection requested.');
+    alert('Connection requested.');
+  };
 
   return (
     <div>
@@ -64,19 +70,20 @@ const Peers = () => {
             <Card sx={{ display: 'flex', m:1  }}>
               <CardMedia
                 component="img"
-                sx={{ width: 95, height: 95 }}
+                sx={{ width: 95, height: 95, p: 3 }}
                 image={"http://api.dicebear.com/7.x/identicon/svg?seed="+text }
                 alt="Icon"
               />
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <CardContent sx={{ flex: '1 0 auto' }}>
                   <Typography component="p">
-                    Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{text.substring(0, 3)}...{text.slice(-5)}</span>
+                    Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{text.substring(0, 3)}...{text.slice(-10 )}</span>
                   </Typography>
                   <Stack direction={"row"} sx={{mt:1}}>
                     <Typography component="p">
                       <Chip  sx={{mr:1}} label="• Online" color="success" size="small" variant="outlined"/>
-                      <Chip  sx={{mr:1}} icon={<ElectricalServicesIcon />} label="Connect" size="small" variant="outlined" />
+                      <Chip  sx={{mr:1}} icon={<LocationOnIcon />} label="Amsterdam" size="small" variant="outlined" />
+                      <Chip  sx={{mr:1}} icon={<ElectricalServicesIcon />} label="Connect" size="small" variant="outlined" onClick={handleClick} />
                     </Typography>
                   </Stack>
                 </CardContent>
