@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
+import Button from '@mui/material/Button';
 import InputBase from '@mui/material/InputBase';
 import Stack from '@mui/material/Stack';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
@@ -83,8 +84,13 @@ const Peers = () => {
                     <Typography component="p">
                       <Chip  sx={{mr:1}} label="• Online" color="success" size="small" variant="outlined"/>
                       <Chip  sx={{mr:1}} icon={<LocationOnIcon />} label="Amsterdam" size="small" variant="outlined" />
-                      <Chip  sx={{mr:1}} icon={<ElectricalServicesIcon />} label="Connect" size="small" variant="outlined" onClick={handleClick} />
                     </Typography>
+                  </Stack>
+                  {/* <br/> */}
+                  <Stack sx={{mt:1}}>
+                    <Button size="small" variant="outlined" endIcon={<ElectricalServicesIcon onClick={handleClick} sx={{borderRadius:1}}/>}>
+                      Connect
+                    </Button>
                   </Stack>
                 </CardContent>
               </Box>
