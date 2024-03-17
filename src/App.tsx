@@ -231,7 +231,7 @@ export default function App() {
 
           <BrowserRouter>      
             <Routes>
-              <Route path="/" element={<Dashboard/>}/>
+              <Route path="/" element={<Peers/>}/>
               <Route path="/Dashboard" element={<Dashboard/>}/>
               <Route path="/Explore_peers" element={<Peers/>}/>
               <Route path="/Saved_peers" element={<SavedPeers/>}/>

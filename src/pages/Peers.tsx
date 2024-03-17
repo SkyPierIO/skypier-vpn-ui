@@ -88,7 +88,7 @@ const Peers = () => {
                   </Stack>
                   {/* <br/> */}
                   <Stack sx={{mt:1}}>
-                    <Button size="small" variant="outlined" endIcon={<ElectricalServicesIcon onClick={handleClick} sx={{borderRadius:1}}/>}>
+                    <Button size="small" variant="outlined" onClick={handleClick} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
                       Connect
                     </Button>
                   </Stack>
