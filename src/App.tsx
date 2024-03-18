@@ -173,7 +173,7 @@ export default function App() {
           {["Dashboard", "Explore peers", "Saved peers", "Host a node", "My subscription"].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: "block", color: "#eee"}}>
               <ListItemButton
-                href={text.replace(/\s/g, "_")}
+                href={"/"+text.replace(/\s/g, "_")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
