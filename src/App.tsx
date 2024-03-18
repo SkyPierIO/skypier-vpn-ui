@@ -204,7 +204,7 @@ export default function App() {
           {["Settings"].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
-                href={text}
+                href={"/"+text.replace(/\s/g, "_")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
