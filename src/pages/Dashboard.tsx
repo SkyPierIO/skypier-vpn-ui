@@ -14,21 +14,10 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
 // import VPNDataService from "../services/node.service"
 import NodeDetails from "../components/NodeDetails"
+import Bandwidth from '../components/Bandwidth';
+import SubscriptionViz from '../components/SubscriptionViz';
 
 const Dashboard = () => {
-
-  // function retrieveNickname() {
-  //   VPNDataService.getNickname()
-  //     .then((response: any) => {
-  //       this.setState({
-  //         nickname: response.data
-  //       });
-  //       console.log(response.data);
-  //     })
-  //     .catch((e: Error) => {
-  //       console.log(e);
-  //     });
-  // }
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -63,7 +52,7 @@ const Dashboard = () => {
         <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}}>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
-              Metrics
+              Info
             </Typography>
             <Typography variant="body2" color="text.secondary">
               <Chip  sx={{mt:2}} icon={<HistoryIcon />} label="Uptime"/>
@@ -82,7 +71,32 @@ const Dashboard = () => {
             <Button size="small">Share</Button>
           </CardActions> */}
         </Card>
-      </Stack>
+        {/* ------------------ */}
+        {/* ------------------ */}
+        {/* ------------------ */}
+        {/* ------------------ */}
+        <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}}>
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              Metrics
+              <br /><small>Bandwidth</small>
+            </Typography>
+            <Bandwidth></Bandwidth>
+          </CardContent>
+        </Card>
+        {/* ------------------ */}
+        {/* ------------------ */}
+        {/* ------------------ */}
+        {/* ------------------ */}
+        <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}}>
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              My Skypier subscription
+            </Typography>
+            <SubscriptionViz></SubscriptionViz>
+          </CardContent>
+        </Card>
+    </Stack>
     </Box>
   );
 };
