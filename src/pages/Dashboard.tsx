@@ -12,7 +12,23 @@ import MemoryIcon from '@mui/icons-material/Memory';
 import HistoryIcon from '@mui/icons-material/History';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
+// import VPNDataService from "../services/node.service"
+import NodeDetails from "../components/NodeDetails"
+
 const Dashboard = () => {
+
+  // function retrieveNickname() {
+  //   VPNDataService.getNickname()
+  //     .then((response: any) => {
+  //       this.setState({
+  //         nickname: response.data
+  //       });
+  //       console.log(response.data);
+  //     })
+  //     .catch((e: Error) => {
+  //       console.log(e);
+  //     });
+  // }
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -20,16 +36,16 @@ const Dashboard = () => {
           My node <span>{' '}</span><small style={{fontSize:"0.5em"}}>Dashboard</small>
       </Typography>
       <hr/>
-      <Stack>
-        <Card sx={{ maxWidth: 345, mt: 2, borderRadius: 4, backgroundColor: "#f6547d"}}>
+      <Stack direction="row" spacing={2} sx={{ pt: 3}}>
+        <Card sx={{ minWidth: 350, mt: 2, borderRadius: 4, backgroundColor: "#f6547d"}}>
           <CardMedia
-            sx={{ height: 140 }}
+            sx={{ height: 180 }}
             image="https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             title="background"
           />
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
-              Stats
+              <NodeDetails></NodeDetails>
             </Typography>
             <Typography variant="body2" color="text.secondary">
               lorem ipsum
@@ -44,7 +60,7 @@ const Dashboard = () => {
         {/* ------------------ */}
         {/* ------------------ */}
         {/* ------------------ */}
-        <Card sx={{ maxWidth: 345, mt: 2, borderRadius: 4}}>
+        <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}}>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
               Metrics
