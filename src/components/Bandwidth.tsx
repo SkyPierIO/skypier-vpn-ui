@@ -19,10 +19,9 @@ export default function Bandwidth() {
           color: "#641691"
         },
       ]}
-      width={500}
+      width={850}
       height={300}
-      margin={{ left: 70 }}
-      
+      margin={{ left: 0, right: 0  }}
     />
   );
 }

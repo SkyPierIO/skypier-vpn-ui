@@ -16,7 +16,7 @@ export default class Node extends Component<Props, State> {
 
     this.state = {
       currentNode: {
-        nickname: "nickname placeholder"
+        nickname: "John Doe's Node"
       },
       status: "",
     };
@@ -25,6 +25,7 @@ export default class Node extends Component<Props, State> {
   getNickname() {
     NodeDataService.getNickname()
       .then((response: any) => {
+        console.log("getNickname debug");
         console.log(response.data);
         this.setState({
           currentNode: response.data,

@@ -11,6 +11,11 @@ import Chip from '@mui/material/Chip';
 import MemoryIcon from '@mui/icons-material/Memory';
 import HistoryIcon from '@mui/icons-material/History';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import RouterIcon from '@mui/icons-material/Router';
+import InfoIcon from '@mui/icons-material/Info';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
+
+
 
 // import VPNDataService from "../services/node.service"
 import NodeDetails from "../components/NodeDetails"
@@ -20,12 +25,12 @@ import SubscriptionViz from '../components/SubscriptionViz';
 const Dashboard = () => {
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%'}}>
       <Typography variant="h2" gutterBottom>
           My node <span>{' '}</span><small style={{fontSize:"0.5em"}}>Dashboard</small>
       </Typography>
       <hr/>
-      <Stack direction="row" spacing={2} sx={{ pt: 3}}>
+      <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
         <Card sx={{ minWidth: 350, mt: 2, borderRadius: 4, backgroundColor: "#f6547d"}}>
           <CardMedia
             sx={{ height: 180 }}
@@ -37,7 +42,7 @@ const Dashboard = () => {
               <NodeDetails></NodeDetails>
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              lorem ipsum
+              Node details
             </Typography>
           </CardContent>
           <CardActions>
@@ -49,19 +54,19 @@ const Dashboard = () => {
         {/* ------------------ */}
         {/* ------------------ */}
         {/* ------------------ */}
-        <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}}>
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Info
+        <Card sx={{ minWidth: 250, mt: 2, borderRadius: 4 }}>
+          <CardContent sx={{textAlign: "center"}}>
+            <Typography gutterBottom variant="h4" component="div">
+              Node details
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              <Chip  sx={{mt:2}} icon={<HistoryIcon />} label="Uptime"/>
+              <Chip  sx={{mt:3}} icon={<HistoryIcon />} label="Uptime"/>
               <Typography sx={{mb:1}} component="p">5d 14h 23min</Typography>
               <hr />
-              <Chip  sx={{mt:2}} icon={<MemoryIcon />} label="Operating System"/>
+              <Chip  sx={{mt:4}} icon={<MemoryIcon />} label="Operating System"/>
               <Typography sx={{mb:1}} component="p">GNU Linux</Typography>
               <hr />
-              <Chip  sx={{mt:2}} icon={<LocalOfferIcon />} label="Version"/>
+              <Chip  sx={{mt:4}} icon={<LocalOfferIcon />} label="Version"/>
               <Typography sx={{mt:1}} component="p">v0.0.1</Typography>
               <hr />
             </Typography>
@@ -76,12 +81,21 @@ const Dashboard = () => {
         {/* ------------------ */}
         {/* ------------------ */}
         <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}}>
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Metrics
-              <br /><small>Bandwidth</small>
+          <CardContent sx={{textAlign: "center"}}>
+            <Typography gutterBottom variant="h4" component="div">
+              VPN Interface
             </Typography>
-            <Bandwidth></Bandwidth>
+            <Typography variant="body2" color="text.secondary" sx={{textAlign: "center"}}>
+              <Chip  sx={{mt:3}} icon={<RouterIcon />} label="Network Interface"/>
+              <Typography sx={{mb:1}} component="p"><pre>skypier0</pre></Typography>
+              <hr/>
+              <Chip  sx={{mt:4}} icon={<InfoIcon />} label="Current status"/>
+              <Typography sx={{mb:1}} component="p">Up</Typography>
+              <hr/>
+              <Chip  sx={{mt:4}} icon={<ImportExportIcon />} label="MTU"/>
+              <Typography sx={{mb:1}} component="p">1500</Typography>
+              <hr/>
+            </Typography>
           </CardContent>
         </Card>
         {/* ------------------ */}
@@ -89,11 +103,26 @@ const Dashboard = () => {
         {/* ------------------ */}
         {/* ------------------ */}
         <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}}>
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              My Skypier subscription
+          <CardContent sx={{textAlign: "center"}}>
+            <Typography gutterBottom variant="h4" component="div">
+              My subscription
             </Typography>
             <SubscriptionViz></SubscriptionViz>
+          </CardContent>
+           <CardActions>
+            <Button size="small">Manage</Button>
+            <Button size="small">Extend</Button>
+          </CardActions>
+        </Card>
+    </Stack>
+    <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
+        <Card sx={{mt: 2, borderRadius: 4}}>
+          <CardContent sx={{textAlign: "center"}}>
+            <Typography gutterBottom variant="h4" component="div">
+              Metrics
+              <br /><small>Bandwidth</small>
+            </Typography>
+            <Bandwidth></Bandwidth>
           </CardContent>
         </Card>
     </Stack>
