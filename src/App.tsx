@@ -8,6 +8,8 @@ import Subscription from "./pages/Subscription";
 import Settings from "./pages/Settings";
 import Host from "./pages/Host";
 
+import IpLocation from "./components/IpLocation"
+
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -152,6 +154,7 @@ export default function App() {
           </Typography>
           <Box>
 			<Stack direction="row" spacing={1}>
+        <IpLocation></IpLocation>
 				<w3m-network-button />
           		<w3m-button />
 			</Stack>

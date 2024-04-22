@@ -1,51 +1,40 @@
-import { Component, ChangeEvent } from "react";
-import NodeDataService from "../services/node.service";
-import NodeData from '../types/node.type';
+import { useState, useEffect } from "react";
+import axios from "axios";
 
-type Props = {};
 
-type State = {
-  currentNode: NodeData;
-  status: string;
-}
+export default function NodeDetails() {
+  const [country, setCountry] = useState<string>("");
 
-export default class Node extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.getNickname = this.getNickname.bind(this);
+  const IpAddr = async () => {
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json"
+        }
+      };
+      const response = await axios.get(`http://localhost:8081/api/v0/getConfig`, config);
+      console.log(response.status)
+      if (response.status === 200) {
+        if (response.data.nickname) {
+          setCountry(response.data.nickname);
+        } 
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      IpAddr()
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
-    this.state = {
-      currentNode: {
-        nickname: "John Doe's Node"
-      },
-      status: "",
-    };
-  }
-
-  getNickname() {
-    NodeDataService.getNickname()
-      .then((response: any) => {
-        console.log("getNickname debug");
-        console.log(response.data);
-        this.setState({
-          currentNode: response.data,
-        });
-        console.log(response.data);
-      })
-      .catch((e: Error) => {
-        console.log(e);
-      });
-  }
-
-  render() {
-    const { currentNode } = this.state;
-    console.log(currentNode);
-
-    return (
-      <>
-        Hello {currentNode.nickname}
-      </>
-    );
-  }
-
-}
+  IpAddr();
+  return (
+    <>  
+          {country}
+    </>
+  );
+};
