@@ -57,8 +57,7 @@ export default function NodeDetails() {
   IpAddr();
   return (
     <div>  
-      <Fab sx={fabStyle} size="medium" aria-label="fff" color="primary" variant="extended">
-
+      <Fab onClick={() => IpAddr()} sx={fabStyle} size="medium" aria-label="fff" color="primary" variant="extended">
           <LocationOnIcon></LocationOnIcon>
           {currentIP}{" - "}{country}
       </Fab>
