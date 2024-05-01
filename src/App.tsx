@@ -70,6 +70,7 @@ const fabStyle = {
 	position: 'absolute',
 	bottom: 16,
 	right: 16,
+  backgroundColor: "#7355b9"
   };
   
 
@@ -171,7 +172,7 @@ export default function App() {
         <Divider />
         <List>
           {["Dashboard", "Explore peers", "Saved peers", "Host a node", "My subscription"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block", color: "#eee"}}>
+            <ListItem key={text} disablePadding sx={{ display: "block"}}>
               <ListItemButton
                 href={"/"+text.replace(/\s/g, "_")}
                 sx={{

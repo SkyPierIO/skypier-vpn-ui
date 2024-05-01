@@ -41,17 +41,12 @@ const metadata = {
 
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
-const darkTheme = createTheme({
+const theme = createTheme({
 	palette: {
-		mode: 'dark',
+		// mode: 'dark',
+		mode: 'light',
 	},
 });
-
-// const lightTheme = createTheme({
-// 	palette: {
-// 		mode: 'light',
-// 	},
-// });
 
 createWeb3Modal({ 
 	wagmiConfig, 
@@ -62,7 +57,7 @@ createWeb3Modal({
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
 		<WagmiConfig config={wagmiConfig}>
-			<ThemeProvider theme={darkTheme}>
+			<ThemeProvider theme={theme}>
 				<CssBaseline />
 				<App />
 			</ThemeProvider>
