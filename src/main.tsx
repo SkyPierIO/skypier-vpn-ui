@@ -56,7 +56,7 @@ const darkTheme = createTheme({
 createWeb3Modal({ 
 	wagmiConfig, 
 	projectId, 
-	chains
+	chains,
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

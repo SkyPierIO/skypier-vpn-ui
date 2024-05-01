@@ -1,31 +1,15 @@
+// REACT
 import * as React from "react";
-import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
 
-import Dashboard from "./pages/Dashboard";
-import Peers from "./pages/Peers";
-import SavedPeers from "./pages/SavedPeers";
-import Subscription from "./pages/Subscription";
-import Settings from "./pages/Settings";
-import Host from "./pages/Host";
-
+// COMPONENTS
 import IpLocation from "./components/IpLocation"
+import Login from "./components/Login"
 
-import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
+// MUI ICONS
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import List from "@mui/material/List";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
 import InsightsIcon from '@mui/icons-material/Insights';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -33,8 +17,21 @@ import ExploreIcon from '@mui/icons-material/Explore';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
-import { Stack } from "@mui/material";
-import Fab from '@mui/material/Fab';
+
+// MUI
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
+import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import MuiDrawer from "@mui/material/Drawer";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import { Stack, Fab } from "@mui/material";
 
 
 const drawerWidth = 240;
@@ -156,7 +153,7 @@ export default function App() {
 			<Stack direction="row" spacing={1}>
         <IpLocation></IpLocation>
 				<w3m-network-button />
-          		<w3m-button />
+        <w3m-button />
 			</Stack>
 		  </Box>
         </Toolbar>
@@ -231,22 +228,10 @@ export default function App() {
       </Drawer>
       <Box component="main" className={`main-${theme.palette.mode}`} sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
         <DrawerHeader />
-
-          <BrowserRouter>      
-            <Routes>
-              <Route path="/" element={<Peers/>}/>
-              <Route path="/Dashboard" element={<Dashboard/>}/>
-              <Route path="/Explore_peers" element={<Peers/>}/>
-              <Route path="/Saved_peers" element={<SavedPeers/>}/>
-              <Route path="/My_subscription" element={<Subscription/>}/>
-              <Route path="/Host_a_node" element={<Host/>}/>
-              <Route path="/Settings" element={<Settings/>}/>
-            </Routes>
-          </BrowserRouter>
-
+          <Login/>
           <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
             <ElectricalServicesIcon />
-			FastConnect
+			        FastConnect
           </Fab>
       </Box>
     </Box>
