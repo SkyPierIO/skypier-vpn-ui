@@ -130,7 +130,7 @@ export default function App() {
   return (
     <Box sx={{ display: "flex" }} >
       <AppBar position="fixed" open={open}>
-        <Toolbar sx={{backdropFilter: "blur(8px)"}} className="main-toolbar">
+        <Toolbar sx={{backdropFilter: "blur(8px)"}} className={`main-toolbar toolbar-${theme.palette.mode}`}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -229,7 +229,7 @@ export default function App() {
           ))}
         </List>
       </Drawer>
-      <Box component="main" className="main" sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
+      <Box component="main" className={`main-${theme.palette.mode}`} sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
         <DrawerHeader />
 
           <BrowserRouter>      

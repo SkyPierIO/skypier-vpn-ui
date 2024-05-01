@@ -47,7 +47,7 @@ body {
 	background-image: url("/pattern.png");
 }
 
-.main {
+.main-dark {
 	/* display: grid; */
 	/* place-items: center; */
 	height: 100%;
@@ -58,6 +58,19 @@ body {
 			var(--color-bg)
 		),
 		radial-gradient(circle, transparent 0%, var(--color-bg) 70%);
+}
+
+.main-light {
+	/* display: grid; */
+	/* place-items: center; */
+	height: 100%;
+	background: linear-gradient(
+			to bottom,
+			var(--color-grey-300),
+			transparent,
+			var(--color-grey-300)
+		),
+		radial-gradient(circle, transparent 0%, var(--color-grey-300) 70%);
 }
 
 pre,
@@ -89,8 +102,13 @@ header {
 }
 
 .main-toolbar{
-	background: rgb(63,50,92);
-	background: radial-gradient(circle, rgba(54,42,82,1) 0%, rgba(18,18,18,1) 98%);
+	background: #3f325c;
+	background: radial-gradient(circle, #362a52 0%, #121212 98%);
+}
+
+.toolbar-light {
+	background: #fff;
+	background: radial-gradient(circle, #7355b9 0%, rgb(79, 65, 158) 98%);
 }
 
 .MuiDrawer-root {

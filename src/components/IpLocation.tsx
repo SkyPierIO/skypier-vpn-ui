@@ -6,15 +6,17 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 const fabStyle = {
   borderRadius: "var(--wui-border-radius-3xl)",
+  textTransform: "none",
+  fontSize: "16px",
+  color: "#fff",
   display: "flex",
   padding: "7px 12px 7px 8px",
   border: "1px solid rgba(255, 255, 255, 0.1)",
   backgroundColor:"rgba(255, 255, 255, 0.05)",
-  color: "color-mix( in srgb, #010101 40% , #e4e7e7 )",
   boxShadow: "none",
   gap: "8px",
   fontWeight:"bold",
-  fontFamily: "Inter, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+  fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
   '&:hover': {
     backgroundColor:"rgba(255, 255, 255, 0.1)"
   }
@@ -57,7 +59,7 @@ export default function NodeDetails() {
   IpAddr();
   return (
     <div>  
-      <Fab onClick={() => IpAddr()} sx={fabStyle} size="medium" aria-label="fff" color="primary" variant="extended">
+      <Fab onClick={() => IpAddr()} sx={fabStyle} size="medium" variant="extended">
           <LocationOnIcon></LocationOnIcon>
           {currentIP}{" - "}{country}
       </Fab>

@@ -20,13 +20,6 @@ import {
 	polygon,
 } from "wagmi/chains";
 
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-  },
-});
-
-
 const chains = [
 	mainnet,
 	polygon,
@@ -48,15 +41,22 @@ const metadata = {
 
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
+const darkTheme = createTheme({
+	palette: {
+		mode: 'dark',
+	},
+});
+
+// const lightTheme = createTheme({
+// 	palette: {
+// 		mode: 'light',
+// 	},
+// });
+
 createWeb3Modal({ 
 	wagmiConfig, 
 	projectId, 
-	chains,
-	themeVariables: {
-		'--w3m-color-mix': '#010101',
-		'--w3m-color-mix-strength': 40
-	} 
-
+	chains
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
