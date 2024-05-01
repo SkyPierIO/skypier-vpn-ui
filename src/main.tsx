@@ -18,13 +18,17 @@ import {
 	mainnet,
 	optimism,
 	polygon,
+	base,
+	localhost
 } from "wagmi/chains";
 
 const chains = [
-	mainnet,
-	polygon,
+	localhost,
 	goerli,
 	sepolia,
+	mainnet,
+	polygon,
+	base,
 	arbitrum,
 	optimism,
 	gnosis,
