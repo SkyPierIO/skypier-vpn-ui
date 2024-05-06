@@ -56,6 +56,7 @@ createWeb3Modal({
 	wagmiConfig, 
 	projectId, 
 	chains,
+	termsConditionsUrl: 'https://skypier.io/terms-of-service/'
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

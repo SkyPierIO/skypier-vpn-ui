@@ -15,7 +15,6 @@ const LOCK = "0xFd25695782703df36CACF94c41306b3DB605Dc90";
 const Subscription = () => {
   
     const configuredNetworkID = sepolia.id;
-    // const configuredNetwork = getTargetNetwork();
     const { isConnected, address } = useAccount();
   
     const {
@@ -55,7 +54,7 @@ const Subscription = () => {
     }
   
     // All good: user is connected and they have a membership!
-    return "Membership valid.";
+    return "Valid";
   };
   
   /**
@@ -68,7 +67,7 @@ const Subscription = () => {
     });
     return (
       <section>
-        <p className="mb-4">To view this post you need to be be a member!</p>
+        <p className="mb-4">To continue using the app you need to have a valid membership!</p>
         <button
           onClick={() => connect()}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
