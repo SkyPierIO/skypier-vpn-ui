@@ -1,9 +1,12 @@
+import Typography from '@mui/material/Typography';
 
 const Host = () => {
 
   return (
     <div>
-      <h1>Host</h1>
+      <Typography variant="h4" gutterBottom color="text.primary">
+        Feature coming soon...
+      </Typography>
     </div>
   );
 };

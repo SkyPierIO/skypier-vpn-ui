@@ -26,7 +26,7 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ width: '100%'}}>
-      <Typography variant="h2" gutterBottom>
+      <Typography variant="h4" gutterBottom color="text.primary">
           My node <span>{' '}</span><small style={{fontSize:"0.5em"}}>Dashboard</small>
       </Typography>
       <hr/>

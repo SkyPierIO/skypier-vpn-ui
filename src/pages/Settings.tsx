@@ -60,26 +60,26 @@ const ThemeSwitch = styled(Switch)(({ theme }) => ({
 }));
 
 const Settings = () => {
-  const [theme, setTheme] = useState<string>("");
+  // const [theme, setTheme] = useState<string>("");
 
-  const GetTheme = async () => {
-    try {
-      const response = await http.get(`/getConfig`);
-      if (response.status === 200) {
-        console.log(response.data.uiTheme);
-        if (response.data.uiTheme) {
-          setTheme(response.data.uiTheme);
-        } 
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  GetTheme();
+  // const GetTheme = async () => {
+  //   try {
+  //     const response = await http.get(`/getConfig`);
+  //     if (response.status === 200) {
+  //       console.log(response.data.uiTheme);
+  //       if (response.data.uiTheme) {
+  //         setTheme(response.data.uiTheme);
+  //       } 
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+  // GetTheme();
 
   return (
     <div>
-      <Typography variant="h4" mb={2}>Settings</Typography>
+      <Typography variant="h4" mb={2} gutterBottom color="text.primary">Settings</Typography>
 
       <Accordion defaultExpanded>
         <AccordionSummary
@@ -90,13 +90,13 @@ const Settings = () => {
           <Typography variant="h6">Theme</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>
+          <Typography variant="body1" color="text.secondary">
             Choose between light and dark theme.
           </Typography>
           <FormGroup>
             <FormControlLabel
               control={<ThemeSwitch sx={{ m: 1 }} defaultChecked />}
-              label={theme}
+              label={" mode"}
             />
           </FormGroup>
         </AccordionDetails>

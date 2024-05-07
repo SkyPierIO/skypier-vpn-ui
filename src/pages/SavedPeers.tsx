@@ -1,9 +1,12 @@
+import Typography from '@mui/material/Typography';
 
 const SavedPeers = () => {
 
   return (
     <div>
-      <h1>Feature coming soon...</h1>
+      <Typography variant="h4" gutterBottom color="text.primary">
+          Feature coming soon...
+      </Typography>
       {/* <ul>
         <li>1</li>
         <li>2</li>

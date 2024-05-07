@@ -97,7 +97,9 @@ const Peers = () => {
   return (
     <div>
       <Stack direction={"row"}>
-        <h1>Peers</h1>
+        <Typography variant="h4" color="text.primary">
+          Peers
+        </Typography>
         <Paper
           component="form"
           sx={{ p: '2px 4px', ml: 3, display: 'flex', alignItems: 'center', width: 400 }}

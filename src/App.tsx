@@ -134,6 +134,24 @@ function MyApp() {
     setOpen(false);
   };
 
+  const fabHeaderStyle = {
+    borderRadius: "var(--wui-border-radius-3xl)",
+    textTransform: "none",
+    fontSize: "16px",
+    color: "#fff",
+    display: "flex",
+    padding: "7px 12px 7px 8px",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    backgroundColor:"rgba(255, 255, 255, 0.05)",
+    boxShadow: "none",
+    gap: "8px",
+    fontWeight:"bold",
+    fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
+    '&:hover': {
+      backgroundColor:"rgba(255, 255, 255, 0.1)"
+    }
+  };
+
   return (
     <Box sx={{ display: "flex" }} >
         <AppBar position="fixed" open={open}>
@@ -164,8 +182,10 @@ function MyApp() {
           <IpLocation></IpLocation>
           <w3m-network-button />
           <w3m-button />
+          <Fab sx={fabHeaderStyle} onClick={colorMode.toggleColorMode} size="medium" variant="extended" color="inherit">
+              {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </Fab>
           <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
-            {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
         </Stack>
         </Box>
