@@ -7,7 +7,6 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 import { WagmiConfig } from "wagmi";
 import {
@@ -45,13 +44,6 @@ const metadata = {
 
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
-const theme = createTheme({
-	palette: {
-		// mode: 'dark',
-		mode: 'light',
-	},
-});
-
 createWeb3Modal({ 
 	wagmiConfig, 
 	projectId, 
@@ -62,10 +54,8 @@ createWeb3Modal({
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
 		<WagmiConfig config={wagmiConfig}>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<App />
-			</ThemeProvider>
+			<CssBaseline />
+			<App />
 		</WagmiConfig>
 	</React.StrictMode>
 );

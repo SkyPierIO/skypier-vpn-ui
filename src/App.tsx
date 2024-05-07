@@ -6,6 +6,7 @@ import IpLocation from "./components/IpLocation"
 import Login from "./components/Login"
 
 // MUI ICONS
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -32,6 +33,9 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { Stack, Fab } from "@mui/material";
+
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 
 const drawerWidth = 240;
@@ -113,8 +117,13 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-export default function App() {
+
+const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
+
+function MyApp() {
   const theme = useTheme();
+  const colorMode = React.useContext(ColorModeContext);
+
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -127,114 +136,150 @@ export default function App() {
 
   return (
     <Box sx={{ display: "flex" }} >
-      <AppBar position="fixed" open={open}>
-        <Toolbar sx={{backdropFilter: "blur(8px)"}} className={`main-toolbar toolbar-${theme.palette.mode}`}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 2,
-              ...(open && { display: "none" }),
-            }}
-          >
-            <MenuIcon />
+        <AppBar position="fixed" open={open}>
+          <Toolbar sx={{backdropFilter: "blur(8px)"}} className={`main-toolbar toolbar-${theme.palette.mode}`}>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{
+                marginRight: 2,
+                ...(open && { display: "none" }),
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+        <Typography component="div" sx={{ flexGrow: 1 }}>
+          <a href="/">
+            <img
+              src="/logo.svg"
+              alt="Skypier Logo"
+              height="35"
+            />
+          </a>
+            </Typography>
+            <Box>
+        <Stack direction="row" spacing={1}>
+          <IpLocation></IpLocation>
+          <w3m-network-button />
+          <w3m-button />
+          <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
+            {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
-		  <Typography component="div" sx={{ flexGrow: 1 }}>
-        <a href="/">
-          <img
-            src="/logo.svg"
-            alt="Skypier Logo"
-            height="35"
-          />
-        </a>
-          </Typography>
-          <Box>
-			<Stack direction="row" spacing={1}>
-        <IpLocation></IpLocation>
-				<w3m-network-button />
-        <w3m-button />
-			</Stack>
-		  </Box>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader className="drawerHeader">
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {["Dashboard", "Explore peers", "Saved peers", "Host a node", "My subscription"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block"}}>
-              <ListItemButton
-                href={"/"+text.replace(/\s/g, "_")}
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
+        </Stack>
+        </Box>
+          </Toolbar>
+        </AppBar>
+        <Drawer variant="permanent" open={open}>
+          <DrawerHeader className="drawerHeader">
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === "rtl" ? (
+                <ChevronRightIcon />
+              ) : (
+                <ChevronLeftIcon />
+              )}
+            </IconButton>
+          </DrawerHeader>
+          <Divider />
+          <List>
+            {["Dashboard", "Explore peers", "Saved peers", "Host a node", "My subscription"].map((text, index) => (
+              <ListItem key={text} disablePadding sx={{ display: "block"}}>
+                <ListItemButton
+                  href={"/"+text.replace(/\s/g, "_")}
                   sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
                   }}
                 >
-                   {{	0: <InsightsIcon color="disabled"/>,
-                      1: <ExploreIcon color="disabled"/>,
-                      2: <AutoAwesomeIcon color="disabled"/>,
-                      3: <ViewInArIcon color="disabled"/>,
-                      4: <CardMembershipIcon color="disabled"/>,
-                    }[index]}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {["Settings"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                href={"/"+text.replace(/\s/g, "_")}
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {{	0: <InsightsIcon color="disabled"/>,
+                        1: <ExploreIcon color="disabled"/>,
+                        2: <AutoAwesomeIcon color="disabled"/>,
+                        3: <ViewInArIcon color="disabled"/>,
+                        4: <CardMembershipIcon color="disabled"/>,
+                      }[index]}
+                  </ListItemIcon>
+                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+          <Divider />
+          <List>
+            {["Settings"].map((text, index) => (
+              <ListItem key={text} disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  href={"/"+text.replace(/\s/g, "_")}
                   sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
                   }}
                 >
-				  {{0: <SettingsIcon color="disabled"/>	}[index]}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-      <Box component="main" className={`main-${theme.palette.mode}`} sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
-        <DrawerHeader />
-          <Login/>
-          <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
-            <ElectricalServicesIcon />
-			        FastConnect
-          </Fab>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+            {{0: <SettingsIcon color="disabled"/>	}[index]}
+                  </ListItemIcon>
+                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
+        <Box component="main" className={`main-${theme.palette.mode}`} sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
+          <DrawerHeader />
+            <Login/>
+            <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
+              <ElectricalServicesIcon />
+                FastConnect
+            </Fab>
+        </Box>
       </Box>
-    </Box>
+  );
+}
+
+
+
+export default function App() {
+
+  const [mode, setMode] = React.useState<'light' | 'dark'>('light');
+  const colorMode = React.useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+      },
+    }),
+    [],
+  );
+
+  const theme = React.useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+        },
+      }),
+    [mode],
+  );
+
+  return (
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <MyApp />
+      </ThemeProvider>
+    </ColorModeContext.Provider>
   );
 }
