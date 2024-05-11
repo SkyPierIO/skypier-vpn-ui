@@ -48,8 +48,6 @@ body {
 }
 
 .main-dark {
-	/* display: grid; */
-	/* place-items: center; */
 	height: 100%;
 	background: linear-gradient(
 			to bottom,
@@ -57,12 +55,10 @@ body {
 			transparent,
 			var(--color-bg)
 		),
-		radial-gradient(circle, #281f3ab6 0%, var(--color-bg) 70%);
+		radial-gradient(circle, #281f3ab6 0%, #1a2027 70%);
 }
 
 .main-light {
-	/* display: grid; */
-	/* place-items: center; */
 	height: 100%;
 	background: linear-gradient(
 			to bottom,
