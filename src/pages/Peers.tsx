@@ -174,7 +174,7 @@ const Peers = () => {
           {nodesData.data.newPeers
             .filter(
               (node: any, index: any, self: any, item: any) =>
-                node.peerId && node.peerId.length > 43 && index === self.findIndex(item => item.peerId === node.peerId),
+                node.peerId && node.peerId.length > 43 && index === self.findIndex((item: { peerId: any; }) => item.peerId === node.peerId),
             )
             .map((node: any, index: number) => (
               <Card sx={{ display: 'flex', m:1  }} key={node.peerId}>
