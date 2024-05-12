@@ -1,4 +1,5 @@
 import React from "react";
+import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import CssBaseline from '@mui/material/CssBaseline';
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -51,11 +52,19 @@ createWeb3Modal({
 	termsConditionsUrl: 'https://skypier.io/terms-of-service/'
 });
 
+const subgraphUri = "https://api.studio.thegraph.com/query/74284/skypier_vpn_nodes/version/latest";
+const apolloClient = new ApolloClient({
+  uri: subgraphUri,
+  cache: new InMemoryCache(),
+});
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
-		<WagmiConfig config={wagmiConfig}>
-			<CssBaseline />
-			<App />
-		</WagmiConfig>
+		<ApolloProvider client={apolloClient}>
+			<WagmiConfig config={wagmiConfig}>
+				<CssBaseline />
+				<App />
+			</WagmiConfig>
+		</ApolloProvider>
 	</React.StrictMode>
 );
