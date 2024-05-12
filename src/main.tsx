@@ -12,7 +12,6 @@ import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 import { WagmiConfig } from "wagmi";
 import {
 	sepolia,
-	goerli,
 	arbitrum,
 	gnosis,
 	mainnet,
@@ -24,7 +23,6 @@ import {
 
 const chains = [
 	localhost,
-	goerli,
 	sepolia,
 	mainnet,
 	polygon,
