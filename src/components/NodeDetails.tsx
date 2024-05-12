@@ -23,6 +23,8 @@ import ImportExportIcon from '@mui/icons-material/ImportExport';
 export default function NodeDetails() {
   const [nickname, setNickname] = useState<string>("Unknown");
   const [peerId, setPeerId] = useState<string>("no peer ID detected");
+  const [os, setOS] = useState<string>("default");
+  const [version, setVersion] = useState<string>("0.0.0");
 
   const GetPeerDetails = async () => {
     try {
@@ -34,6 +36,12 @@ export default function NodeDetails() {
         if (response.data.peerId) {
           setPeerId(response.data.peerId);
         } 
+        if (response.data.os) {
+          setOS(response.data.os);
+        }
+        if (response.data.version) {
+          setVersion(response.data.version);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -73,13 +81,13 @@ export default function NodeDetails() {
           </Typography>
           <Typography variant="body2" color="text.secondary">
             <Chip  sx={{mt:3}} icon={<HistoryIcon />} label="Uptime"/>
-            <Typography sx={{mb:1}} component="p">5d 14h 23min</Typography>
+            <Typography sx={{mb:1}} component="p">Unknown</Typography>
             <hr />
             <Chip  sx={{mt:4}} icon={<MemoryIcon />} label="Operating System"/>
-            <Typography sx={{mb:1}} component="p">GNU Linux</Typography>
+            <Typography sx={{mb:1}} component="p">{os}</Typography>
             <hr />
             <Chip  sx={{mt:4}} icon={<LocalOfferIcon />} label="Version"/>
-            <Typography sx={{mt:1}} component="p">v0.0.1</Typography>
+            <Typography sx={{mt:1}} component="p">{version}</Typography>
             <hr />
           </Typography>
         </CardContent>
