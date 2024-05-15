@@ -1,26 +1,21 @@
-import { useState } from "react";
 
 // GrapQL
 import { gql, useQuery } from "@apollo/client";
 
+// Commponents
+import PeerCard from "../components/PeerCard"
+
 // MUI
-import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import IconButton from '@mui/material/IconButton';
-import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import InputBase from '@mui/material/InputBase';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
-import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
-import CalendarMonthSharpIcon from '@mui/icons-material/CalendarMonthSharp';
 import Paper from '@mui/material/Paper';
 import Divider from '@mui/material/Divider';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
@@ -34,6 +29,7 @@ import { Paywall } from "@unlock-protocol/paywall";
 import { useAccount, useConnect, useContractRead } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { sepolia } from "wagmi/chains";
+// import { connected } from "process";
 
 const LOCK = "0xFd25695782703df36CACF94c41306b3DB605Dc90";
 
@@ -66,11 +62,6 @@ const Item = styled(Paper)(({ theme }) => ({
 // ]
 
 const Peers = () => {
-
-  const handleClick = () => {
-    console.info('Connection requested.');
-    alert('Connection requested.');
-  };
 
   const configuredNetworkID = sepolia.id;
   const { isConnected, address } = useAccount();
@@ -141,6 +132,9 @@ const Peers = () => {
                     <Box sx={{ width: '100%' }}>
                       <LinearProgress />
                     </Box>
+                    <Typography variant='body1' mb={2}>
+                        Getting on-chain peers data...
+                    </Typography>
                 </Stack>
             </Item>
         </Box>
@@ -177,32 +171,7 @@ const Peers = () => {
                 node.peerId && node.peerId.length > 43 && index === self.findIndex((item: { peerId: any; }) => item.peerId === node.peerId),
             )
             .map((node: any, index: number) => (
-              <Card sx={{ display: 'flex', m:1  }} key={node.peerId}>
-                <CardMedia
-                  component="img"
-                  sx={{ width: 95, height: 95, p: 3 }}
-                  image={"http://api.dicebear.com/7.x/identicon/svg?seed="+node.peerId }
-                  alt="Icon"
-                />
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <CardContent sx={{ flex: '1 0 auto' }}>
-                    <Typography component="p">
-                      Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{node.peerId.substring(0, 3)}...{node.peerId.slice(-10 )}</span>
-                    </Typography>
-                    <Stack direction={"row"} sx={{mt:1}}>
-                        <Chip sx={{mr:1}} label="• Online" color="success" size="small" variant="outlined"/>
-                        <Chip sx={{mr:1}} icon={<LocationOnIcon />} label="Unknown" size="small" variant="outlined" />
-                        <Chip sx={{mr:1}} icon={<CalendarMonthSharpIcon />} label={"Created "+new Date(node.timestamp * 1000).toLocaleDateString()} size="small" variant="outlined" />
-                    </Stack>
-                    {/* <br/> */}
-                    <Stack sx={{mt:1}}>
-                      <Button size="small" variant="outlined" onClick={handleClick} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
-                        Connect
-                      </Button>
-                    </Stack>
-                  </CardContent>
-                </Box>
-              </Card>
+              <PeerCard node={node} key={node.peerId}></PeerCard>
           ))}
       </Box>
     </div>
