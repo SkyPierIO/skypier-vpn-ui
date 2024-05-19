@@ -44,23 +44,6 @@ const Item = styled(Paper)(({ theme }) => ({
   minHeight: "20vh"
 }));
 
-// const wipPeers =  [
-//   "12D3KooWSSqLegz7hpzhmcYLrJw77rzUbqS6hBpsoW2s1L2svHgu",
-//   "12D3KooWSXwxjHK4WJcHVGwL2FpRS8RxuGJisD7YudpVsV9GrApM",
-//   "12D3KooW9xuJVGEV83LqpPtBR88J98jFGqZW9ENbNBn9Cp4MzUwn",
-//   "12D3KooWHHX4hXvfUuWk7cLB4utqZSVsXicGvJxUq9MTDNkFNpvT",
-//   "12D3KooWL4PfMzJJmgaj2WJ7XTTg2H2yLPFuP82tMiqcb7iPh8oC",
-//   "12D3KooWHH65yRa5H6Fr8HuQrtGs3GR69TUnJujMymo8qaEp6Xw8",
-//   "12D3KooWHnKKoxfuVX9b9o3cPxjLtpmXM8ekZH2nKZPqSvUL2yyR",
-//   "12D3KooWFF3swE8mqgdmgiNuFU4rZRwgtoJMM3U2hJ3p86YYvhLS",
-//   "12D3KooWRSpZjhQdHrm1XATwvkbDq6VbTWQLw92uqNgmZ3kta4MK",
-//   "12D3KooWNMcnoQynAY9hyi4JxzSu64BsRGcJ9z7vKghqk8sTrpqY",
-//   "12D3KooWBuuuit5dsuAPCmEDRN3ToY1Jr4EsVvpWUTkhrhn6WUos",
-//   "12D3KooWL9hrTZiQxazk5Fy1rcbjdJY98EC1hjqujG9F1Bas9sWf",
-//   "12D3KooWFmnnKPV7vYzBqGWEDn7v6KftQYGH7YznJhcV5xfFz6ZK",
-//   "12D3KooWSwwoegRXz2uKMZgwE1wuhuZrYFf5HJHHQ8XAeGfCHDZF",
-// ]
-
 const Peers = () => {
 
   const configuredNetworkID = sepolia.id;
@@ -113,7 +96,7 @@ const Peers = () => {
   `;
 
   const NODES_GQL = gql(NODES_GRAPHQL);
-  const nodesData = useQuery(NODES_GQL, { pollInterval: 30000 });
+  const nodesData = useQuery(NODES_GQL, { pollInterval: 60000 }); // Fetch nodes data every minute
   console.log("nodesData", nodesData);
 
   return nodesData.loading ? (

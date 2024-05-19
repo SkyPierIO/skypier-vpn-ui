@@ -1,14 +1,20 @@
 
 // MUI
 import { styled } from '@mui/material/styles';
-import { Container, Stack, Box, Typography, Paper, Button} from "@mui/material";
+import { Container, Link, Stack, Box, Typography, Paper, Button} from "@mui/material";
 
+// Unlock Protocol
 import { PublicLockV14 } from "@unlock-protocol/contracts";
 import networks from "@unlock-protocol/networks";
 import { Paywall } from "@unlock-protocol/paywall";
+
+// Wagmi
 import { useAccount, useConnect, useContractRead } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { sepolia } from "wagmi/chains";
+
+// Components 
+import UtilityCard from "../components/UtilityCard";
 
 const LOCK = "0xFd25695782703df36CACF94c41306b3DB605Dc90";
 
@@ -54,7 +60,19 @@ const Subscription = () => {
     }
   
     // All good: user is connected and they have a membership!
-    return "Valid";
+    const c = () => {
+      return(
+        <>
+          <Typography mb={1}>
+            Your membership is valid. 
+          </Typography>
+          <Typography>
+            To manage it, please visit <Link href="https://app.unlock-protocol.com/keychain" target="blank">Unlock Keychain</Link>.
+          </Typography>
+        </>
+      );
+    }
+    return <UtilityCard title="🚀 VPN Subscription" content={c()}></UtilityCard>;
   };
   
   /**

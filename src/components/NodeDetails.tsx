@@ -61,13 +61,13 @@ export default function NodeDetails() {
           <Typography gutterBottom variant="h5" component="div">
             {nickname}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.primary">
             Peer ID <pre>{peerId}</pre>
           </Typography>
         </CardContent>
         <CardActions>
-          <Button size="small">Details</Button>
-          <Button size="small">Share</Button>
+          <Button color="info" href="/My_subscription" variant="contained" size="small">Manage Subscription</Button>
+          <Button color="info" href="/Explore_peers" variant="contained" size="small">Connect to a remote Peer</Button>
         </CardActions>
       </Card>
       {/* ------------------ */}
@@ -122,7 +122,7 @@ export default function NodeDetails() {
       {/* ------------------ */}
       {/* ------------------ */}
       {/* ------------------ */}
-      <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}}>
+      <Card sx={{ maxWidth: 500, mt: 2, borderRadius: 4}} className="disabled-overlay"> 
         <CardContent sx={{textAlign: "center"}}>
           <Typography gutterBottom variant="h4" component="div">
             My subscription

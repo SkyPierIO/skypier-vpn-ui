@@ -23,9 +23,9 @@ interface Props {
 
 const PeerCard = ({ node }: Props) => {
     const handleClick = async (peerId: string) => {
-        console.log("Ping requested");
+        console.log("Ping requested; node ID", peerId);
         try {
-          const response = await http.get(`/ping/12D3KooWKzmZmLySs5WKBvdxzsctWNsN9abbtnj4PyyqNg9LCyek`);
+          const response = await http.get(`/ping/`+peerId);
           console.log(response.status)
           if (response.status === 200) {
             console.log("ping",response)

@@ -132,3 +132,24 @@ header {
 		background-position: 200% 50%;
 	}
 }
+
+.disabled-overlay{
+    position: relative;
+	filter: grayscale(100%) blur(0.15rem);
+}
+
+.disabled-overlay:hover{
+    position: relative;
+	filter: grayscale(80%) blur(0.15rem);
+}
+
+.disabled-overlay::after{
+	content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color:#77777777;
+    z-index: 99;
+}

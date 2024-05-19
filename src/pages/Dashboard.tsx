@@ -20,7 +20,7 @@ const Dashboard = () => {
         <NodeDetails></NodeDetails>
       </Stack>
       <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
-          <Card sx={{mt: 2, borderRadius: 4}}>
+          <Card sx={{mt: 2, borderRadius: 4}} className="disabled-overlay">
             <CardContent sx={{textAlign: "center"}}>
               <Typography gutterBottom variant="h4" component="div">
                 Metrics

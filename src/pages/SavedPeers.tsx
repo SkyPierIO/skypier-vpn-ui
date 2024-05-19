@@ -1,17 +1,15 @@
 import Typography from '@mui/material/Typography';
 
+// Components 
+import UtilityCard from "../components/UtilityCard";
+
 const SavedPeers = () => {
 
   return (
     <div>
       <Typography variant="h4" gutterBottom color="text.primary">
-          Feature coming soon...
+        <UtilityCard title="👷 Work in progress" content={"Feature coming soon..."}></UtilityCard>
       </Typography>
-      {/* <ul>
-        <li>1</li>
-        <li>2</li>
-        <li>3</li>
-      </ul> */}
     </div>
   );
 };
