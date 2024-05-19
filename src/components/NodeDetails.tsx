@@ -23,7 +23,7 @@ import ImportExportIcon from '@mui/icons-material/ImportExport';
 export default function NodeDetails() {
   const [nickname, setNickname] = useState<string>("Unknown");
   const [peerId, setPeerId] = useState<string>("no peer ID detected");
-  const [os, setOS] = useState<string>("default");
+  const [os, setOS] = useState<string>("Not detected");
   const [version, setVersion] = useState<string>("0.0.0");
 
   const GetPeerDetails = async () => {
