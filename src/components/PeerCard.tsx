@@ -15,6 +15,7 @@ import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Skeleton from '@mui/material/Skeleton';
 
 
 interface Props {
@@ -33,9 +34,6 @@ const PeerCard = ({ node }: Props) => {
               alert(response.data.result);
               updateStatus("• Online")
             } 
-            // if (response.data.country) {
-            //   setCountry(response.data.country);
-            // } 
           } else if (response.status === 400) {
             console.log(response)
           }
@@ -50,14 +48,15 @@ const PeerCard = ({ node }: Props) => {
         console.log("Getting status for", node.peerId)
       try {
         const response = await http.get(`/ping/` + node.peerId);
+        console.log("ping",response)
         if (response.status === 200) {
           if (response.data.result) {
-            updateStatus("• Online");
+            alert(response.data.result);
+            updateStatus("• Online") 
           } else {
             updateStatus("⟳ Unreachable");
           }
         } 
-        updateStatus("⟳ Unreachable");
       } catch (error) {
         updateStatus("⟳ Unreachable");
       }
@@ -65,7 +64,7 @@ const PeerCard = ({ node }: Props) => {
 
     return (
     <>
-        <Card sx={{ display: 'flex', m:1  }} key={node.peerId}>
+        <Card sx={{ display: 'flex', m:1  }} key={node.peerId} onLoad={async () => handleStatus()}>
             <CardMedia
                 component="img"
                 sx={{ width: 95, height: 95, p: 3 }}
@@ -78,27 +77,35 @@ const PeerCard = ({ node }: Props) => {
                     Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{node.peerId.substring(0, 3)}...{node.peerId.slice(-10 )}</span>
                 </Typography>
                 <Stack direction={"row"} sx={{mt:1}}>
-                    <Chip sx={{mr:1}} label={status} onClick={async () => handleStatus()} color="success" size="small" variant="outlined"/>
+                    <Chip sx={{mr:1}} label={status}   color="success" size="small" variant="outlined"/>
                     <Chip sx={{mr:1}} icon={<LocationOnIcon />} label="Unknown" size="small" variant="outlined" />
                     <Chip sx={{mr:1}} icon={<CalendarMonthSharpIcon />} label={"Created "+new Date(node.timestamp * 1000).toLocaleDateString()} size="small" variant="outlined" />
                 </Stack>
                 {/* <br/> */}
                 <Stack sx={{mt:1}}>
-                    {(status === "⟳ Unreachable" || status === "• Connecting...") ? (
-                        <Button 
-                            size="small" 
-                            variant="outlined" 
-                            disabled>
-                            Connect
-                        </Button>
-                    ) : (
-                        <Button 
-                        size="small" 
-                        variant="outlined" 
-                        onClick={async () => handleClick(node.peerId)} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
-                            Connect
-                        </Button>
-                    )}
+                    {(status === "• Connecting...") ? (
+                      <>
+                        <Skeleton animation="wave" width={"60%"} height={20}/>
+                        <Skeleton animation="wave" width={"100%"} height={40}/>
+                      </>
+                    ) : 
+                    (status === "⟳ Unreachable" || status === "⟳ Unknown") ? (
+                          <Button 
+                              size="small" 
+                              variant="outlined" 
+                              disabled>
+                              Connect
+                          </Button>
+                      ) : (
+                          <Button 
+                          size="small" 
+                          variant="outlined" 
+                          onClick={async () => handleClick(node.peerId)} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
+                              Connect
+                          </Button>
+                      )
+                    }
+                    {}
                    
                 </Stack>
                 </CardContent>
