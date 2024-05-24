@@ -51,7 +51,7 @@ const PeerCard = ({ node }: Props) => {
         console.log("ping",response)
         if (response.status === 200) {
           if (response.data.result) {
-            alert(response.data.result);
+            // alert(response.data.result);
             updateStatus("• Online") 
           } else {
             updateStatus("⟳ Unreachable");
