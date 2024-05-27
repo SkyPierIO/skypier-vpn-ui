@@ -13,6 +13,7 @@ import CalendarMonthSharpIcon from '@mui/icons-material/CalendarMonthSharp';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
@@ -23,7 +24,7 @@ interface Props {
 }
 
 const PeerCard = ({ node }: Props) => {
-    const handleClick = async (peerId: string) => {
+    const handlePing = async (peerId: string) => {
         console.log("Ping requested; node ID", peerId);
         try {
           const response = await http.get(`/ping/`+peerId);
@@ -33,6 +34,24 @@ const PeerCard = ({ node }: Props) => {
             if (response.data.result) {
               alert(response.data.result);
               updateStatus("• Online")
+            } 
+          } else if (response.status === 400) {
+            console.log(response)
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+    
+    const handleConnect = async (peerId: string) => {
+        console.log("Connection requested; node ID", peerId);
+        try {
+          const response = await http.get(`/connect/`+peerId);
+          console.log(response.status)
+          if (response.status === 200) {
+            console.log("connect",response)
+            if (response.data.result) {
+              alert(response.data.result);
             } 
           } else if (response.status === 400) {
             console.log(response)
@@ -91,18 +110,28 @@ const PeerCard = ({ node }: Props) => {
                     ) : 
                     (status === "⟳ Unreachable" || status === "⟳ Unknown") ? (
                           <Button 
+                              sx={{mt:2}}
                               size="small" 
                               variant="outlined" 
                               disabled>
                               Connect
                           </Button>
                       ) : (
-                          <Button 
-                          size="small" 
-                          variant="outlined" 
-                          onClick={async () => handleClick(node.peerId)} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
-                              Connect
-                          </Button>
+                          <Box sx={{display: 'flex',flexDirection: 'row',justifyContent: 'right', mt:2}}>
+                            <ButtonGroup variant="outlined">
+                              <Button 
+                                size="small" 
+                                onClick={async () => handlePing(node.peerId)}>
+                                  Ping
+                              </Button>
+                              <Button
+                                sx={{pl:2}} 
+                                size="small" 
+                                onClick={async () => handleConnect(node.peerId)} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
+                                  Connect
+                              </Button>
+                            </ButtonGroup>
+                          </Box>
                       )
                     }
                     {}
