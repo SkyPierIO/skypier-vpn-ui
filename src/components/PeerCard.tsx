@@ -20,6 +20,8 @@ import Skeleton from '@mui/material/Skeleton';
 
 // GeoIP
 import { lookup, lookupPretty } from 'ipfs-geoip';
+import ReactCountryFlag from "react-country-flag"
+
 
 
 interface Props {
@@ -85,12 +87,15 @@ const PeerCard = ({ node }: Props) => {
     };
 
     const [geoIP, updateGeoIP] = useState<string>("Unknown");
+    const [countryCode, updateCountryCode] = useState<string>("xx");
     const handleGeoIP = async () => { 
+      // const ip = "66.135.31.216"; // Test IP, TODO get the IP from peer multiaddress
       const ip = "136.244.105.166"; // Test IP, TODO get the IP from peer multiaddress
       const gateways = ['https://ipfs.io', 'https://dweb.link']
       const result = await lookup(gateways, ip);
       console.log(result);
-      updateGeoIP(result.country_name + ", " + result.city + ", " + result.region_code);
+      updateGeoIP(result.country_name + ", " + result.city);
+      updateCountryCode(result.country_code);
     }
     handleGeoIP();
 
@@ -106,12 +111,31 @@ const PeerCard = ({ node }: Props) => {
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <CardContent sx={{ flex: '1 0 auto' }}>
                 <Typography component="p">
-                    Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{node.peerId.substring(0, 3)}...{node.peerId.slice(-10 )}</span>
+                    Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{node.peerId.substring(0, 5)}...{node.peerId.slice(-20 )}</span>
                 </Typography>
                 <Stack direction={"row"} sx={{mt:1}}>
-                    <Chip sx={{mr:1}} label={status}   color="success" size="small" variant="outlined"/>
-                    <Chip sx={{mr:1}} icon={<LocationOnIcon />} label={geoIP} size="small" variant="outlined"/>
-                    <Chip sx={{mr:1}} icon={<CalendarMonthSharpIcon />} label={"Created "+new Date(node.timestamp * 1000).toLocaleDateString()} size="small" variant="outlined" />
+                    <Chip 
+                      sx={{mr:1, pl:1}} 
+                      icon={(countryCode === "xx") ? <LocationOnIcon /> : <ReactCountryFlag countryCode={countryCode} svg />}
+                      label={geoIP} 
+                      size="small" 
+                      variant={(countryCode === "xx") ? "outlined" : "outlined"}/>
+                    <Chip 
+                      sx={{mr:1}} 
+                      icon={<CalendarMonthSharpIcon />} 
+                      label={"Created "+new Date(node.timestamp * 1000).toLocaleDateString()} 
+                      size="small" 
+                      variant="outlined"
+                    />
+                </Stack>
+                <Stack direction={"row"} sx={{mt:1}}>
+                    <Chip 
+                      sx={{mr:1}} 
+                      label={status} 
+                      color={(status === "• Online") ? "success" : "default"}  
+                      size="small" 
+                      variant="outlined" 
+                    />
                 </Stack>
                 {/* <br/> */}
                 <Stack sx={{mt:1}}>
