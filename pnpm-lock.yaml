@@ -47,6 +47,9 @@ dependencies:
   axios:
     specifier: ^1.6.8
     version: 1.6.8
+  ipfs-geoip:
+    specifier: ^9.1.0
+    version: 9.1.0
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -3939,6 +3942,11 @@ packages:
   /internmap@2.0.3:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
     engines: {node: '>=12'}
+    dev: false
+
+  /ipfs-geoip@9.1.0:
+    resolution: {integrity: sha512-1hccF+dtVYdnRzMLmoP6QMtLLG5yHHANnsnxfpY3U5jGX+bN7rrsXJiQ9nWtczN/+CAFRoaOU11A53MsoS0Iww==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     dev: false
 
   /iron-webcrypto@1.1.1:

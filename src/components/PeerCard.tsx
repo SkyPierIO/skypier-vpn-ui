@@ -18,6 +18,9 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
 
+// GeoIP
+import { lookup, lookupPretty } from 'ipfs-geoip';
+
 
 interface Props {
   node: any;
@@ -81,6 +84,16 @@ const PeerCard = ({ node }: Props) => {
       }
     };
 
+    const [geoIP, updateGeoIP] = useState<string>("Unknown");
+    const handleGeoIP = async () => { 
+      const ip = "136.244.105.166"; // Test IP, TODO get the IP from peer multiaddress
+      const gateways = ['https://ipfs.io', 'https://dweb.link']
+      const result = await lookup(gateways, ip);
+      console.log(result);
+      updateGeoIP(result.country_name + ", " + result.city + ", " + result.region_code);
+    }
+    handleGeoIP();
+
     return (
     <>
         <Card sx={{ display: 'flex', m:1  }} key={node.peerId} onLoad={async () => handleStatus()}>
@@ -97,7 +110,7 @@ const PeerCard = ({ node }: Props) => {
                 </Typography>
                 <Stack direction={"row"} sx={{mt:1}}>
                     <Chip sx={{mr:1}} label={status}   color="success" size="small" variant="outlined"/>
-                    <Chip sx={{mr:1}} icon={<LocationOnIcon />} label="Unknown" size="small" variant="outlined" />
+                    <Chip sx={{mr:1}} icon={<LocationOnIcon />} label={geoIP} size="small" variant="outlined"/>
                     <Chip sx={{mr:1}} icon={<CalendarMonthSharpIcon />} label={"Created "+new Date(node.timestamp * 1000).toLocaleDateString()} size="small" variant="outlined" />
                 </Stack>
                 {/* <br/> */}

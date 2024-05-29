@@ -35,7 +35,7 @@ export default function NodeDetails() {
         }
       };
       const response = await axios.get(`http://ip-api.com/json/?fields=country,query`, config);
-      console.log(response.status)
+      // console.log(response.status)
       if (response.status === 200) {
         if (response.data.query) {
           setCurrentIP(response.data.query);
