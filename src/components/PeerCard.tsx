@@ -21,6 +21,7 @@ import Skeleton from '@mui/material/Skeleton';
 // GeoIP
 import { lookup, lookupPretty } from 'ipfs-geoip';
 import ReactCountryFlag from "react-country-flag"
+// import LocationModal from "./LocationModal";
 
 
 
@@ -88,6 +89,8 @@ const PeerCard = ({ node }: Props) => {
 
     const [geoIP, updateGeoIP] = useState<string>("Unknown");
     const [countryCode, updateCountryCode] = useState<string>("xx");
+    const [longitude, updateLongitude] = useState<number>(0);
+    const [latitude, updateLatitude] = useState<number>(0);
     const handleGeoIP = async () => { 
       try {
         const response = await http.get(`/peer/`+node.peerId+`/info`);
@@ -100,6 +103,8 @@ const PeerCard = ({ node }: Props) => {
           console.log(result);
           updateGeoIP(result.country_name + ", " + result.city);
           updateCountryCode(result.country_code);
+          updateLatitude(result.latitude);
+          updateLongitude(result.longitude);
         } else {
           return;
         }
@@ -137,6 +142,7 @@ const PeerCard = ({ node }: Props) => {
                       size="small" 
                       variant="outlined"
                     />
+                    {/* <LocationModal latitude={latitude} longitude={longitude} country={geoIP.split(",")[0]} city={geoIP.split(",")[1]}/> */}
                 </Stack>
                 <Stack direction={"row"} sx={{mt:1}}>
                     <Chip 
