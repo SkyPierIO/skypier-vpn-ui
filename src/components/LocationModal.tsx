@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+// import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 
 
 interface LocationProps {
@@ -32,14 +32,14 @@ const LocationModal: React.FC<LocationProps> = ({ country, city, latitude, longi
             Location: {country}, {city}
           </Typography>
           <div>
-            <MapContainer center={[latitude, longitude]} zoom={13} scrollWheelZoom={false}>
-                {/* <TileLayer
+            {/* <MapContainer center={[latitude, longitude]} zoom={13} scrollWheelZoom={false}>
+                <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                /> */}
+                />
                 <Marker position={[latitude, longitude]}>
                 </Marker>
-            </MapContainer>
+            </MapContainer> */}
           </div>
         </Box>
       </Modal>
