@@ -89,13 +89,23 @@ const PeerCard = ({ node }: Props) => {
     const [geoIP, updateGeoIP] = useState<string>("Unknown");
     const [countryCode, updateCountryCode] = useState<string>("xx");
     const handleGeoIP = async () => { 
-      // const ip = "66.135.31.216"; // Test IP, TODO get the IP from peer multiaddress
-      const ip = "136.244.105.166"; // Test IP, TODO get the IP from peer multiaddress
-      const gateways = ['https://ipfs.io', 'https://dweb.link']
-      const result = await lookup(gateways, ip);
-      console.log(result);
-      updateGeoIP(result.country_name + ", " + result.city);
-      updateCountryCode(result.country_code);
+      try {
+        const response = await http.get(`/peer/`+node.peerId+`/info`);
+        if (response.status == 200 && response.data.length >= 1 ) {
+          console.log(response.data);
+          // const ip = "66.135.31.216";
+          const ip = response.data[0];
+          const gateways = ['https://ipfs.io', 'https://dweb.link']
+          const result = await lookup(gateways, ip);
+          console.log(result);
+          updateGeoIP(result.country_name + ", " + result.city);
+          updateCountryCode(result.country_code);
+        } else {
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching peer IP address:', error);
+      }
     }
     handleGeoIP();
 
