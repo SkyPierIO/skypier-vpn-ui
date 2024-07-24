@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // Axios
 import http from "../http.common";
 
 // MUI
 import Card from "@mui/material/Card";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
@@ -24,7 +26,6 @@ import ReactCountryFlag from "react-country-flag"
 // import LocationModal from "./LocationModal";
 
 
-
 interface Props {
   node: any;
 }
@@ -38,17 +39,33 @@ const PeerCard = ({ node }: Props) => {
           if (response.status === 200) {
             console.log("ping",response)
             if (response.data.result) {
-              alert(response.data.result);
               updateStatus("• Online")
+              setOpen(true);
+              setSnackBarText(response.data.result); 
+              setSnackBarSeverity("info");
             } 
           } else if (response.status === 400) {
             console.log(response)
+            setOpen(true);
+            setSnackBarText(response.status.toString()); 
+            setSnackBarSeverity("error");
           }
         } catch (error) {
           console.error(error);
         }
       };
     
+    // Notifications
+    const [open, setOpen] = useState(false);
+    const [snackBarText, setSnackBarText] = useState<string>("Oops! Error happened...");
+    const [snackBarSeverity, setSnackBarSeverity] = useState<string>("default");
+    const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+      setOpen(false);
+    };
+
     const handleConnect = async (peerId: string) => {
         console.log("Connection requested; node ID", peerId);
         try {
@@ -57,10 +74,15 @@ const PeerCard = ({ node }: Props) => {
           if (response.status === 200) {
             console.log("connect",response)
             if (response.data.result) {
-              alert(response.data.result);
+              setOpen(true);
+              setSnackBarText(response.data); 
+              setSnackBarSeverity("success");
             } 
           } else if (response.status === 400) {
             console.log(response)
+            setOpen(true);
+            setSnackBarText(response.data);           
+            setSnackBarSeverity("error");
           }
         } catch (error) {
           console.error(error);
@@ -193,6 +215,19 @@ const PeerCard = ({ node }: Props) => {
                 </CardContent>
             </Box>
         </Card>
+        <Snackbar
+          open={open}
+          autoHideDuration={6000}
+        >
+          <Alert
+            onClose={handleClose}
+            variant="filled"
+            severity={snackBarSeverity}
+            sx={{ width: '100%' }}
+          >
+            {snackBarText}
+          </Alert>
+        </Snackbar>
     </>
   );
 };
