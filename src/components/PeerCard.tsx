@@ -42,13 +42,11 @@ const PeerCard = ({ node }: Props) => {
               updateStatus("• Online")
               setOpen(true);
               setSnackBarText(response.data.result); 
-              setSnackBarSeverity("info");
             } 
           } else if (response.status === 400) {
             console.log(response)
             setOpen(true);
             setSnackBarText(response.status.toString()); 
-            setSnackBarSeverity("error");
           }
         } catch (error) {
           console.error(error);
@@ -58,7 +56,6 @@ const PeerCard = ({ node }: Props) => {
     // Notifications
     const [open, setOpen] = useState(false);
     const [snackBarText, setSnackBarText] = useState<string>("Oops! Error happened...");
-    const [snackBarSeverity, setSnackBarSeverity] = useState<string>("default");
     const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
       if (reason === 'clickaway') {
         return;
@@ -76,13 +73,11 @@ const PeerCard = ({ node }: Props) => {
             if (response.data.result) {
               setOpen(true);
               setSnackBarText(response.data); 
-              setSnackBarSeverity("success");
             } 
           } else if (response.status === 400) {
             console.log(response)
             setOpen(true);
             setSnackBarText(response.data);           
-            setSnackBarSeverity("error");
           }
         } catch (error) {
           console.error(error);
@@ -222,7 +217,7 @@ const PeerCard = ({ node }: Props) => {
           <Alert
             onClose={handleClose}
             variant="filled"
-            severity={snackBarSeverity}
+            severity="info"
             sx={{ width: '100%' }}
           >
             {snackBarText}
