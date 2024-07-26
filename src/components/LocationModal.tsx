@@ -16,7 +16,7 @@ const LocationModal: React.FC<LocationProps> = ({ country, city, latitude, longi
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  console.log("LocationModal", country, city, latitude, longitude);
+  // console.log("LocationModal", country, city, latitude, longitude);
 
   return (
     <div>

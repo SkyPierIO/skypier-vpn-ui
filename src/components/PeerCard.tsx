@@ -112,12 +112,12 @@ const PeerCard = ({ node }: Props) => {
       try {
         const response = await http.get(`/peer/`+node.peerId+`/info`);
         if (response.status == 200 && response.data.length >= 1 ) {
-          console.log(response.data);
+          // console.log(response.data);
           // const ip = "66.135.31.216";
           const ip = response.data[0];
           const gateways = ['https://ipfs.io', 'https://dweb.link']
           const result = await lookup(gateways, ip);
-          console.log(result);
+          // console.log(result);
           updateGeoIP(result.country_name + ", " + result.city);
           updateCountryCode(result.country_code);
           updateLatitude(result.latitude);
