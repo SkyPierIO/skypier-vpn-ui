@@ -72,7 +72,7 @@ const PeerCard = ({ node }: Props) => {
             console.log("connect",response)
             if (response.data.result) {
               setOpen(true);
-              setSnackBarText(response.data); 
+              setSnackBarText(response.data.result); 
             } 
           } else if (response.status === 400) {
             console.log(response)
