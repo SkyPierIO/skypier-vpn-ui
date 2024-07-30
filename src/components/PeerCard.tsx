@@ -23,6 +23,8 @@ import Skeleton from '@mui/material/Skeleton';
 // GeoIP
 import { lookup, lookupPretty } from 'ipfs-geoip';
 import ReactCountryFlag from "react-country-flag"
+import StarAPeer from "./StarAPeer";
+import UnstarAPeer from "./UnstarAPeer";
 // import LocationModal from "./LocationModal";
 
 
@@ -159,6 +161,8 @@ const PeerCard = ({ node }: Props) => {
                       size="small" 
                       variant="outlined"
                     />
+                    <StarAPeer peerId={node.peerId}/>
+                    <UnstarAPeer peerId={node.peerId}/>
                     {/* <LocationModal latitude={latitude} longitude={longitude} country={geoIP.split(",")[0]} city={geoIP.split(",")[1]}/> */}
                 </Stack>
                 <Stack direction={"row"} sx={{mt:1}}>
