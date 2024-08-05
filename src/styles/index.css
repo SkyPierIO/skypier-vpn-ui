@@ -55,7 +55,7 @@ body {
 		transparent,
 		var(--color-bg)
 	),
-	radial-gradient(circle, #281f3ab6 0%, #000 70%);
+	/* radial-gradient(circle, #281f3ab6 0%, #000 70%); */
 }
 
 .main-light {

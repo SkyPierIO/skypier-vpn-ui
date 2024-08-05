@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Box, Typography } from '@mui/material';
+import React, {useState} from 'react';
+import { IconButton } from '@mui/material';
 import StarIcon from '@mui/icons-material/StarBorderOutlined';
 import { Snackbar } from '@mui/material';
 import { Alert } from '@mui/material';
@@ -12,6 +12,13 @@ const StarAPeer: React.FC<StarAPeerProps> = ({ peerId }) => {
   
     const [snackbarOpen, setSnackbarOpen] = React.useState(false);
     const [snackbarMessage, setSnackbarMessage] = React.useState('');
+    const [open, setOpen] = useState(false);
+    // const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    //     if (reason === 'clickaway') {
+    //         return;
+    //     }
+    //     setOpen(false);
+    // };
 
     const getStarredPeers = (): string[] => {
         const storedPeers = localStorage.getItem('starredPeers');
@@ -35,10 +42,10 @@ const StarAPeer: React.FC<StarAPeerProps> = ({ peerId }) => {
     };
 
     return (
-        <Box sx={{ p: 2 }}>
-            <Button variant="outlined" color="primary" onClick={addPeerToLocalStorage}>
+        <>
+            <IconButton color="primary" size="small" onClick={addPeerToLocalStorage}>
                 <StarIcon></StarIcon>
-            </Button>
+            </IconButton>
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}
@@ -54,7 +61,7 @@ const StarAPeer: React.FC<StarAPeerProps> = ({ peerId }) => {
                 {snackbarMessage}
                 </Alert>
             </ Snackbar>
-        </Box>
+        </>
     );
 };
 

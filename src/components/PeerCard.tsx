@@ -24,6 +24,7 @@ import Skeleton from '@mui/material/Skeleton';
 import { lookup, lookupPretty } from 'ipfs-geoip';
 import ReactCountryFlag from "react-country-flag"
 import StarAPeer from "./StarAPeer";
+import CheckStarredPeer from "./CheckStarredPeer";
 import UnstarAPeer from "./UnstarAPeer";
 // import LocationModal from "./LocationModal";
 
@@ -136,12 +137,17 @@ const PeerCard = ({ node }: Props) => {
     return (
     <>
         <Card sx={{ display: 'flex', m:1  }} key={node.peerId} onLoad={async () => handleStatus()}>
-            <CardMedia
-                component="img"
-                sx={{ width: 95, height: 95, p: 3 }}
-                image={"http://api.dicebear.com/7.x/identicon/svg?seed="+node.peerId }
-                alt="Icon"
-            />
+            <Stack>
+              <CardMedia
+                  component="img"
+                  sx={{ width: 95, height: 95, p: 3 }}
+                  image={"http://api.dicebear.com/7.x/identicon/svg?seed="+node.peerId }
+                  alt="Icon"
+              />
+              <Box sx={{textAlign: "center"}}>
+                <CheckStarredPeer peerId={node.peerId}/>
+              </Box>
+            </Stack>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <CardContent sx={{ flex: '1 0 auto' }}>
                 <Typography component="p">
@@ -161,8 +167,6 @@ const PeerCard = ({ node }: Props) => {
                       size="small" 
                       variant="outlined"
                     />
-                    <StarAPeer peerId={node.peerId}/>
-                    <UnstarAPeer peerId={node.peerId}/>
                     {/* <LocationModal latitude={latitude} longitude={longitude} country={geoIP.split(",")[0]} city={geoIP.split(",")[1]}/> */}
                 </Stack>
                 <Stack direction={"row"} sx={{mt:1}}>

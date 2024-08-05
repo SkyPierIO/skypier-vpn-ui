@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Box, Alert, Snackbar } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import { Alert, IconButton, Snackbar } from '@mui/material';
+import StarIcon from '@mui/icons-material/Star';
 
 interface UnstarAPeerProps {
   peerId: string;
@@ -30,26 +30,26 @@ const UnstarAPeer: React.FC<UnstarAPeerProps> = ({ peerId }) => {
     };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Button variant="outlined" color="secondary" onClick={removePeerFromLocalStorage}>
-        <DeleteIcon />
-      </Button>
+    <>
+      <IconButton size='small' color="warning" onClick={removePeerFromLocalStorage}>
+        <StarIcon />
+      </IconButton>
       <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={3000}
-                onClose={handleSnackbarClose}
-                message={snackbarMessage}
+          open={snackbarOpen}
+          autoHideDuration={3000}
+          onClose={handleSnackbarClose}
+          message={snackbarMessage}
 
-            >
-                <Alert
-                    variant="filled"
-                    severity="info"
-                    sx={{ width: '100%' }}
-                >
-                {snackbarMessage}
-                </Alert>
-            </ Snackbar>
-    </Box>
+      >
+          <Alert
+              variant="filled"
+              severity="info"
+              sx={{ width: '100%' }}
+          >
+          {snackbarMessage}
+          </Alert>
+      </ Snackbar>
+    </>
   );
 };
 
