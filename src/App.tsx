@@ -185,8 +185,6 @@ function MyApp() {
           <Fab sx={fabHeaderStyle} onClick={colorMode.toggleColorMode} size="medium" variant="extended" color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
           </Fab>
-          <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
-          </IconButton>
         </Stack>
         </Box>
           </Toolbar>
@@ -275,7 +273,7 @@ function MyApp() {
 
 export default function App() {
 
-  const [mode, setMode] = React.useState<'light' | 'dark'>('light');
+  const [mode, setMode] = React.useState<'light' | 'dark'>('dark');
   const colorMode = React.useMemo(
     () => ({
       toggleColorMode: () => {

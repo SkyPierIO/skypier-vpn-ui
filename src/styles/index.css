@@ -55,7 +55,9 @@ body {
 		transparent,
 		var(--color-bg)
 	),
-	/* radial-gradient(circle, #281f3ab6 0%, #000 70%); */
+	url("/pattern.png"),
+	radial-gradient(circle, #281f3ab6 0%, #000 100%);
+	background-color: var(--color-bg);
 }
 
 .main-light {
