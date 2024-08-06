@@ -11,7 +11,6 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
-import CalendarMonthSharpIcon from '@mui/icons-material/CalendarMonthSharp';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
@@ -23,9 +22,7 @@ import Skeleton from '@mui/material/Skeleton';
 // GeoIP
 import { lookup, lookupPretty } from 'ipfs-geoip';
 import ReactCountryFlag from "react-country-flag"
-import StarAPeer from "./StarAPeer";
 import CheckStarredPeer from "./CheckStarredPeer";
-import UnstarAPeer from "./UnstarAPeer";
 // import LocationModal from "./LocationModal";
 
 
@@ -136,87 +133,84 @@ const PeerCard = ({ node }: Props) => {
 
     return (
     <>
-        <Card sx={{ display: 'flex', m:1  }} key={node.peerId} onLoad={async () => handleStatus()}>
-            <Stack>
+        <Card sx={{ display: 'flex', m:1 }} key={node.peerId} onLoad={async () => handleStatus()}>
+           
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <CardContent sx={{ flex: '1 0 auto', minWidth: 350 }}>
+                  <Stack direction={"row"} sx={{mb: 2}}>
+                    <Typography component="h2" variant="h4">
+                      {(countryCode === "xx") ? <LocationOnIcon /> : <ReactCountryFlag countryCode={countryCode} svg />}
+                    </Typography>
+                    <Typography component="h2" variant="h6" sx={{pt:1}}>
+                      {" "+geoIP} 
+                    </Typography>   
+                  </Stack>
+                  <Chip 
+                    sx={{mr:1, mb: 2}} 
+                    label={status} 
+                    color={(status === "• Online") ? "success" : "default"}  
+                    size="small" 
+                    variant="outlined" 
+                  />
+                  <Typography component="p" variant="caption">
+                      Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{node.peerId.substring(0, 5)}...{node.peerId.slice(-20 )}</span>
+                  </Typography>
+                  <Typography component="p" variant="caption">
+                    Created <span style={{color:"#5df"}}>{new Date(node.timestamp * 1000).toLocaleDateString()} </span>
+                  </Typography>
+                  {/* <Stack direction={"row"} sx={{mt:1}}> */}
+                      {/* <LocationModal latitude={latitude} longitude={longitude} country={geoIP.split(",")[0]} city={geoIP.split(",")[1]}/> */}
+                  {/* </Stack> */}
+                  {/* <br/> */}
+                  <Stack sx={{mt:1}}>
+                      {(status === "• Connecting...") ? (
+                        <>
+                          <Skeleton animation="wave" width={"60%"} height={20}/>
+                          <Skeleton animation="wave" width={"100%"} height={40}/>
+                        </>
+                      ) : 
+                      (status === "⟳ Unreachable" || status === "⟳ Unknown") ? (
+                            <Button 
+                                sx={{mt:2}}
+                                size="small" 
+                                variant="outlined" 
+                                disabled>
+                                Connect
+                            </Button>
+                        ) : (
+                            <Box sx={{display: 'flex',flexDirection: 'row',justifyContent: 'left', mt:2}}>
+                              <ButtonGroup variant="outlined">
+                                <Button 
+                                  size="small" 
+                                  onClick={async () => handlePing(node.peerId)}>
+                                    Ping
+                                </Button>
+                                <Button
+                                  sx={{pl:2}} 
+                                  size="small" 
+                                  onClick={async () => handleConnect(node.peerId)} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
+                                    Connect
+                                </Button>
+                              </ButtonGroup>
+                            </Box>
+                        )
+                      }
+                      {}
+                    
+                  </Stack>
+                </CardContent>
+            </Box>
+             <Stack>
               <CardMedia
                   component="img"
-                  sx={{ width: 95, height: 95, p: 3 }}
-                  image={"http://api.dicebear.com/7.x/identicon/svg?seed="+node.peerId }
+                  sx={{ width: 110, height: 110, p: 3 }}
+                  image={"http://api.dicebear.com/9.x/identicon/svg?radius=10&backgroundColor=d1d4f9&seed="+node.peerId }
                   alt="Icon"
               />
               <Box sx={{textAlign: "center"}}>
                 <CheckStarredPeer peerId={node.peerId}/>
               </Box>
             </Stack>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <CardContent sx={{ flex: '1 0 auto' }}>
-                <Typography component="p">
-                    Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{node.peerId.substring(0, 5)}...{node.peerId.slice(-20 )}</span>
-                </Typography>
-                <Stack direction={"row"} sx={{mt:1}}>
-                    <Chip 
-                      sx={{mr:1, pl:1}} 
-                      icon={(countryCode === "xx") ? <LocationOnIcon /> : <ReactCountryFlag countryCode={countryCode} svg />}
-                      label={geoIP} 
-                      size="small" 
-                      variant={(countryCode === "xx") ? "outlined" : "outlined"}/>
-                    <Chip 
-                      sx={{mr:1}} 
-                      icon={<CalendarMonthSharpIcon />} 
-                      label={"Created "+new Date(node.timestamp * 1000).toLocaleDateString()} 
-                      size="small" 
-                      variant="outlined"
-                    />
-                    {/* <LocationModal latitude={latitude} longitude={longitude} country={geoIP.split(",")[0]} city={geoIP.split(",")[1]}/> */}
-                </Stack>
-                <Stack direction={"row"} sx={{mt:1}}>
-                    <Chip 
-                      sx={{mr:1}} 
-                      label={status} 
-                      color={(status === "• Online") ? "success" : "default"}  
-                      size="small" 
-                      variant="outlined" 
-                    />
-                </Stack>
-                {/* <br/> */}
-                <Stack sx={{mt:1}}>
-                    {(status === "• Connecting...") ? (
-                      <>
-                        <Skeleton animation="wave" width={"60%"} height={20}/>
-                        <Skeleton animation="wave" width={"100%"} height={40}/>
-                      </>
-                    ) : 
-                    (status === "⟳ Unreachable" || status === "⟳ Unknown") ? (
-                          <Button 
-                              sx={{mt:2}}
-                              size="small" 
-                              variant="outlined" 
-                              disabled>
-                              Connect
-                          </Button>
-                      ) : (
-                          <Box sx={{display: 'flex',flexDirection: 'row',justifyContent: 'right', mt:2}}>
-                            <ButtonGroup variant="outlined">
-                              <Button 
-                                size="small" 
-                                onClick={async () => handlePing(node.peerId)}>
-                                  Ping
-                              </Button>
-                              <Button
-                                sx={{pl:2}} 
-                                size="small" 
-                                onClick={async () => handleConnect(node.peerId)} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
-                                  Connect
-                              </Button>
-                            </ButtonGroup>
-                          </Box>
-                      )
-                    }
-                    {}
-                   
-                </Stack>
-                </CardContent>
-            </Box>
         </Card>
         <Snackbar
           open={open}
