@@ -153,6 +153,11 @@ const Peers = () => {
               (node: any, index: any, self: any, item: any) =>
                 node.peerId && node.peerId.length > 43 && index === self.findIndex((item: { peerId: any; }) => item.peerId === node.peerId),
             )
+            .sort(function(a, b) {
+              if(a.peerId.toLowerCase() > b.peerId.toLowerCase()) return -1;
+              if(a.peerId.toLowerCase() < b.peerId.toLowerCase()) return 1;
+              return 0;
+            })
             .map((node: any, index: number) => (
               <PeerCard node={node} key={node.peerId}></PeerCard>
           ))}
