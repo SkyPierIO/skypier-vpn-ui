@@ -12,7 +12,7 @@ const VPNStatus: React.FC = () => {
     const fetchVPNStatus = async () => {
       try {
         const response = await axios.get('/api/v0/status');
-        setIsConnected(response.data.connected);
+        setIsConnected(response.data.status === 'connected');
       } catch (error) {
         console.error('Error fetching VPN status:', error);
       }
