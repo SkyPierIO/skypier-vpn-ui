@@ -29,6 +29,7 @@ import { Paywall } from "@unlock-protocol/paywall";
 import { useAccount, useConnect, useContractRead } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { sepolia } from "wagmi/chains";
+import VPNStatus from "../components/VPNStatus";
 // import { connected } from "process";
 
 const LOCK = "0xFd25695782703df36CACF94c41306b3DB605Dc90";
@@ -147,6 +148,8 @@ const Peers = () => {
         </Paper>
       </Stack>
       <br />
+      
+      <VPNStatus />
       <Box sx={{ display: 'flex', flexWrap: "wrap", pb: 2 }}>
           {nodesData.data.newPeers
             .filter(
