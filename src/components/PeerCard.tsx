@@ -86,7 +86,7 @@ const PeerCard = ({ node }: Props) => {
     
     const [status, updateStatus] = useState<string>("⟳ Unknown");
     const handleStatus = async () => {
-        updateStatus("• Connecting...")
+        updateStatus("• Fetching status...")
         console.log("Getting status for", node.peerId)
       try {
         const response = await http.get(`/ping/` + node.peerId);
@@ -163,7 +163,7 @@ const PeerCard = ({ node }: Props) => {
                   {/* </Stack> */}
                   {/* <br/> */}
                   <Stack sx={{mt:1}}>
-                      {(status === "• Connecting...") ? (
+                      {(status === "• Fetching status...") ? (
                         <>
                           <Skeleton animation="wave" width={"60%"} height={20}/>
                           <Skeleton animation="wave" width={"100%"} height={40}/>
