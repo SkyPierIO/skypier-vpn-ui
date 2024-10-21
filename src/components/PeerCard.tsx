@@ -87,7 +87,7 @@ const PeerCard = ({ node }: Props) => {
     const [status, updateStatus] = useState<string>("⟳ Unknown");
     const handleStatus = async () => {
         updateStatus("• Fetching status...")
-        console.log("Getting status for", node.peerId)
+        // console.log("Getting status for", node.peerId)
       try {
         const response = await http.get(`/ping/` + node.peerId);
         console.log("ping",response)
@@ -204,6 +204,7 @@ const PeerCard = ({ node }: Props) => {
               <CardMedia
                   component="img"
                   sx={{ width: 110, height: 110, p: 3 }}
+                  // TODO 
                   image={"http://api.dicebear.com/9.x/identicon/svg?radius=10&backgroundColor=d1d4f9&seed="+node.peerId }
                   alt="Icon"
               />

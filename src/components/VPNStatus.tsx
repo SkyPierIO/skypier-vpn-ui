@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Chip, Box, Button } from '@mui/material';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import CloudOffIcon from '@mui/icons-material/CloudOff';
-import axios from 'axios';
+
+// Axios
+import http from "../http.common";
 
 interface VPNStatusResponse {
-  connected: boolean;
+  status: string;
   peer_id?: string;
 }
 
@@ -16,9 +18,10 @@ const VPNStatus: React.FC = () => {
   useEffect(() => {
     const fetchVPNStatus = async () => {
       try {
-        const response = await axios.get<VPNStatusResponse>('/api/v0/status');
-        setIsConnected(response.data.connected);
-        if (response.data.connected && response.data.peer_id) {
+        const response = await http.get<VPNStatusResponse>('/status');
+        console.log(response.data);
+        setIsConnected(response.data.status === "connected");
+        if (response.data.status && response.data.peer_id) {
           setPeerId(response.data.peer_id);
         } else {
           setPeerId(null);
@@ -37,7 +40,7 @@ const VPNStatus: React.FC = () => {
   const handleDisconnect = async () => {
     if (peerId) {
       try {
-        await axios.get(`/disconnect/${peerId}`);
+        await http.get(`/disconnect/${peerId}`);
         alert('Disconnected successfully');
         setIsConnected(false);
         setPeerId(null);
@@ -52,7 +55,7 @@ const VPNStatus: React.FC = () => {
     <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, mb: 2 }}>
       <Chip
         icon={isConnected ? <CloudDoneIcon /> : <CloudOffIcon />}
-        label={isConnected ? 'Connected to a remote peer.' : 'The VPN is currently not connected'}
+        label={isConnected ? 'Connected to the peer '+peerId?.substring(0, 5)+"..."+peerId?.slice(-20 ): 'The VPN is currently not connected'}
         color={isConnected ? 'success' : 'default'}
         sx={{
           bgcolor: isConnected ? 'green' : 'grey',
