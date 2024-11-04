@@ -1,5 +1,5 @@
-import React from 'react';
-import { Fab } from '@mui/material';
+import React, { useState } from 'react';
+import { Fab, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 
 // Axios
@@ -24,7 +24,17 @@ const fabHeaderStyle = {
 };
 
 const QuitButton: React.FC = () => {
-  const handleQuit = async () => {
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleConfirmQuit = async () => {
     try {
       await http.get('/quit');
       window.location.reload();
@@ -35,17 +45,40 @@ const QuitButton: React.FC = () => {
   };
 
   return (
-    <Fab
-      sx={fabHeaderStyle}
-      aria-label="quit"
-      size="medium" 
-      variant="extended" 
-      color="inherit"
-      onClick={handleQuit}
-    >
-      <PowerSettingsNewIcon />
-      {/* Quit */}
-    </Fab>
+    <>
+      <Fab
+        sx={fabHeaderStyle}
+        aria-label="quit"
+        size="medium"
+        variant="extended"
+        color="inherit"
+        onClick={handleClickOpen}
+      >
+        <PowerSettingsNewIcon />
+        {/* Quit */}
+      </Fab>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Quit Skypier"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to quit (and disconnect) Skypier VPN?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmQuit} color="primary" autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
