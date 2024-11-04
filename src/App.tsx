@@ -36,6 +36,7 @@ import { Stack, Fab } from "@mui/material";
 
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import QuitButton from "./components/QuitButton";
 
 
 const drawerWidth = 240;
@@ -180,11 +181,12 @@ function MyApp() {
             <Box>
         <Stack direction="row" spacing={1}>
           <IpLocation></IpLocation>
-          <w3m-network-button />
+          {/* <w3m-network-button /> */}
           <w3m-button />
           <Fab sx={fabHeaderStyle} onClick={colorMode.toggleColorMode} size="medium" variant="extended" color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
           </Fab>
+          <QuitButton />
         </Stack>
         </Box>
           </Toolbar>

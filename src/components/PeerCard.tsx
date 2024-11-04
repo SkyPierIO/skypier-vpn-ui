@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Axios
 import http from "../http.common";
@@ -112,8 +112,6 @@ const PeerCard = ({ node }: Props) => {
       try {
         const response = await http.get(`/peer/`+node.peerId+`/info`);
         if (response.status == 200 && response.data.length >= 1 ) {
-          // console.log(response.data);
-          // const ip = "66.135.31.216";
           const ip = response.data[0];
           const gateways = ['https://ipfs.io', 'https://dweb.link']
           const result = await lookup(gateways, ip);
@@ -129,8 +127,10 @@ const PeerCard = ({ node }: Props) => {
         console.error('Error fetching peer IP address:', error);
       }
     }
-    handleGeoIP();
-
+    useEffect(() => {
+      handleGeoIP();
+    }, []); // Empty dependency array ensures this runs only once
+  
     return (
     <>
         <Card sx={{ display: 'flex', m:1 }} key={node.peerId} onLoad={async () => handleStatus()}>

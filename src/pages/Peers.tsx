@@ -97,7 +97,7 @@ const Peers = () => {
   `;
 
   const NODES_GQL = gql(NODES_GRAPHQL);
-  const nodesData = useQuery(NODES_GQL, { pollInterval: 60000 }); // Fetch nodes data every minute
+  const nodesData = useQuery(NODES_GQL, { pollInterval: 5*60000 }); // Fetch nodes data every 5 minutes
   // console.log("nodesData", nodesData);
 
   return nodesData.loading ? (

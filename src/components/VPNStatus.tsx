@@ -48,6 +48,9 @@ const VPNStatus: React.FC = () => {
         console.error('Error disconnecting:', error);
         alert('Failed to disconnect');
       }
+    } else {
+      console.error('Peer ID not found');
+      alert('Peer ID not found');
     }
   };
 
