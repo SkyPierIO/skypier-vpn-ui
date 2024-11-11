@@ -31,6 +31,8 @@ interface Props {
   node: any;
 }
 
+const cache: { [key: string]: any } = {};
+
 const PeerCard = ({ node }: Props) => {
     const handlePing = async (peerId: string) => {
         console.log("Ping requested; node ID", peerId);
@@ -109,25 +111,46 @@ const PeerCard = ({ node }: Props) => {
     const [countryCode, updateCountryCode] = useState<string>("xx");
     const [longitude, updateLongitude] = useState<number>(0);
     const [latitude, updateLatitude] = useState<number>(0);
-    const handleGeoIP = async () => { 
+    const handleGeoIP = async () => {
+      if (cache[node.peerId]) {
+        const cachedData = cache[node.peerId];
+        updateGeoIP(cachedData.geoIP);
+        updateCountryCode(cachedData.countryCode);
+        updateLatitude(cachedData.latitude);
+        updateLongitude(cachedData.longitude);
+        return;
+      }
+  
       try {
-        const response = await http.get(`/peer/`+node.peerId+`/info`);
-        if (response.status == 200 && response.data.length >= 1 ) {
+        const response = await http.get(`/peer/` + node.peerId + `/info`, { timeout: 5000 });
+        if (response.status === 200 && response.data.length >= 1) {
           const ip = response.data[0];
-          const gateways = ['https://ipfs.io', 'https://dweb.link']
+          const gateways = ['https://ipfs.io', 'https://dweb.link'];
           const result = await lookup(gateways, ip);
-          // console.log(result);
-          updateGeoIP(result.country_name + ", " + result.city);
-          updateCountryCode(result.country_code);
-          updateLatitude(result.latitude);
-          updateLongitude(result.longitude);
+          const geoIPData = result.country_name + ", " + result.city;
+          const countryCodeData = result.country_code;
+          const latitudeData = result.latitude;
+          const longitudeData = result.longitude;
+  
+          updateGeoIP(geoIPData);
+          updateCountryCode(countryCodeData);
+          updateLatitude(latitudeData);
+          updateLongitude(longitudeData);
+  
+          cache[node.peerId] = {
+            geoIP: geoIPData,
+            countryCode: countryCodeData,
+            latitude: latitudeData,
+            longitude: longitudeData,
+          };
         } else {
           return;
         }
       } catch (error) {
         console.error('Error fetching peer IP address:', error);
       }
-    }
+    };
+    
     useEffect(() => {
       handleGeoIP();
     }, []); // Empty dependency array ensures this runs only once
@@ -218,6 +241,7 @@ const PeerCard = ({ node }: Props) => {
         <Snackbar
           open={open}
           autoHideDuration={6000}
+          onClose={handleClose}
         >
           <Alert
             onClose={handleClose}

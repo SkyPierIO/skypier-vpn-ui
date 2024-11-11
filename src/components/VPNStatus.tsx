@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Chip, Box, Button } from '@mui/material';
-import CloudDoneIcon from '@mui/icons-material/CloudDone';
-import CloudOffIcon from '@mui/icons-material/CloudOff';
+import React, { useState, useEffect, useRef } from 'react';
+import { Box, Button, Chip } from '@mui/material';
+import http from '../http.common';
 
-// Axios
-import http from "../http.common";
+import CloudOffIcon from '@mui/icons-material/CloudOff';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
 
 interface VPNStatusResponse {
   status: string;
@@ -14,11 +13,12 @@ interface VPNStatusResponse {
 const VPNStatus: React.FC = () => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [peerId, setPeerId] = useState<string | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const fetchVPNStatus = async () => {
       try {
-        const response = await http.get<VPNStatusResponse>('/status');
+        const response = await http.get<VPNStatusResponse>('/status', { timeout: 5000 });
         console.log(response.data);
         setIsConnected(response.data.status === "connected");
         if (response.data.status && response.data.peer_id) {
@@ -32,9 +32,13 @@ const VPNStatus: React.FC = () => {
     };
 
     fetchVPNStatus();
-    const interval = setInterval(fetchVPNStatus, 5000); // Poll every 5 seconds
+    intervalRef.current = setInterval(fetchVPNStatus, 5000); // Poll every 5 seconds
 
-    return () => clearInterval(interval); // Cleanup interval on component unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current); // Cleanup interval on component unmount
+      }
+    };
   }, []);
 
   const handleDisconnect = async () => {
