@@ -26,10 +26,11 @@ import { useAccount, useConnect, useContractRead } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { sepolia } from "wagmi/chains";
 import VPNStatus from "../components/VPNStatus";
+import UtilityCard from "../components/UtilityCard";
 
 const LOCK = "0xFd25695782703df36CACF94c41306b3DB605Dc90";
 
-const Item = styled(Paper)(({ theme }) => ({
+const Item = styled(Paper)(({ theme }: { theme: any }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
   ...theme.typography.body2,
   padding: theme.spacing(1),
@@ -80,7 +81,19 @@ const Peers = () => {
   }
 
   if (isError) {
-    return <div>There was an error checking your membership status. Please reload the page!</div>;
+    const c = () => {
+      return(
+        <>
+          <Typography mb={1}>
+            Please reload the page!
+          </Typography>
+          <Typography>
+            There was an error checking your membership status. Please reload the page!
+          </Typography>
+        </>
+      );
+    }
+    return <UtilityCard title="🪢 Error checking your membership status" content={c()}></UtilityCard>;
   }
 
   if (!isConnected) {
