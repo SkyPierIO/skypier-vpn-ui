@@ -18,6 +18,7 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
+import * as jdenticon from 'jdenticon';
 
 // GeoIP
 import { lookup, lookupPretty } from 'ipfs-geoip';
@@ -130,6 +131,9 @@ const PeerCard = ({ node }: Props) => {
     useEffect(() => {
       handleGeoIP();
     }, []); // Empty dependency array ensures this runs only once
+
+    // Generate identicon SVG
+    const identiconSvg = jdenticon.toSvg(node.peerId, 70);
   
     return (
     <>
@@ -202,11 +206,9 @@ const PeerCard = ({ node }: Props) => {
             </Box>
              <Stack>
               <CardMedia
-                  component="img"
-                  sx={{ width: 110, height: 110, p: 3 }}
-                  // TODO 
-                  image={"http://api.dicebear.com/9.x/identicon/svg?radius=10&backgroundColor=d1d4f9&seed="+node.peerId }
-                  alt="Icon"
+                component="div"
+                sx={{ width: 110, height: 110, p: 3 }}
+                dangerouslySetInnerHTML={{ __html: identiconSvg }}
               />
               <Box sx={{textAlign: "center"}}>
                 <CheckStarredPeer peerId={node.peerId}/>

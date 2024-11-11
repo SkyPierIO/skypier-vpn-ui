@@ -53,6 +53,9 @@ importers:
       ipfs-geoip:
         specifier: ^9.1.0
         version: 9.1.0
+      jdenticon:
+        specifier: ^3.3.0
+        version: 3.3.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1525,6 +1528,9 @@ packages:
   caniuse-lite@1.0.30001611:
     resolution: {integrity: sha512-19NuN1/3PjA3QI8Eki55N8my4LzfkMCRLgCVfrl/slbSAchQfV0+GwjPrK3rq37As4UCLlM/DHajbKkAqbv92Q==}
 
+  canvas-renderer@2.2.1:
+    resolution: {integrity: sha512-RrBgVL5qCEDIXpJ6NrzyRNoTnXxYarqm/cS/W6ERhUJts5UQtt/XPEosGN3rqUkZ4fjBArlnCbsISJ+KCFnIAg==}
+
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
     engines: {node: '>=4'}
@@ -2078,6 +2084,11 @@ packages:
   jayson@4.1.0:
     resolution: {integrity: sha512-R6JlbyLN53Mjku329XoRT2zJAE6ZgOQ8f91ucYdMCD4nkGCF9kZSrcGXpHIU4jeKj58zUZke2p+cdQchU7Ly7A==}
     engines: {node: '>=8'}
+    hasBin: true
+
+  jdenticon@3.3.0:
+    resolution: {integrity: sha512-DhuBRNRIybGPeAjMjdHbkIfiwZCCmf8ggu7C49jhp6aJ7DYsZfudnvnTY5/1vgUhrGA7JaDAx1WevnpjCPvaGg==}
+    engines: {node: '>=6.4.0'}
     hasBin: true
 
   jiti@1.21.0:
@@ -4846,6 +4857,10 @@ snapshots:
 
   caniuse-lite@1.0.30001611: {}
 
+  canvas-renderer@2.2.1:
+    dependencies:
+      '@types/node': 18.15.13
+
   chalk@2.4.2:
     dependencies:
       ansi-styles: 3.2.1
@@ -5427,6 +5442,10 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  jdenticon@3.3.0:
+    dependencies:
+      canvas-renderer: 2.2.1
 
   jiti@1.21.0: {}
 
