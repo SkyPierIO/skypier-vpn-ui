@@ -262,10 +262,10 @@ function MyApp() {
         <Box component="main" className={`main-${theme.palette.mode}`} sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
           <DrawerHeader />
             <Login/>
-            <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
+            {/* <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
               <ElectricalServicesIcon />
                 FastConnect
-            </Fab>
+            </Fab> */}
         </Box>
       </Box>
   );
