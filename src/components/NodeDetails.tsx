@@ -107,7 +107,7 @@ export default function NodeDetails() {
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{textAlign: "center"}}>
             <Chip  sx={{mt:3}} icon={<RouterIcon />} label="Network Interface"/>
-            <Typography sx={{mb:1}} component="p"><pre>skypier0</pre></Typography>
+            <Typography sx={{mb:1}} component="p"><pre>utun8</pre></Typography>
             <hr/>
             <Chip  sx={{mt:4}} icon={<InfoIcon />} label="Current status"/>
             <Typography sx={{mb:1}} component="p">Up</Typography>

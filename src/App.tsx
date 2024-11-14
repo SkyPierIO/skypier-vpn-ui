@@ -17,7 +17,6 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ExploreIcon from '@mui/icons-material/Explore';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
-import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 
 // MUI
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";

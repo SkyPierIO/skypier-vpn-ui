@@ -36,6 +36,9 @@ const QuitButton: React.FC = () => {
 
   const handleConfirmQuit = async () => {
     try {
+      window.location.href = '/Goodbye'; // Redirect to /Goodbye route
+      // sleep 1 second
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await http.get('/quit');
       window.location.reload();
     } catch (error) {
