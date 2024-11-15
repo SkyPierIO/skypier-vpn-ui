@@ -1,6 +1,6 @@
 {
 	"name": "skypier-vpn-ui",
-	"version": "0.1.1",
+	"version": "0.1.0",
 	"homepage": "./",
 	"type": "module",
 	"scripts": {
@@ -13,6 +13,7 @@
 		"@emotion/react": "^11.11.4",
 		"@emotion/styled": "^11.11.5",
 		"@fontsource/roboto": "^5.0.12",
+		"@metamask/jazzicon": "^2.0.0",
 		"@mui/icons-material": "^5.15.15",
 		"@mui/material": "^5.15.15",
 		"@mui/styled-engine-sc": "6.0.0-alpha.17",
@@ -24,7 +25,6 @@
 		"@web3modal/wagmi": "3.5.7",
 		"axios": "^1.6.8",
 		"ipfs-geoip": "^9.1.0",
-		"jdenticon": "^3.3.0",
 		"react": "^18.2.0",
 		"react-country-flag": "^3.1.0",
 		"react-dom": "^18.2.0",
