@@ -45,8 +45,8 @@ importers:
         specifier: ^0.0.23
         version: 0.0.23(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@unlock-protocol/paywall':
-        specifier: ^0.7.1
-        version: 0.7.1
+        specifier: ^0.8.0
+        version: 0.8.1
       '@web3modal/wagmi':
         specifier: 3.5.7
         version: 3.5.7(@types/react@18.2.79)(@wagmi/core@1.4.13(@types/react@18.2.79)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@1.21.4(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4))(typescript@5.4.5)(viem@1.21.4(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4))
@@ -1155,8 +1155,8 @@ packages:
   '@unlock-protocol/networks@0.0.23':
     resolution: {integrity: sha512-i5Q5+4mHC8yqFjvFl11wFG8xNjkI7swXIAaZSYIJ9fNhI9LA9YBlbeK4Oq/DAeW/mh59HKKZx/DWKv3u6x7Cig==}
 
-  '@unlock-protocol/paywall@0.7.1':
-    resolution: {integrity: sha512-tL8f4sHhkm+OvNabqFRYz4ntzj+2OHf7AueDCXrLEHk51KJ6UYA5TmtaRmm7eI7htf45vJycNTbIgo02cBWifQ==}
+  '@unlock-protocol/paywall@0.8.1':
+    resolution: {integrity: sha512-V7228yztC2oiGEHUlWiJCgU1ntkvT41tVz3oIKYdW7vVG/DEZ6TJQfE+/LVHy4fzT5qDZbflPWp0+bcRQqHgmQ==}
 
   '@vitejs/plugin-react@4.2.1':
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
@@ -4082,7 +4082,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@unlock-protocol/paywall@0.7.1':
+  '@unlock-protocol/paywall@0.8.1':
     dependencies:
       postmate: 1.5.2
 
