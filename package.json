@@ -20,7 +20,7 @@
 		"@mui/x-charts": "^7.22.3",
 		"@mui/x-data-grid": "^6.20.4",
 		"@unlock-protocol/contracts": "^0.0.26",
-		"@unlock-protocol/networks": "^0.0.23",
+		"@unlock-protocol/networks": "^0.0.25",
 		"@unlock-protocol/paywall": "^0.7.1",
 		"@web3modal/wagmi": "3.5.7",
 		"axios": "^1.7.8",
