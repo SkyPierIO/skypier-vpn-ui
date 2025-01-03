@@ -16,7 +16,7 @@
 		"@metamask/jazzicon": "^2.0.0",
 		"@mui/icons-material": "^5.16.7",
 		"@mui/material": "^5.16.7",
-		"@mui/styled-engine-sc": "6.0.0-alpha.17",
+		"@mui/styled-engine-sc": "6.3.1",
 		"@mui/x-charts": "^7.22.3",
 		"@mui/x-data-grid": "^6.20.4",
 		"@unlock-protocol/contracts": "^0.0.26",
