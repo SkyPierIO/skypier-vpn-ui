@@ -39,8 +39,8 @@ importers:
         specifier: ^6.20.4
         version: 6.20.4(@mui/material@5.16.13(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.16.13(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@unlock-protocol/contracts':
-        specifier: ^0.0.26
-        version: 0.0.26
+        specifier: ^0.0.33
+        version: 0.0.33
       '@unlock-protocol/networks':
         specifier: ^0.0.23
         version: 0.0.23
@@ -1150,8 +1150,8 @@ packages:
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
-  '@unlock-protocol/contracts@0.0.26':
-    resolution: {integrity: sha512-LYYahkinowWjN4feJVaMXOJ8oc3HDKeMAZT3veLqqYZN0WfBqO8CBfEhODk6DTRbGbKpLN/rG7lpJ9XBVD4SJA==}
+  '@unlock-protocol/contracts@0.0.33':
+    resolution: {integrity: sha512-c60RA6fU/6cNeoE5n+RRJkd20BXCr3tOIPZpDqkaTNmfYvjaLGR4q1fIpRo/eG+XuT5kURFuR+Dhwway3OvtvA==}
 
   '@unlock-protocol/networks@0.0.23':
     resolution: {integrity: sha512-i5Q5+4mHC8yqFjvFl11wFG8xNjkI7swXIAaZSYIJ9fNhI9LA9YBlbeK4Oq/DAeW/mh59HKKZx/DWKv3u6x7Cig==}
@@ -3814,7 +3814,7 @@ snapshots:
 
   '@types/trusted-types@2.0.7': {}
 
-  '@unlock-protocol/contracts@0.0.26': {}
+  '@unlock-protocol/contracts@0.0.33': {}
 
   '@unlock-protocol/networks@0.0.23':
     dependencies:
