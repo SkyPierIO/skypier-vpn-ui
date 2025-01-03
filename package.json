@@ -25,17 +25,17 @@
 		"@web3modal/wagmi": "3.5.7",
 		"axios": "^1.7.8",
 		"ipfs-geoip": "^9.1.0",
-		"react": "^18.3.1",
+		"react": "^19.0.0",
 		"react-country-flag": "^3.1.0",
-		"react-dom": "^18.3.1",
+		"react-dom": "^19.0.0",
 		"react-router-dom": "^6.28.0",
 		"styled-components": "^6.1.13",
 		"viem": "^1.21.4",
 		"wagmi": "^1.4.13"
 	},
 	"devDependencies": {
-		"@types/react": "^18.3.12",
-		"@types/react-dom": "^18.3.1",
+		"@types/react": "^19.0.0",
+		"@types/react-dom": "^19.0.0",
 		"@vitejs/plugin-react": "^4.3.4",
 		"typescript": "^5.7.2",
 		"vite": "^5.4.11"
