@@ -17,7 +17,6 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ExploreIcon from '@mui/icons-material/Explore';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
-import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 
 // MUI
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
@@ -36,6 +35,7 @@ import { Stack, Fab } from "@mui/material";
 
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import QuitButton from "./components/QuitButton";
 
 
 const drawerWidth = 240;
@@ -180,11 +180,12 @@ function MyApp() {
             <Box>
         <Stack direction="row" spacing={1}>
           <IpLocation></IpLocation>
-          <w3m-network-button />
+          {/* <w3m-network-button /> */}
           <w3m-button />
           <Fab sx={fabHeaderStyle} onClick={colorMode.toggleColorMode} size="medium" variant="extended" color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
           </Fab>
+          <QuitButton />
         </Stack>
         </Box>
           </Toolbar>
@@ -260,10 +261,10 @@ function MyApp() {
         <Box component="main" className={`main-${theme.palette.mode}`} sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
           <DrawerHeader />
             <Login/>
-            <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
+            {/* <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
               <ElectricalServicesIcon />
                 FastConnect
-            </Fab>
+            </Fab> */}
         </Box>
       </Box>
   );

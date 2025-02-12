@@ -7,6 +7,7 @@ import SavedPeers from "../pages/SavedPeers";
 import Subscription from "../pages/Subscription";
 import Settings from "../pages/Settings";
 import Host from "../pages/Host";
+import Goodbye from '../pages/Goodbye';
 
 export default function SkypierRouter() {
 
@@ -21,6 +22,7 @@ export default function SkypierRouter() {
                     <Route path="/My_subscription" element={<Subscription/>}/>
                     <Route path="/Host_a_node" element={<Host/>}/>
                     <Route path="/Settings" element={<Settings/>}/>
+                    <Route path="/Goodbye" element={<Goodbye/>}/>
                 </Routes>
             </BrowserRouter>
         </>

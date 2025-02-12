@@ -19,21 +19,18 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
-
-// UNLOCK
 import { PublicLockV14 } from "@unlock-protocol/contracts";
 import networks from "@unlock-protocol/networks";
 import { Paywall } from "@unlock-protocol/paywall";
-
-// WAGMI
 import { useAccount, useConnect, useContractRead } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { sepolia } from "wagmi/chains";
-// import { connected } from "process";
+import VPNStatus from "../components/VPNStatus";
+import UtilityCard from "../components/UtilityCard";
 
 const LOCK = "0xFd25695782703df36CACF94c41306b3DB605Dc90";
 
-const Item = styled(Paper)(({ theme }) => ({
+const Item = styled(Paper)(({ theme }: { theme: any }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
   ...theme.typography.body2,
   padding: theme.spacing(1),
@@ -45,7 +42,6 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 const Peers = () => {
-
   const configuredNetworkID = sepolia.id;
   const { isConnected, address } = useAccount();
   
@@ -66,25 +62,7 @@ const Peers = () => {
       return data > 0;
     },
   });
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
-  if (isError) {
-    return <div>There was an error checking your membership status. Please reload the page!</div>;
-  }
-
-  // User not connected
-  if (!isConnected) {
-    return <Connect />;
-  }
-
-  // User does not have membership
-  if (!isMember) {
-    return <Checkout network={configuredNetworkID} />;
-  }
-
-  // All good: user is connected and they have a membership!
   const NODES_GRAPHQL = `
   {
     newPeers(first: 100) {
@@ -96,32 +74,59 @@ const Peers = () => {
   `;
 
   const NODES_GQL = gql(NODES_GRAPHQL);
-  const nodesData = useQuery(NODES_GQL, { pollInterval: 60000 }); // Fetch nodes data every minute
-  console.log("nodesData", nodesData);
+  const nodesData = useQuery(NODES_GQL, { pollInterval: 5 * 60000 }); // Fetch nodes data every 5 minutes
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    const c = () => {
+      return(
+        <>
+          <Typography mb={1}>
+            Please reload the page!
+          </Typography>
+          <Typography>
+            There was an error checking your membership status. Please reload the page!
+          </Typography>
+        </>
+      );
+    }
+    return <UtilityCard title="🪢 Error checking your membership status" content={c()}></UtilityCard>;
+  }
+
+  if (!isConnected) {
+    return <Connect />;
+  }
+
+  if (!isMember) {
+    return <Checkout network={configuredNetworkID} />;
+  }
 
   return nodesData.loading ? (
-    <Container sx={{textAlign: 'center'}}>
-        <Box
+    <Container sx={{ textAlign: 'center' }}>
+      <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
         minHeight="90vh"
-        >
-            <Item> 
-                <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
-                    <Typography variant='h6' mb={2}>
-                        Loading...
-                    </Typography>
-                    <Box sx={{ width: '100%' }}>
-                      <LinearProgress />
-                    </Box>
-                    <Typography variant='body1' mb={2}>
-                        Getting on-chain peers data...
-                    </Typography>
-                </Stack>
-            </Item>
-        </Box>
-    </Container>  
+      >
+        <Item>
+          <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
+            <Typography variant='h6' mb={2}>
+              Loading...
+            </Typography>
+            <Box sx={{ width: '100%' }}>
+              <LinearProgress />
+            </Box>
+            <Typography variant='body1' mb={2}>
+              Getting on-chain peers data...
+            </Typography>
+          </Stack>
+        </Item>
+      </Box>
+    </Container>
   ) : (
     <div>
       <Stack direction={"row"}>
@@ -132,45 +137,43 @@ const Peers = () => {
           component="form"
           sx={{ p: '2px 4px', ml: 3, display: 'flex', alignItems: 'center', width: 400 }}
         >
-            <IconButton sx={{ p: '10px' }} aria-label="menu">
-              <FilterAltIcon />
-            </IconButton>
-            <Divider></Divider>
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="Search for peers"
-              inputProps={{ 'aria-label': 'search for peers' }}
-            />
-            <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-              <SearchIcon />
-            </IconButton>
+          <IconButton sx={{ p: '10px' }} aria-label="menu">
+            <FilterAltIcon />
+          </IconButton>
+          <Divider />
+          <InputBase
+            sx={{ ml: 1, flex: 1 }}
+            placeholder="Search for peers"
+            inputProps={{ 'aria-label': 'search for peers' }}
+          />
+          <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+            <SearchIcon />
+          </IconButton>
         </Paper>
       </Stack>
       <br />
+      <VPNStatus />
       <Box sx={{ display: 'flex', flexWrap: "wrap", pb: 2 }}>
-          {nodesData.data.newPeers
-            .filter(
-              (node: any, index: any, self: any, item: any) =>
-                node.peerId && node.peerId.length > 43 && index === self.findIndex((item: { peerId: any; }) => item.peerId === node.peerId),
-            )
-            .sort(function(a: any, b: any) {
-              if(a.peerId.toLowerCase() > b.peerId.toLowerCase()) return -1;
-              if(a.peerId.toLowerCase() < b.peerId.toLowerCase()) return 1;
-              return 0;
-            })
-            .map((node: any, index: number) => (
-              <PeerCard node={node} key={node.peerId}></PeerCard>
+        {nodesData.data.newPeers
+          .filter(
+            (node: any, index: any, self: any, item: any) =>
+              node.peerId && node.peerId.length > 43 && index === self.findIndex((item: { peerId: any; }) => item.peerId === node.peerId),
+          )
+          .sort(function (a: any, b: any) {
+            if (a.peerId.toLowerCase() > b.peerId.toLowerCase()) return -1;
+            if (a.peerId.toLowerCase() < b.peerId.toLowerCase()) return 1;
+            return 0;
+          })
+          .map((node: any, index: number) => (
+            <PeerCard node={node} key={node.peerId}></PeerCard>
           ))}
       </Box>
     </div>
   );
 };
+
 export default Peers;
 
-/**
- * Connect subcomponent!
- * @returns
- */
 const Connect = () => {
   const { connect } = useConnect({
     connector: new InjectedConnector(),
@@ -188,10 +191,6 @@ const Connect = () => {
   );
 };
 
-/**
- * Checkout subcomponent!
- * @returns
- */
 const Checkout = ({ network }: { network: number }) => {
   const { connector } = useAccount();
   const checkout = async () => {
@@ -221,35 +220,35 @@ const Checkout = ({ network }: { network: number }) => {
 
   return (
     <section>
-      <Container sx={{textAlign: 'center'}}>
+      <Container sx={{ textAlign: 'center' }}>
         <Box
           display="flex"
           justifyContent="center"
           alignItems="center"
           minHeight="90vh"
-          >
-              <Item> 
-                  <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
-                      <Typography variant='h4' mb={2}>
-                        Before accessing our service...
-                      </Typography>
-                      <Typography variant='subtitle1'>
-                        You currently don't have a membership!
-                      </Typography>
-                      <Typography variant='subtitle1'>
-                        To be able to connect to a peer, you need to purchase a Skypier subscription.
-                      </Typography>
-                      <Button
-                        variant="outlined"
-                        onClick={() => checkout()}
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                      >
-                        Purchase subscription!
-                      </Button>
-                  </Stack>
-              </Item>
-          </Box>
-      </Container>  
+        >
+          <Item>
+            <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
+              <Typography variant='h4' mb={2}>
+                Before accessing our service...
+              </Typography>
+              <Typography variant='subtitle1'>
+                You currently don't have a membership!
+              </Typography>
+              <Typography variant='subtitle1'>
+                To be able to connect to a peer, you need to purchase a Skypier subscription.
+              </Typography>
+              <Button
+                variant="outlined"
+                onClick={() => checkout()}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Purchase subscription!
+              </Button>
+            </Stack>
+          </Item>
+        </Box>
+      </Container>
     </section>
   );
 };
