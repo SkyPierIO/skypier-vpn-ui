@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import http from "../http.common";
 
 import { styled } from '@mui/material/styles';
@@ -11,6 +11,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Button, TextareaAutosize } from "@mui/material";
 
 const ThemeSwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -69,13 +70,46 @@ const Settings = () => {
   //       console.log(response.data.uiTheme);
   //       if (response.data.uiTheme) {
   //         setTheme(response.data.uiTheme);
-  //       } 
+  //       }
   //     }
   //   } catch (error) {
   //     console.error(error);
   //   }
   // };
   // GetTheme();
+
+  const [config, setConfig] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const fetchConfig = async () => {
+    try {
+      const response = await http.get(`/getConfig`);
+      if (response.status === 200) {
+        setConfig(JSON.stringify(response.data, null, 2)); // Convert JSON object to string with indentation
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateConfig = async () => {
+    try {
+      const parsedConfig = JSON.parse(config); // Ensure the config is valid JSON
+      const response = await http.post(`/updateConfig`, parsedConfig);
+      if (response.status === 200) {
+        alert("Configuration updated successfully");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update configuration. Please ensure the configuration is valid JSON.");
+    }
+  };
+
+  useEffect(() => {
+    fetchConfig();
+  }, []);
 
   return (
     <div>
@@ -101,6 +135,31 @@ const Settings = () => {
           </FormGroup>
         </AccordionDetails>
       </Accordion>
+
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2-content"
+          id="panel2-header"
+        >
+          <Typography variant="h6">Skypier client configuration</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="body1" color="text.secondary">
+            Edit the Skypier configuration below:
+          </Typography>
+          <TextareaAutosize
+            minRows={10}
+            style={{ width: '100%', padding: '8px', fontSize: '16px', borderRadius: '4px', borderColor: '#ccc' }}
+            value={config}
+            onChange={(e) => setConfig(e.target.value)}
+          />
+          <Button variant="outlined" onClick={updateConfig} disabled={isLoading}>
+            Update configuration
+          </Button>
+        </AccordionDetails>
+      </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -111,7 +170,7 @@ const Settings = () => {
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            In debug mode you can use the Skypier Swagger UI. 
+            In debug mode you can use the Skypier Swagger UI.
           </Typography>
           <Typography>
             Visit Swagger API <a href="/swagger/index.html">here</a>
