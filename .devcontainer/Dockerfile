@@ -1,37 +1,5 @@
-# ARG VARIANT="22-bookworm"
-# FROM mcr.microsoft.com/devcontainers/typescript-node:1-${VARIANT}
-FROM golang:latest as builder-go
-
-# Use a multi-stage build to keep the final image small
-# First stage: build the Go application
-
-WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN go build -o myapp
-
-# Second stage: build the Node.js application
-FROM node:latest as builder-node
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-# Final stage: create the runtime image
-FROM alpine:latest
-# Install necessary packages
-RUN apk add --no-cache nodejs npm
-WORKDIR /root/
-COPY --from=builder-go /app/myapp ./
-COPY --from=builder-node /app/dist ./static
-
-# Expose ports if necessary
-EXPOSE 8080
-# Command to run both applications
-CMD ["./myapp"]
-
+ARG VARIANT="22-bookworm"
+FROM mcr.microsoft.com/devcontainers/typescript-node:1-${VARIANT}
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends npm
