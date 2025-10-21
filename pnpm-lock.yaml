@@ -45,8 +45,8 @@ importers:
         specifier: ^0.0.23
         version: 0.0.23
       '@unlock-protocol/paywall':
-        specifier: ^0.7.1
-        version: 0.7.1
+        specifier: ^0.8.0
+        version: 0.8.1
       '@web3modal/wagmi':
         specifier: 3.5.7
         version: 3.5.7(@types/react@18.3.18)(@wagmi/core@1.4.13(@types/react@18.3.18)(react@18.3.1)(typescript@5.7.2)(viem@1.21.4(typescript@5.7.2)(zod@3.22.4))(zod@3.22.4))(typescript@5.7.2)(viem@1.21.4(typescript@5.7.2)(zod@3.22.4))
@@ -1156,8 +1156,8 @@ packages:
   '@unlock-protocol/networks@0.0.23':
     resolution: {integrity: sha512-i5Q5+4mHC8yqFjvFl11wFG8xNjkI7swXIAaZSYIJ9fNhI9LA9YBlbeK4Oq/DAeW/mh59HKKZx/DWKv3u6x7Cig==}
 
-  '@unlock-protocol/paywall@0.7.1':
-    resolution: {integrity: sha512-tL8f4sHhkm+OvNabqFRYz4ntzj+2OHf7AueDCXrLEHk51KJ6UYA5TmtaRmm7eI7htf45vJycNTbIgo02cBWifQ==}
+  '@unlock-protocol/paywall@0.8.1':
+    resolution: {integrity: sha512-V7228yztC2oiGEHUlWiJCgU1ntkvT41tVz3oIKYdW7vVG/DEZ6TJQfE+/LVHy4fzT5qDZbflPWp0+bcRQqHgmQ==}
 
   '@vitejs/plugin-react@4.3.4':
     resolution: {integrity: sha512-SCCPBJtYLdE8PX/7ZQAs1QAZ8Jqwih+0VBLum1EGqmCCQal+MIUqLCzj3ZUy8ufbC0cAM4LRlSTm7IQJwWT4ug==}
@@ -1226,6 +1226,7 @@ packages:
 
   '@walletconnect/ethereum-provider@2.11.0':
     resolution: {integrity: sha512-YrTeHVjuSuhlUw7SQ6xBJXDuJ6iAC+RwINm9nVhoKYJSHAy3EVSJZOofMKrnecL0iRMtD29nj57mxAInIBRuZA==}
+    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/events@1.0.1':
     resolution: {integrity: sha512-NPTqaoi0oPBVNuLv7qPaJazmGHs5JGyO8eEAk5VGKmJzDR7AHzD4k6ilox5kxk1iwiOnFopBOOMLs86Oa76HpQ==}
@@ -1288,6 +1289,7 @@ packages:
 
   '@walletconnect/modal@2.6.2':
     resolution: {integrity: sha512-eFopgKi8AjKf/0U4SemvcYw9zlLpx9njVN8sf6DAkowC2Md0gPU/UNEbH1Wwj407pEKnEds98pKWib1NN1ACoA==}
+    deprecated: Please follow the migration guide on https://docs.reown.com/appkit/upgrade/wcm
 
   '@walletconnect/randombytes@1.0.3':
     resolution: {integrity: sha512-35lpzxcHFbTN3ABefC9W+uBpNZl1GC4Wpx0ed30gibfO/y9oLdy1NznbV96HARQKSBV9J9M/rrtIvf6a23jfYw==}
@@ -1303,7 +1305,7 @@ packages:
 
   '@walletconnect/sign-client@2.11.0':
     resolution: {integrity: sha512-H2ukscibBS+6WrzQWh+WyVBqO5z4F5et12JcwobdwgHnJSlqIoZxqnUYYWNCI5rUR5UKsKWaUyto4AE9N5dw4Q==}
-    deprecated: Reliability and performance greatly improved - please see https://github.com/WalletConnect/walletconnect-monorepo/releases
+    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/time@1.0.2':
     resolution: {integrity: sha512-uzdd9woDcJ1AaBZRhqy5rNC9laqWGErfc4dxA9a87mPdKOgWMD85mcFo9dIYIts/Jwocfwn07EC6EzclKubk/g==}
@@ -1313,6 +1315,7 @@ packages:
 
   '@walletconnect/universal-provider@2.11.0':
     resolution: {integrity: sha512-zgJv8jDvIMP4Qse/D9oIRXGdfoNqonsrjPZanQ/CHNe7oXGOBiQND2IIeX+tS0H7uNA0TPvctljCLiIN9nw4eA==}
+    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/utils@2.11.0':
     resolution: {integrity: sha512-hxkHPlTlDQILHfIKXlmzgNJau/YcSBC3XHUSuZuKZbNEw3duFT6h6pm3HT/1+j1a22IG05WDsNBuTCRkwss+BQ==}
@@ -3826,7 +3829,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@unlock-protocol/paywall@0.7.1':
+  '@unlock-protocol/paywall@0.8.1':
     dependencies:
       postmate: 1.5.2
 
