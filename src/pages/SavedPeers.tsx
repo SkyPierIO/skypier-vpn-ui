@@ -153,16 +153,16 @@ const SavedPeers = () => {
   };
 
   const loadPeerData = async (peerId: string) => {
-    // Check if peer already exists
-    const existingPeer = savedPeers.find(p => p.peerId === peerId);
-    if (existingPeer) {
-      return; // Don't add duplicate
-    }
-    
     // Check if we have cached location data
     const cachedLocation = locationCache[peerId];
     
     setSavedPeers(prev => {
+      // Check if peer already exists in the current state
+      const existingPeer = prev.find(p => p.peerId === peerId);
+      if (existingPeer) {
+        return prev; // Don't add duplicate
+      }
+      
       const peerData: PeerData = {
         peerId,
         status: "Checking...",
