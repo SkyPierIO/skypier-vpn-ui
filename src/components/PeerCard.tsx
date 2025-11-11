@@ -29,11 +29,12 @@ import CheckStarredPeer from "./CheckStarredPeer";
 
 interface Props {
   node: any;
+  onMetadataUpdate?: (peerId: string, metadata: any) => void;
 }
 
 const cache: { [key: string]: any } = {};
 
-const PeerCard = ({ node }: Props) => {
+const PeerCard = ({ node, onMetadataUpdate }: Props) => {
   const identiconRef = useRef<HTMLDivElement>(null);
 
 
@@ -100,13 +101,25 @@ const PeerCard = ({ node }: Props) => {
       if (response.status === 200) {
         if (response.data.result) {
           // alert(response.data.result);
-          updateStatus("• Online") 
+          const newStatus = "• Online";
+          updateStatus(newStatus);
+          if (onMetadataUpdate) {
+            onMetadataUpdate(node.peerId, { status: newStatus });
+          }
         } else {
-          updateStatus("⟳ Unreachable");
+          const newStatus = "⟳ Unreachable";
+          updateStatus(newStatus);
+          if (onMetadataUpdate) {
+            onMetadataUpdate(node.peerId, { status: newStatus });
+          }
         }
       } 
     } catch (error) {
-      updateStatus("⟳ Unreachable");
+      const newStatus = "⟳ Unreachable";
+      updateStatus(newStatus);
+      if (onMetadataUpdate) {
+        onMetadataUpdate(node.peerId, { status: newStatus });
+      }
     }
   };
 
@@ -146,6 +159,11 @@ const PeerCard = ({ node }: Props) => {
           latitude: latitudeData,
           longitude: longitudeData,
         };
+
+        // Update parent with metadata
+        if (onMetadataUpdate) {
+          onMetadataUpdate(node.peerId, { geoIP: geoIPData, countryCode: countryCodeData });
+        }
       } else {
         return;
       }
@@ -171,7 +189,9 @@ const PeerCard = ({ node }: Props) => {
       if (identiconRef.current) {
         const hash = await sha256(node.peerId);
         const numericValue = parseInt(hash.slice(0, 8), 16); // Convert first 8 characters of hash to a number
-        const icon = jazzicon(60, numericValue);
+        // Adjust icon size based on container size
+        const iconSize = window.innerWidth < 600 ? 60 : 70;
+        const icon = jazzicon(iconSize, numericValue);
         identiconRef.current.innerHTML = '';
         identiconRef.current.appendChild(icon);
       }
@@ -183,84 +203,196 @@ const PeerCard = ({ node }: Props) => {
 
   return (
   <>
-      <Card sx={{ display: 'flex', m:1 }} key={node.peerId} onLoad={async () => handleStatus()}>
-          
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <CardContent sx={{ flex: '1 0 auto', minWidth: 350 }}>
-                <Stack direction={"row"} sx={{mb: 2}}>
-                  <Typography component="h2" variant="h4">
-                    {(countryCode === "xx") ? <LocationOnIcon /> : <ReactCountryFlag countryCode={countryCode} svg />}
-                  </Typography>
-                  <Typography component="h2" variant="h6" sx={{pt:1}}>
-                    {" "+geoIP} 
-                  </Typography>   
-                </Stack>
-                <Chip 
-                  sx={{mr:1, mb: 2}} 
-                  label={status} 
-                  color={(status === "• Online") ? "success" : "default"}  
-                  size="small" 
-                  variant="outlined" 
+      <Card 
+        sx={{ 
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          borderRadius: 2,
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: 4
+          }
+        }} 
+        key={node.peerId} 
+        onLoad={async () => handleStatus()}
+      >
+        {/* Star Button - Top Right */}
+        <Box 
+          sx={{ 
+            position: 'absolute', 
+            top: 12, 
+            right: 12,
+            zIndex: 2
+          }}
+        >
+          <CheckStarredPeer peerId={node.peerId}/>
+        </Box>
+
+        <CardContent sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 1, sm: 2 } }}>
+          {/* Header: Flag + Location */}
+          <Stack 
+            direction="row" 
+            spacing={1.5} 
+            alignItems="center"
+            sx={{ mb: 2 }}
+          >
+            <Box 
+              sx={{ 
+                fontSize: { xs: '2rem', sm: '2.5rem' },
+                lineHeight: 1,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              {(countryCode === "xx") ? (
+                <LocationOnIcon sx={{ fontSize: 'inherit' }} />
+              ) : (
+                <ReactCountryFlag 
+                  countryCode={countryCode} 
+                  svg 
+                  style={{ 
+                    width: '2em', 
+                    height: '1.5em',
+                    borderRadius: '4px'
+                  }}
                 />
-                <Typography component="p" variant="caption">
-                    Peer <span style={{color:"#5df", fontFamily: "monospace"}}>{node.peerId.substring(0, 5)}...{node.peerId.slice(-20 )}</span>
-                </Typography>
-                <Typography component="p" variant="caption">
-                  Created <span style={{color:"#5df"}}>{new Date(node.timestamp * 1000).toLocaleDateString()} </span>
-                </Typography>
-                {/* <Stack direction={"row"} sx={{mt:1}}> */}
-                    {/* <LocationModal latitude={latitude} longitude={longitude} country={geoIP.split(",")[0]} city={geoIP.split(",")[1]}/> */}
-                {/* </Stack> */}
-                {/* <br/> */}
-                <Stack sx={{mt:1}}>
-                    {(status === "• Fetching status...") ? (
-                      <>
-                        <Skeleton animation="wave" width={"60%"} height={20}/>
-                        <Skeleton animation="wave" width={"100%"} height={40}/>
-                      </>
-                    ) : 
-                    (status === "⟳ Unreachable" || status === "⟳ Unknown") ? (
-                          <Button 
-                              sx={{mt:2}}
-                              size="small" 
-                              variant="outlined" 
-                              disabled>
-                              Connect
-                          </Button>
-                      ) : (
-                          <Box sx={{display: 'flex',flexDirection: 'row',justifyContent: 'left', mt:2}}>
-                            <ButtonGroup variant="outlined">
-                              <Button 
-                                size="small" 
-                                onClick={async () => handlePing(node.peerId)}>
-                                  Ping
-                              </Button>
-                              <Button
-                                sx={{pl:2}} 
-                                size="small" 
-                                onClick={async () => handleConnect(node.peerId)} endIcon={<ElectricalServicesIcon sx={{borderRadius:1}}/>}>
-                                  Connect
-                              </Button>
-                            </ButtonGroup>
-                          </Box>
-                      )
-                    }
-                    {}
-                  
-                </Stack>
-              </CardContent>
+              )}
+            </Box>
+            <Typography 
+              variant="h6" 
+              component="div"
+              sx={{ 
+                fontWeight: 600,
+                fontSize: { xs: '1rem', sm: '1.125rem' },
+                flex: 1,
+                pr: 5
+              }}
+            >
+              {geoIP}
+            </Typography>
+          </Stack>
+
+          {/* Status Chip */}
+          <Box sx={{ mb: 2 }}>
+            <Chip 
+              label={status} 
+              color={(status === "• Online") ? "success" : "default"}  
+              size="small" 
+              variant="filled"
+              sx={{ 
+                fontWeight: 500,
+                height: 24
+              }}
+            />
           </Box>
-            <Stack>
-            <CardMedia
-            component="div"
-            sx={{ width: 110, height: 110, p: 3 }}
-            ref={identiconRef}
-          />
-            <Box sx={{textAlign: "center"}}>
-              <CheckStarredPeer peerId={node.peerId}/>
+
+          {/* Jazzicon and Peer Info Side by Side */}
+          <Stack 
+            direction="row" 
+            spacing={2} 
+            alignItems="center"
+            sx={{ mb: 2 }}
+          >
+            {/* Jazzicon */}
+            <Box
+              ref={identiconRef}
+              sx={{ 
+                width: { xs: 60, sm: 70 }, 
+                height: { xs: 60, sm: 70 },
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                '& > div': {
+                  borderRadius: '50%'
+                }
+              }}
+            />
+            
+            {/* Peer ID and Date */}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography 
+                variant="caption" 
+                component="div"
+                sx={{ 
+                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                  mb: 0.5,
+                  color: 'text.secondary'
+                }}
+              >
+                Peer ID
+              </Typography>
+              <Typography 
+                variant="body2"
+                sx={{ 
+                  fontFamily: 'monospace',
+                  fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                  color: '#5df',
+                  wordBreak: 'break-all',
+                  mb: 1
+                }}
+              >
+                {node.peerId.substring(0, 8)}...{node.peerId.slice(-8)}
+              </Typography>
+              <Typography 
+                variant="caption"
+                sx={{ 
+                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                  color: 'text.secondary'
+                }}
+              >
+                Created <span style={{color:"#5df"}}>{new Date(node.timestamp * 1000).toLocaleDateString()}</span>
+              </Typography>
             </Box>
           </Stack>
+
+          {/* Action Buttons */}
+          <Box sx={{ mt: 2 }}>
+            {(status === "• Fetching status...") ? (
+              <Stack spacing={1}>
+                <Skeleton animation="wave" width="60%" height={20}/>
+                <Skeleton animation="wave" width="100%" height={36}/>
+              </Stack>
+            ) : (status === "⟳ Unreachable" || status === "⟳ Unknown") ? (
+              <Button 
+                size="medium" 
+                variant="outlined" 
+                fullWidth
+                disabled
+              >
+                Connect
+              </Button>
+            ) : (
+              <ButtonGroup 
+                variant="contained"
+                fullWidth
+                sx={{
+                  '& .MuiButton-root': {
+                    py: 1
+                  }
+                }}
+              >
+                <Button 
+                  onClick={async () => handlePing(node.peerId)}
+                  sx={{ flex: 1 }}
+                >
+                  Ping
+                </Button>
+                <Button
+                  onClick={async () => handleConnect(node.peerId)} 
+                  endIcon={<ElectricalServicesIcon />}
+                  sx={{ flex: 2 }}
+                >
+                  Connect
+                </Button>
+              </ButtonGroup>
+            )}
+          </Box>
+        </CardContent>
       </Card>
+      
       <Snackbar
         open={open}
         autoHideDuration={6000}

@@ -55,7 +55,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
+  width: 0,
   [theme.breakpoints.up("sm")]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
@@ -155,39 +155,52 @@ function MyApp() {
   return (
     <Box sx={{ display: "flex" }} >
         <AppBar position="fixed" open={open}>
-          <Toolbar sx={{backdropFilter: "blur(8px)"}} className={`main-toolbar toolbar-${theme.palette.mode}`}>
+          <Toolbar sx={{ backdropFilter: "blur(8px)" }} className={`main-toolbar toolbar-${theme.palette.mode}`}>
             <IconButton
               color="inherit"
               aria-label="open drawer"
               onClick={handleDrawerOpen}
               edge="start"
               sx={{
-                marginRight: 2,
+                marginRight: { xs: 1, sm: 2 },
                 ...(open && { display: "none" }),
               }}
             >
               <MenuIcon />
             </IconButton>
-        <Typography component="div" sx={{ flexGrow: 1 }}>
-          <a href="/">
-            <img
-              src="/logo.svg"
-              alt="Skypier Logo"
-              height="35"
-            />
-          </a>
+            <Typography component="div" sx={{ flexGrow: 1 }}>
+              <a href="/">
+                <img
+                  src="/logo.svg"
+                  alt="Skypier Logo"
+                  style={{ height: '35px', maxWidth: '100%' }}
+                />
+              </a>
             </Typography>
             <Box>
-        <Stack direction="row" spacing={1}>
-          <IpLocation></IpLocation>
-          {/* <w3m-network-button /> */}
-          <w3m-button />
-          <Fab sx={fabHeaderStyle} onClick={colorMode.toggleColorMode} size="medium" variant="extended" color="inherit">
-              {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-          </Fab>
-          <QuitButton />
-        </Stack>
-        </Box>
+              <Stack direction="row" spacing={{ xs: 0.5, sm: 1 }} alignItems="center">
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                  <IpLocation />
+                </Box>
+                <w3m-button />
+                <Fab 
+                  sx={{
+                    ...fabHeaderStyle,
+                    minWidth: { xs: 'auto', sm: 'auto' },
+                    padding: { xs: '7px 8px', sm: '7px 12px 7px 8px' }
+                  }} 
+                  onClick={colorMode.toggleColorMode} 
+                  size="medium" 
+                  variant="extended" 
+                  color="inherit"
+                >
+                  {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+                </Fab>
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                  <QuitButton />
+                </Box>
+              </Stack>
+            </Box>
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
@@ -258,13 +271,19 @@ function MyApp() {
             ))}
           </List>
         </Drawer>
-        <Box component="main" className={`main-${theme.palette.mode}`} sx={{ flexGrow: 1, p: 3, minHeight:"100vh"}}>
+        <Box 
+          component="main" 
+          className={`main-${theme.palette.mode}`} 
+          sx={{ 
+            flexGrow: 1, 
+            p: { xs: 1, sm: 2, md: 3 }, 
+            minHeight: "100vh",
+            width: { xs: '100%', sm: 'auto' },
+            overflow: 'hidden'
+          }}
+        >
           <DrawerHeader />
-            <Login/>
-            {/* <Fab sx={fabStyle} aria-label="fff" color="secondary" variant="extended">
-              <ElectricalServicesIcon />
-                FastConnect
-            </Fab> */}
+          <Login />
         </Box>
       </Box>
   );
