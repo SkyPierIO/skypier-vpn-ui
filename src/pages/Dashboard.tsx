@@ -8,11 +8,8 @@ import {
   Button,
   Chip,
   Avatar,
-  LinearProgress,
   IconButton,
   Tooltip,
-  Paper,
-  Fade,
   Skeleton,
   useMediaQuery,
 } from '@mui/material';
@@ -507,7 +504,7 @@ const Dashboard: React.FC = () => {
       </Box>
 
       {/* Stats Row - Only when connected */}
-      <Fade in={isConnected && !!stats}>
+      {isConnected && stats && (
         <Box sx={{ mb: { xs: 3, md: 4 } }}>
           <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid size={{ xs: 6, sm: 3 }}>
@@ -546,7 +543,7 @@ const Dashboard: React.FC = () => {
             </Grid>
           </Grid>
         </Box>
-      </Fade>
+      )}
 
       {/* Bottom Section */}
       <Grid container spacing={{ xs: 2, md: 3 }}>
