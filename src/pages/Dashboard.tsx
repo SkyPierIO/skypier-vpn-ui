@@ -12,6 +12,7 @@ import {
   Tooltip,
   Skeleton,
   useMediaQuery,
+  CircularProgress,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useTheme, alpha } from '@mui/material/styles';
@@ -272,7 +273,7 @@ const Dashboard: React.FC = () => {
                 size="large"
                 onClick={isConnected ? handleDisconnect : () => window.location.href = '/Explore_peers'}
                 disabled={connecting}
-                startIcon={<PowerSettingsNewIcon />}
+                startIcon={connecting ? <CircularProgress size={20} sx={{ color: isConnected ? '#059669' : '#4f46e5' }} /> : <PowerSettingsNewIcon />}
                 sx={{
                   bgcolor: 'white',
                   color: isConnected ? '#059669' : '#4f46e5',
@@ -433,7 +434,7 @@ const Dashboard: React.FC = () => {
     <Card sx={{ borderRadius: 3, height: '100%' }}>
       <CardContent sx={{ p: { xs: 2, md: 3 } }}>
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-          Network
+          P2P Network
         </Typography>
         
         <Grid container spacing={2}>

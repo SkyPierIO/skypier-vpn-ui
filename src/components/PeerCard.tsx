@@ -11,6 +11,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
+import PowerOffIcon from '@mui/icons-material/PowerOff';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
@@ -18,6 +19,7 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
+import CircularProgress from '@mui/material/CircularProgress';
 import jazzicon from '@metamask/jazzicon';
 
 
@@ -30,13 +32,56 @@ import CheckStarredPeer from "./CheckStarredPeer";
 interface Props {
   node: any;
   onMetadataUpdate?: (peerId: string, metadata: any) => void;
+  isVpnConnected?: boolean;
+  connectedPeerId?: string | null;
 }
 
 const cache: { [key: string]: any } = {};
 
-const PeerCard = ({ node, onMetadataUpdate }: Props) => {
+const PeerCard = ({ node, onMetadataUpdate, isVpnConnected = false, connectedPeerId = null }: Props) => {
   const identiconRef = useRef<HTMLDivElement>(null);
+  const isThisPeerConnected = isVpnConnected && connectedPeerId === node.peerId;
+  const [isDisconnecting, setIsDisconnecting] = useState<boolean>(false);
 
+  const handleDisconnect = async (peerId: string) => {
+    console.log("Disconnect requested; node ID", peerId);
+    setIsDisconnecting(true);
+    try {
+      console.log('Sending disconnect request for peer:', peerId);
+      const response = await http.get(`/disconnect/` + peerId, {
+        timeout: 10000, // 10 second timeout for disconnect operation
+      });
+      console.log('Disconnect response status:', response.status);
+      console.log('Disconnect response data:', response.data);
+      
+      // Check if response indicates success
+      if (response.status === 200 && response.data?.status === 'disconnected') {
+        setOpen(true);
+        setSnackBarText("Disconnected successfully!");
+      } else {
+        console.warn('Unexpected response:', response);
+        setOpen(true);
+        setSnackBarText("Failed to disconnect");
+      }
+    } catch (error: any) {
+      console.error("Error disconnecting:", error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+      
+      // Check if it's actually successful despite the error
+      if (error.response?.status === 200 && error.response?.data?.status === 'disconnected') {
+        console.log('Disconnect successful despite error thrown');
+        setOpen(true);
+        setSnackBarText("Disconnected successfully!");
+      } else {
+        console.error('Disconnect truly failed');
+        setOpen(true);
+        setSnackBarText("Failed to disconnect");
+      }
+    } finally {
+      setIsDisconnecting(false);
+    }
+  };
 
   const handlePing = async (peerId: string) => {
       console.log("Ping requested; node ID", peerId);
@@ -211,8 +256,21 @@ const PeerCard = ({ node, onMetadataUpdate }: Props) => {
           overflow: 'hidden',
           borderRadius: 2,
           transition: 'all 0.2s ease-in-out',
+          border: isThisPeerConnected ? '2px solid #10b981' : 'none',
+          animation: isThisPeerConnected ? 'cardRipple 1.5s infinite' : 'none',
+          '@keyframes cardRipple': {
+            '0%': {
+              boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.4)',
+            },
+            '70%': {
+              boxShadow: '0 0 0 10px rgba(16, 185, 129, 0)',
+            },
+            '100%': {
+              boxShadow: '0 0 0 0 rgba(16, 185, 129, 0)',
+            },
+          },
           '&:hover': {
-            boxShadow: 4
+            boxShadow: isThisPeerConnected ? undefined : 4
           }
         }} 
         key={node.peerId} 
@@ -364,7 +422,61 @@ const PeerCard = ({ node, onMetadataUpdate }: Props) => {
               >
                 Connect
               </Button>
+            ) : isThisPeerConnected ? (
+              /* This peer is connected - show Disconnect button */
+              <ButtonGroup 
+                variant="contained"
+                fullWidth
+                sx={{
+                  '& .MuiButton-root': {
+                    py: 1
+                  }
+                }}
+              >
+                <Button 
+                  onClick={async () => handlePing(node.peerId)}
+                  disabled={isDisconnecting}
+                  sx={{ flex: 1 }}
+                >
+                  Ping
+                </Button>
+                <Button
+                  onClick={async () => handleDisconnect(node.peerId)} 
+                  disabled={isDisconnecting}
+                  startIcon={isDisconnecting ? <CircularProgress size={20} color="inherit" /> : <PowerOffIcon />}
+                  color="error"
+                  sx={{ flex: 2 }}
+                >
+                  {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+                </Button>
+              </ButtonGroup>
+            ) : isVpnConnected ? (
+              /* VPN is connected to another peer - disable Connect button */
+              <ButtonGroup 
+                variant="contained"
+                fullWidth
+                sx={{
+                  '& .MuiButton-root': {
+                    py: 1
+                  }
+                }}
+              >
+                <Button 
+                  onClick={async () => handlePing(node.peerId)}
+                  sx={{ flex: 1 }}
+                >
+                  Ping
+                </Button>
+                <Button
+                  disabled
+                  endIcon={<ElectricalServicesIcon />}
+                  sx={{ flex: 2 }}
+                >
+                  Connect
+                </Button>
+              </ButtonGroup>
             ) : (
+              /* No VPN connection - show normal Connect button */
               <ButtonGroup 
                 variant="contained"
                 fullWidth

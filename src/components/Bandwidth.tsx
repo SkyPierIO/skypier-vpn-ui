@@ -137,6 +137,7 @@ export default function Bandwidth({ peerId, maxDataPoints = 60 }: BandwidthProps
             area: true,
             color: '#f6547d',
             showMark: false,
+            disableHighlight: true,
           },
           {
             label: isMobile ? '↓' : 'Download',
@@ -144,10 +145,13 @@ export default function Bandwidth({ peerId, maxDataPoints = 60 }: BandwidthProps
             area: true,
             color: '#641691',
             showMark: false,
+            disableHighlight: true,
           },
         ]}
         width={chartWidth}
         height={chartHeight}
+        skipAnimation
+        disableAxisListener
         margin={{ 
           left: isMobile ? 40 : 60, 
           right: isMobile ? 10 : 20,

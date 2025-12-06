@@ -61,6 +61,15 @@ const Peers = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const filterOpen = Boolean(anchorEl);
 
+  // VPN connection state
+  const [vpnConnected, setVpnConnected] = useState<boolean>(false);
+  const [connectedPeerId, setConnectedPeerId] = useState<string | null>(null);
+
+  const handleVpnStatusChange = (connected: boolean, peerId: string | null) => {
+    setVpnConnected(connected);
+    setConnectedPeerId(peerId);
+  };
+
   const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -337,7 +346,7 @@ const Peers = () => {
       </Stack>
       
       <Box sx={{ mb: 3 }}>
-        <VPNStatus />
+        <VPNStatus onStatusChange={handleVpnStatusChange} />
       </Box>
       
       {/* Results count */}
@@ -375,6 +384,8 @@ const Peers = () => {
               node={node} 
               key={node.peerId}
               onMetadataUpdate={updatePeerMetadata}
+              isVpnConnected={vpnConnected}
+              connectedPeerId={connectedPeerId}
             />
           ))
         )}
