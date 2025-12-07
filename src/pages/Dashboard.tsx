@@ -37,6 +37,7 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 // Components & Services
 import Bandwidth from '../components/Bandwidth';
+import PeerWorldMap from '../components/PeerWorldMap';
 import http from '../http.common';
 import StatsService from '../services/stats.service';
 import { ConnectionStats, formatBytes, formatBitrate, formatDuration } from '../types/stats.type';
@@ -469,6 +470,11 @@ const Dashboard: React.FC = () => {
             </Box>
           </Grid>
         </Grid>
+
+        {/* World Map with peer locations */}
+        <Box sx={{ mt: 2, borderRadius: 2, overflow: 'hidden', bgcolor: 'background.default' }}>
+          <PeerWorldMap height={180} />
+        </Box>
       </CardContent>
     </Card>
   );
