@@ -20,7 +20,7 @@
 		"@mui/x-charts": "^8.17.0",
 		"@mui/x-data-grid": "^8.17.0",
 		"@types/react-simple-maps": "^3.0.6",
-		"@unlock-protocol/contracts": "^0.0.26",
+		"@unlock-protocol/contracts": "^0.0.35",
 		"@unlock-protocol/networks": "^0.0.23",
 		"@unlock-protocol/paywall": "^0.7.1",
 		"@web3modal/wagmi": "3.5.7",

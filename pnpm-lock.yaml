@@ -42,8 +42,8 @@ importers:
         specifier: ^3.0.6
         version: 3.0.6
       '@unlock-protocol/contracts':
-        specifier: ^0.0.26
-        version: 0.0.26
+        specifier: ^0.0.35
+        version: 0.0.35
       '@unlock-protocol/networks':
         specifier: ^0.0.23
         version: 0.0.23
@@ -1189,8 +1189,8 @@ packages:
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
-  '@unlock-protocol/contracts@0.0.26':
-    resolution: {integrity: sha512-LYYahkinowWjN4feJVaMXOJ8oc3HDKeMAZT3veLqqYZN0WfBqO8CBfEhODk6DTRbGbKpLN/rG7lpJ9XBVD4SJA==}
+  '@unlock-protocol/contracts@0.0.35':
+    resolution: {integrity: sha512-tEoYPf/Nw0G3TKGYYp2bK5+jqk/4RDcHwJOJCc9umfDHOUoVo5YXWcLN36SHNP6kCe40DdyVE3EmHNX+Brx9hg==}
 
   '@unlock-protocol/networks@0.0.23':
     resolution: {integrity: sha512-i5Q5+4mHC8yqFjvFl11wFG8xNjkI7swXIAaZSYIJ9fNhI9LA9YBlbeK4Oq/DAeW/mh59HKKZx/DWKv3u6x7Cig==}
@@ -3972,7 +3972,7 @@ snapshots:
 
   '@types/trusted-types@2.0.7': {}
 
-  '@unlock-protocol/contracts@0.0.26': {}
+  '@unlock-protocol/contracts@0.0.35': {}
 
   '@unlock-protocol/networks@0.0.23':
     dependencies:
