@@ -35,7 +35,7 @@
 		"react-simple-maps": "^3.0.0",
 		"styled-components": "^6.1.19",
 		"topojson-client": "^3.1.0",
-		"viem": "^1.21.4",
+		"viem": "^2.0.0",
 		"wagmi": "^1.4.13"
 	},
 	"devDependencies": {
