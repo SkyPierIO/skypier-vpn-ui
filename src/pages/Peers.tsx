@@ -1,74 +1,150 @@
-
 // React
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
-// GrapQL
+// GraphQL
 import { gql, useQuery } from "@apollo/client";
 
-// Commponents
-import PeerCard from "../components/PeerCard"
+// Components
+import WorldMap from "../components/WorldMap";
+import CountryAccordion from "../components/CountryAccordion";
+import ActiveConnection from "../components/ActiveConnection";
 
 // MUI
 import Typography from "@mui/material/Typography";
-import IconButton from '@mui/material/IconButton';
-import Button from '@mui/material/Button';
-import InputBase from '@mui/material/InputBase';
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
-import Divider from '@mui/material/Divider';
-import SearchIcon from '@mui/icons-material/Search';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import ClearIcon from '@mui/icons-material/Clear';
-import Box from '@mui/material/Box';
-import LinearProgress from '@mui/material/LinearProgress';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Chip from '@mui/material/Chip';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import { styled } from '@mui/material/styles';
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import InputBase from "@mui/material/InputBase";
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
+import Paper from "@mui/material/Paper";
+import Divider from "@mui/material/Divider";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import ClearIcon from "@mui/icons-material/Clear";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Chip from "@mui/material/Chip";
+import Grid from "@mui/material/Grid";
+import { styled } from "@mui/material/styles";
 import { PublicLockV14 } from "@unlock-protocol/contracts";
 import networks from "@unlock-protocol/networks";
 import { Paywall } from "@unlock-protocol/paywall";
 import { useAccount, useConnect, useContractRead } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { sepolia } from "wagmi/chains";
-import VPNStatus from "../components/VPNStatus";
 import UtilityCard from "../components/UtilityCard";
+
+// Axios
+import http from "../http.common";
+
+// GeoIP
+import { lookup } from "ipfs-geoip";
 
 const LOCK = "0xFd25695782703df36CACF94c41306b3DB605Dc90";
 
 const Item = styled(Paper)(({ theme }: { theme: any }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
   padding: theme.spacing(1),
-  textAlign: 'center',
+  textAlign: "center",
   color: theme.palette.text.secondary,
   flexGrow: 1,
   maxWidth: 550,
-  minHeight: "20vh"
+  minHeight: "20vh",
 }));
+
+interface PeerLocation {
+  peerId: string;
+  latitude: number;
+  longitude: number;
+  countryCode: string;
+  city: string;
+  country: string;
+  status?: string;
+  timestamp?: string;
+}
+
+interface VPNStatusResponse {
+  status: string;
+  peer_id?: string;
+}
+
+// Cache for peer geo data
+const geoCache: { [key: string]: PeerLocation } = {};
 
 const Peers = () => {
   const configuredNetworkID = sepolia.id;
-  const { isConnected, address } = useAccount();
-  
+  const { isConnected: isWalletConnected, address, connector } = useAccount();
+
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("all");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const filterOpen = Boolean(anchorEl);
 
-  // VPN connection state
-  const [vpnConnected, setVpnConnected] = useState<boolean>(false);
+  // Peer selection and connection states
+  const [selectedPeerId, setSelectedPeerId] = useState<string | null>(null);
   const [connectedPeerId, setConnectedPeerId] = useState<string | null>(null);
+  const [isVpnConnected, setIsVpnConnected] = useState(false);
 
-  const handleVpnStatusChange = (connected: boolean, peerId: string | null) => {
-    setVpnConnected(connected);
-    setConnectedPeerId(peerId);
-  };
+  // Peer locations with geo data
+  const [peerLocations, setPeerLocations] = useState<{
+    [key: string]: PeerLocation;
+  }>({});
+
+  // User's current location
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Fetch user's location
+  useEffect(() => {
+    const fetchUserLocation = async () => {
+      try {
+        const response = await fetch("http://ip-api.com/json/?fields=lat,lon");
+        const data = await response.json();
+        if (data.lat && data.lon) {
+          setUserLocation({ latitude: data.lat, longitude: data.lon });
+        }
+      } catch (error) {
+        console.error("Error fetching user location:", error);
+      }
+    };
+    fetchUserLocation();
+  }, []);
+
+  // Poll VPN status
+  useEffect(() => {
+    const fetchVPNStatus = async () => {
+      try {
+        const response = await http.get<VPNStatusResponse>("/status", {
+          timeout: 5000,
+        });
+        setIsVpnConnected(response.data.status === "connected");
+        if (response.data.status === "connected" && response.data.peer_id) {
+          setConnectedPeerId(response.data.peer_id);
+        } else {
+          setConnectedPeerId(null);
+        }
+      } catch (error) {
+        console.error("Error fetching VPN status:", error);
+      }
+    };
+
+    fetchVPNStatus();
+    intervalRef.current = setInterval(fetchVPNStatus, 5000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -86,12 +162,79 @@ const Peers = () => {
   const handleClearSearch = () => {
     setSearchQuery("");
   };
-  
+
+  const handlePeerSelect = (peerId: string) => {
+    setSelectedPeerId(peerId === selectedPeerId ? null : peerId);
+  };
+
+  const handlePeerConnect = async (peerId: string) => {
+    try {
+      const response = await http.get(`/connect/${peerId}`);
+      if (response.status === 200) {
+        setConnectedPeerId(peerId);
+        setIsVpnConnected(true);
+      }
+    } catch (error) {
+      console.error("Error connecting to peer:", error);
+    }
+  };
+
+  const handleDisconnect = () => {
+    setConnectedPeerId(null);
+    setIsVpnConnected(false);
+  };
+
+  // Fetch geo data for a peer
+  const fetchPeerGeoData = async (
+    peerId: string
+  ): Promise<PeerLocation | null> => {
+    if (geoCache[peerId]) {
+      return geoCache[peerId];
+    }
+
+    try {
+      const response = await http.get(`/peer/${peerId}/info`, { timeout: 5000 });
+      if (response.status === 200 && response.data.length >= 1) {
+        const ip = response.data[0];
+        const gateways = ["https://ipfs.io", "https://dweb.link"];
+        const result = await lookup(gateways, ip);
+
+        if (result && result.country_name && result.country_code) {
+          const peerLocation: PeerLocation = {
+            peerId,
+            latitude: result.latitude,
+            longitude: result.longitude,
+            countryCode: result.country_code,
+            city: result.city || "Unknown",
+            country: result.country_name,
+            status: "Unknown",
+          };
+          geoCache[peerId] = peerLocation;
+          return peerLocation;
+        }
+      }
+    } catch (error) {
+      console.error(`Error fetching geo data for ${peerId}:`, error);
+    }
+    return null;
+  };
+
+  // Check peer status
+  const checkPeerStatus = async (peerId: string): Promise<string> => {
+    try {
+      const response = await http.get(`/ping/${peerId}`, { timeout: 5000 });
+      return response.status === 200 && response.data.result
+        ? "Online"
+        : "Unreachable";
+    } catch {
+      return "Unreachable";
+    }
+  };
+
   const {
     data: isMember,
     isError,
     isLoading,
-    error,
   } = useContractRead({
     address: LOCK,
     abi: PublicLockV14.abi,
@@ -116,63 +259,167 @@ const Peers = () => {
   `;
 
   const NODES_GQL = gql(NODES_GRAPHQL);
-  const nodesData = useQuery(NODES_GQL, { pollInterval: 5 * 60000 }); // Fetch nodes data every 5 minutes
+  const nodesData = useQuery(NODES_GQL, { pollInterval: 5 * 60000 });
 
-  // Store peer metadata (location info etc)
-  const [peerMetadata, setPeerMetadata] = useState<{[key: string]: any}>({});
+  // Load all peers immediately, then fetch geo data
+  useEffect(() => {
+    if (!nodesData.data?.newPeers) return;
 
-  const updatePeerMetadata = (peerId: string, metadata: any) => {
-    setPeerMetadata(prev => ({
-      ...prev,
-      [peerId]: { ...prev[peerId], ...metadata }
-    }));
-  };
+    const loadAllGeoData = async () => {
+      const peers = nodesData.data.newPeers.filter(
+        (node: any, index: any, self: any) =>
+          node.peerId &&
+          node.peerId.length > 43 &&
+          index ===
+            self.findIndex(
+              (item: { peerId: any }) => item.peerId === node.peerId
+            )
+      );
+
+      // First, add all peers - use cached data if available, otherwise "Unknown"
+      const initialPeers: { [key: string]: PeerLocation } = {};
+      const peersNeedingGeoLookup: any[] = [];
+
+      peers.forEach((peer: any) => {
+        if (geoCache[peer.peerId]) {
+          // Use cached geo data
+          initialPeers[peer.peerId] = {
+            ...geoCache[peer.peerId],
+            status: "Checking...",
+            timestamp: peer.timestamp,
+          };
+        } else {
+          // Mark for geo lookup
+          initialPeers[peer.peerId] = {
+            peerId: peer.peerId,
+            latitude: 0,
+            longitude: 0,
+            countryCode: "xx",
+            city: "Unknown",
+            country: "Unknown",
+            status: "Checking...",
+            timestamp: peer.timestamp,
+          };
+          peersNeedingGeoLookup.push(peer);
+        }
+      });
+
+      // Add initial peers to state immediately
+      if (Object.keys(initialPeers).length > 0) {
+        setPeerLocations((prev) => ({ ...prev, ...initialPeers }));
+      }
+
+      // Fetch geo data in parallel for peers that aren't cached
+      const geoPromises = peersNeedingGeoLookup.map(async (peer) => {
+        const geoData = await fetchPeerGeoData(peer.peerId);
+        return { peer, geoData };
+      });
+
+      // Process geo results as they come in
+      const geoResults = await Promise.all(geoPromises);
+      
+      // Batch update geo data
+      const geoUpdates: { [key: string]: PeerLocation } = {};
+      geoResults.forEach(({ peer, geoData }) => {
+        if (geoData) {
+          geoUpdates[peer.peerId] = {
+            ...geoData,
+            status: "Checking...",
+            timestamp: peer.timestamp,
+          };
+        }
+      });
+
+      if (Object.keys(geoUpdates).length > 0) {
+        setPeerLocations((prev) => ({ ...prev, ...geoUpdates }));
+      }
+
+      // Now check status for all peers in parallel
+      const statusPromises = peers.map(async (peer: any) => {
+        const status = await checkPeerStatus(peer.peerId);
+        return { peerId: peer.peerId, status };
+      });
+
+      const statusResults = await Promise.all(statusPromises);
+      
+      // Batch update status
+      setPeerLocations((prev) => {
+        const updated = { ...prev };
+        statusResults.forEach(({ peerId, status }) => {
+          if (updated[peerId]) {
+            updated[peerId] = { ...updated[peerId], status };
+          }
+        });
+        return updated;
+      });
+    };
+
+    loadAllGeoData();
+  }, [nodesData.data]);
+
+  // Get all peers with location data
+  const peersWithLocation = useMemo(() => {
+    return Object.values(peerLocations);
+  }, [peerLocations]);
 
   // Filter and search peers
   const filteredPeers = useMemo(() => {
-    if (!nodesData.data?.newPeers) return [];
-
-    // First, deduplicate and filter valid peers
-    let peers = nodesData.data.newPeers
-      .filter(
-        (node: any, index: any, self: any) =>
-          node.peerId && 
-          node.peerId.length > 43 && 
-          index === self.findIndex((item: { peerId: any; }) => item.peerId === node.peerId)
-      )
-      .sort(function (a: any, b: any) {
-        if (a.peerId.toLowerCase() > b.peerId.toLowerCase()) return -1;
-        if (a.peerId.toLowerCase() < b.peerId.toLowerCase()) return 1;
-        return 0;
-      });
+    let peers = peersWithLocation;
 
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      peers = peers.filter((node: any) => {
-        const metadata = peerMetadata[node.peerId];
-        
+      peers = peers.filter((peer) => {
         // Search by peer ID
         if (filterType === "peerId" || filterType === "all") {
-          if (node.peerId.toLowerCase().includes(query)) return true;
+          if (peer.peerId.toLowerCase().includes(query)) return true;
         }
-        
+
         // Search by location
-        if ((filterType === "location" || filterType === "all") && metadata?.geoIP) {
-          if (metadata.geoIP.toLowerCase().includes(query)) return true;
+        if (filterType === "location" || filterType === "all") {
+          if (peer.country?.toLowerCase().includes(query)) return true;
+          if (peer.city?.toLowerCase().includes(query)) return true;
         }
-        
+
         // Search by status
-        if ((filterType === "status" || filterType === "all") && metadata?.status) {
-          if (metadata.status.toLowerCase().includes(query)) return true;
+        if (filterType === "status" || filterType === "all") {
+          if (peer.status?.toLowerCase().includes(query)) return true;
         }
-        
+
         return false;
       });
     }
 
     return peers;
-  }, [nodesData.data, searchQuery, filterType, peerMetadata]);
+  }, [peersWithLocation, searchQuery, filterType]);
+
+  // Group peers by country (sorted alphabetically, Unknown at end)
+  const peersByCountry = useMemo(() => {
+    const grouped: {
+      [country: string]: { countryCode: string; peers: PeerLocation[] };
+    } = {};
+
+    filteredPeers.forEach((peer) => {
+      const country = peer.country || "Unknown";
+      if (!grouped[country]) {
+        grouped[country] = { countryCode: peer.countryCode || "xx", peers: [] };
+      }
+      grouped[country].peers.push(peer);
+    });
+
+    // Sort by country name alphabetically, but keep "Unknown" at the end
+    const sortedEntries = Object.entries(grouped).sort(([a], [b]) => {
+      if (a === "Unknown") return 1;
+      if (b === "Unknown") return -1;
+      return a.localeCompare(b);
+    });
+    return sortedEntries;
+  }, [filteredPeers]);
+
+  // Get connected peer info
+  const connectedPeerInfo = connectedPeerId
+    ? peerLocations[connectedPeerId]
+    : null;
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -180,35 +427,39 @@ const Peers = () => {
 
   if (isError) {
     const c = () => {
-      return(
+      return (
         <>
-          <Typography mb={1}>
-            Please reload the page!
-          </Typography>
+          <Typography mb={1}>Please reload the page!</Typography>
           <Typography>
-            There was an error checking your membership status. Please reload the page!
+            There was an error checking your membership status. Please reload
+            the page!
           </Typography>
         </>
       );
-    }
-    return <UtilityCard title="🪢 Error checking your membership status" content={c()}></UtilityCard>;
+    };
+    return (
+      <UtilityCard
+        title="Error checking your membership status"
+        content={c()}
+      ></UtilityCard>
+    );
   }
 
-  if (!isConnected) {
+  if (!isWalletConnected) {
     return <Connect />;
   }
 
   if (!isMember) {
-    return <Checkout network={configuredNetworkID} />;
+    return <Checkout network={configuredNetworkID} connector={connector} />;
   }
 
   return nodesData.loading ? (
-    <Container 
+    <Container
       maxWidth="xl"
-      sx={{ 
-        textAlign: 'center',
+      sx={{
+        textAlign: "center",
         px: { xs: 1, sm: 2, md: 3 },
-        py: { xs: 2, sm: 3 }
+        py: { xs: 2, sm: 3 },
       }}
     >
       <Box
@@ -219,13 +470,13 @@ const Peers = () => {
       >
         <Item>
           <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
-            <Typography variant='h6' mb={2}>
+            <Typography variant="h6" mb={2}>
               Loading...
             </Typography>
-            <Box sx={{ width: '100%' }}>
+            <Box sx={{ width: "100%" }}>
               <LinearProgress />
             </Box>
-            <Typography variant='body1' mb={2}>
+            <Typography variant="body1" mb={2}>
               Getting on-chain peers data...
             </Typography>
           </Stack>
@@ -233,42 +484,72 @@ const Peers = () => {
       </Box>
     </Container>
   ) : (
-    <Container 
+    <Container
       maxWidth="xl"
-      sx={{ 
+      sx={{
         px: { xs: 1, sm: 2, md: 3 },
-        py: { xs: 2, sm: 3 }
+        py: { xs: 2, sm: 3 },
       }}
     >
-      <Stack 
-        direction={{ xs: "column", md: "row" }}
-        spacing={{ xs: 2, md: 3 }}
-        alignItems={{ xs: "stretch", md: "center" }}
-        sx={{ mb: 3 }}
+      {/* Page Title */}
+      <Typography
+        variant="h4"
+        color="text.primary"
+        sx={{
+          fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" },
+          mb: 2,
+        }}
       >
-        <Typography 
-          variant="h4" 
-          color="text.primary"
-          sx={{ 
-            fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+        Explore Peers
+      </Typography>
+
+      {/* Active Connection Card */}
+      {isVpnConnected && connectedPeerInfo && (
+        <ActiveConnection
+          peer={connectedPeerInfo}
+          onDisconnect={handleDisconnect}
+        />
+      )}
+
+      {/* Main Layout: Left Panel + Right Map */}
+      <Grid container spacing={0} sx={{ height: { md: "calc(100vh - 200px)" } }}>
+        {/* Left Panel: Search + Peer List */}
+        <Grid
+          size={{ xs: 12, md: 5, lg: 4 }}
+          sx={{
+            height: { md: "100%" },
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          Peers
-        </Typography>
-        
-        <Box sx={{ flex: 1, maxWidth: { md: 500 } }}>
           <Paper
-            component="form"
-            onSubmit={(e) => e.preventDefault()}
-            sx={{ 
-              p: '2px 4px', 
-              display: 'flex', 
-              alignItems: 'center',
-              width: '100%'
+            elevation={2}
+            sx={{
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: { xs: 2, md: "8px 0 0 8px" },
+              p: 2,
+              overflow: "hidden",
             }}
           >
-            <IconButton 
-              sx={{ p: '10px' }} 
+            {/* Search Bar */}
+            <Paper
+              component="form"
+              onSubmit={(e) => e.preventDefault()}
+              elevation={0}
+              sx={{
+                p: "2px 4px",
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                mb: 2,
+                border: 1,
+                borderColor: "divider",
+              }}
+            >
+            <IconButton
+              sx={{ p: "10px" }}
               aria-label="filter"
               onClick={handleFilterClick}
             >
@@ -279,8 +560,8 @@ const Peers = () => {
               open={filterOpen}
               onClose={handleFilterClose}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+                vertical: "bottom",
+                horizontal: "left",
               }}
             >
               <MenuItem onClick={() => handleFilterSelect("all")}>
@@ -299,14 +580,16 @@ const Peers = () => {
             <Divider orientation="vertical" flexItem />
             <InputBase
               sx={{ ml: 1, flex: 1 }}
-              placeholder={`Search ${filterType === "all" ? "peers" : `by ${filterType}`}...`}
-              inputProps={{ 'aria-label': 'search for peers' }}
+              placeholder={`Search ${
+                filterType === "all" ? "peers" : `by ${filterType}`
+              }...`}
+              inputProps={{ "aria-label": "search for peers" }}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {searchQuery && (
-              <IconButton 
-                sx={{ p: '10px' }} 
+              <IconButton
+                sx={{ p: "10px" }}
                 aria-label="clear"
                 onClick={handleClearSearch}
               >
@@ -314,16 +597,22 @@ const Peers = () => {
               </IconButton>
             )}
             <Divider orientation="vertical" flexItem />
-            <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
+            <IconButton type="submit" sx={{ p: "10px" }} aria-label="search">
               <SearchIcon />
             </IconButton>
           </Paper>
-          
+
           {/* Active Filter Chips */}
           {(searchQuery || filterType !== "all") && (
-            <Stack direction="row" spacing={1} sx={{ mt: 1 }} flexWrap="wrap" useFlexGap>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ mb: 2 }}
+              flexWrap="wrap"
+              useFlexGap
+            >
               {filterType !== "all" && (
-                <Chip 
+                <Chip
                   label={`Filter: ${filterType}`}
                   size="small"
                   onDelete={() => setFilterType("all")}
@@ -332,7 +621,7 @@ const Peers = () => {
                 />
               )}
               {searchQuery && (
-                <Chip 
+                <Chip
                   label={`Search: "${searchQuery}"`}
                   size="small"
                   onDelete={handleClearSearch}
@@ -342,54 +631,81 @@ const Peers = () => {
               )}
             </Stack>
           )}
-        </Box>
-      </Stack>
-      
-      <Box sx={{ mb: 3 }}>
-        <VPNStatus onStatusChange={handleVpnStatusChange} />
-      </Box>
-      
-      {/* Results count */}
-      <Typography 
-        variant="body2" 
-        color="text.secondary" 
-        sx={{ mb: 2 }}
-      >
-        {filteredPeers.length === 0 ? "No peers found" : `Showing ${filteredPeers.length} peer${filteredPeers.length !== 1 ? 's' : ''}`}
-      </Typography>
 
-      <Box 
-        sx={{ 
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(auto-fill, minmax(350px, 1fr))'
-          },
-          gap: { xs: 1, sm: 2 },
-          pb: 2
-        }}
-      >
-        {filteredPeers.length === 0 ? (
-          <Box sx={{ textAlign: 'center', py: 8, gridColumn: '1 / -1' }}>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              No peers found
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {searchQuery ? "Try adjusting your search query" : "No peers available at the moment"}
-            </Typography>
+          {/* Results count */}
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {filteredPeers.length === 0
+              ? "No peers found"
+              : `${filteredPeers.length} peer${
+                  filteredPeers.length !== 1 ? "s" : ""
+                } in ${peersByCountry.length} countr${
+                  peersByCountry.length !== 1 ? "ies" : "y"
+                }`}
+          </Typography>
+
+          {/* Country Accordions */}
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              pr: { md: 1 },
+            }}
+          >
+            {peersByCountry.length === 0 ? (
+              <Paper sx={{ p: 4, textAlign: "center" }}>
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  No peers found
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {searchQuery
+                    ? "Try adjusting your search query"
+                    : "Loading peer data..."}
+                </Typography>
+              </Paper>
+            ) : (
+              peersByCountry.map(([country, { countryCode, peers }]) => (
+                <CountryAccordion
+                  key={country}
+                  countryCode={countryCode}
+                  countryName={country}
+                  peers={peers}
+                  selectedPeerId={selectedPeerId}
+                  connectedPeerId={connectedPeerId}
+                  onPeerSelect={handlePeerSelect}
+                  onPeerConnect={handlePeerConnect}
+                />
+              ))
+            )}
           </Box>
-        ) : (
-          filteredPeers.map((node: any) => (
-            <PeerCard 
-              node={node} 
-              key={node.peerId}
-              onMetadataUpdate={updatePeerMetadata}
-              isVpnConnected={vpnConnected}
+          </Paper>
+        </Grid>
+
+        {/* Right Panel: World Map (hidden on mobile) */}
+        <Grid
+          size={{ xs: 12, md: 7, lg: 8 }}
+          sx={{
+            display: { xs: "none", md: "block" },
+            height: "100%",
+          }}
+        >
+          <Paper
+            sx={{
+              height: "100%",
+              borderRadius: "0 8px 8px 0",
+              overflow: "hidden",
+              p: 0,
+            }}
+          >
+            <WorldMap
+              peers={peersWithLocation}
+              selectedPeerId={selectedPeerId}
               connectedPeerId={connectedPeerId}
+              userLocation={userLocation}
+              onPeerSelect={handlePeerSelect}
             />
-          ))
-        )}
-      </Box>
+          </Paper>
+        </Grid>
+      </Grid>
     </Container>
   );
 };
@@ -402,7 +718,9 @@ const Connect = () => {
   });
   return (
     <section>
-      <p className="mb-4">To continue using the app you need to have a valid membership!</p>
+      <p className="mb-4">
+        To continue using the app you need to have a valid membership!
+      </p>
       <button
         onClick={() => connect()}
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -413,8 +731,13 @@ const Connect = () => {
   );
 };
 
-const Checkout = ({ network }: { network: number }) => {
-  const { connector } = useAccount();
+const Checkout = ({
+  network,
+  connector,
+}: {
+  network: number;
+  connector: any;
+}) => {
   const checkout = async () => {
     const paywall = new Paywall(networks);
     const provider = await connector!.getProvider();
@@ -429,28 +752,28 @@ const Checkout = ({ network }: { network: number }) => {
     });
   };
 
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  const CheckoutItem = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
     ...theme.typography.body2,
     padding: theme.spacing(3),
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.palette.text.secondary,
     flexGrow: 1,
     maxWidth: 550,
     minHeight: "20vh",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(2),
-    }
+    },
   }));
 
   return (
     <section>
-      <Container 
+      <Container
         maxWidth="xl"
-        sx={{ 
-          textAlign: 'center',
+        sx={{
+          textAlign: "center",
           px: { xs: 1, sm: 2, md: 3 },
-          py: { xs: 2, sm: 3 }
+          py: { xs: 2, sm: 3 },
         }}
       >
         <Box
@@ -459,26 +782,32 @@ const Checkout = ({ network }: { network: number }) => {
           alignItems="center"
           minHeight="90vh"
         >
-          <Item>
-            <Stack alignItems={"center"} gap={2} mt={{ xs: 2, sm: 4 }} mb={{ xs: 2, sm: 4 }}>
-              <Typography 
-                variant='h4' 
+          <CheckoutItem>
+            <Stack
+              alignItems={"center"}
+              gap={2}
+              mt={{ xs: 2, sm: 4 }}
+              mb={{ xs: 2, sm: 4 }}
+            >
+              <Typography
+                variant="h4"
                 mb={2}
-                sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' } }}
+                sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" } }}
               >
                 Before accessing our service...
               </Typography>
-              <Typography 
-                variant='subtitle1'
-                sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+              <Typography
+                variant="subtitle1"
+                sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
               >
                 You currently don't have a membership!
               </Typography>
-              <Typography 
-                variant='subtitle1'
-                sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+              <Typography
+                variant="subtitle1"
+                sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
               >
-                To be able to connect to a peer, you need to purchase a Skypier subscription.
+                To be able to connect to a peer, you need to purchase a Skypier
+                subscription.
               </Typography>
               <Button
                 variant="outlined"
@@ -487,13 +816,13 @@ const Checkout = ({ network }: { network: number }) => {
                   mt: 2,
                   px: { xs: 2, sm: 4 },
                   py: { xs: 1, sm: 2 },
-                  fontSize: { xs: '0.875rem', sm: '1rem' }
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
                 }}
               >
                 Purchase subscription!
               </Button>
             </Stack>
-          </Item>
+          </CheckoutItem>
         </Box>
       </Container>
     </section>

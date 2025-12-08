@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Fab from '@mui/material/Fab';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 
@@ -25,6 +27,10 @@ const fabStyle = {
 export default function NodeDetails() {
   const [currentIP, setCurrentIP] = useState<string>("");
   const [country, setCountry] = useState<string>("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const previousCountry = useRef<string>("");
+  const isFirstLoad = useRef<boolean>(true);
 
   const IpAddr = async () => {
     try {
@@ -41,12 +47,31 @@ export default function NodeDetails() {
           setCurrentIP(response.data.query);
         } 
         if (response.data.country) {
-          setCountry(response.data.country);
+          const newCountry = response.data.country;
+          
+          // Check if country has changed and it's not the first load
+          if (previousCountry.current && previousCountry.current !== newCountry && !isFirstLoad.current) {
+            setNotificationMessage(`Location changed: ${previousCountry.current} → ${newCountry}`);
+            setSnackbarOpen(true);
+          }
+          
+          // Update the country and previous country
+          previousCountry.current = newCountry;
+          setCountry(newCountry);
+          
+          // Mark first load as complete
+          if (isFirstLoad.current) {
+            isFirstLoad.current = false;
+          }
         } 
       }
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
   
   useEffect(() => {
@@ -63,6 +88,22 @@ export default function NodeDetails() {
           <LocationOnIcon></LocationOnIcon>
           {currentIP}{" - "}{country}
       </Fab>
+      
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="info"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {notificationMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
