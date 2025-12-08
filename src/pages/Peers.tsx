@@ -27,6 +27,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
 import Grid from "@mui/material/Grid";
+import Skeleton from "@mui/material/Skeleton";
 import { styled } from "@mui/material/styles";
 import { PublicLockV14 } from "@unlock-protocol/contracts";
 import networks from "@unlock-protocol/networks";
@@ -93,6 +94,9 @@ const Peers = () => {
   const [peerLocations, setPeerLocations] = useState<{
     [key: string]: PeerLocation;
   }>({});
+
+  // Loading state for geo lookup
+  const [isGeoLoading, setIsGeoLoading] = useState(false);
 
   // User's current location
   const [userLocation, setUserLocation] = useState<{
@@ -266,6 +270,7 @@ const Peers = () => {
     if (!nodesData.data?.newPeers) return;
 
     const loadAllGeoData = async () => {
+      setIsGeoLoading(true);
       const peers = nodesData.data.newPeers.filter(
         (node: any, index: any, self: any) =>
           node.peerId &&
@@ -352,6 +357,7 @@ const Peers = () => {
         });
         return updated;
       });
+      setIsGeoLoading(false);
     };
 
     loadAllGeoData();
@@ -651,7 +657,37 @@ const Peers = () => {
               pr: { md: 1 },
             }}
           >
-            {peersByCountry.length === 0 ? (
+            {/* Skeleton loading state */}
+            {isGeoLoading && peersByCountry.length === 0 && (
+              <Stack spacing={1}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Paper key={i} sx={{ p: 0, overflow: "hidden" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", p: 1.5 }}>
+                      <Skeleton variant="circular" width={24} height={24} sx={{ mr: 1.5 }} />
+                      <Skeleton variant="text" width={120} height={28} />
+                      <Box sx={{ flexGrow: 1 }} />
+                      <Skeleton variant="rounded" width={40} height={24} sx={{ mr: 1 }} />
+                      <Skeleton variant="circular" width={24} height={24} />
+                    </Box>
+                  </Paper>
+                ))}
+                <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center", mt: 2 }}>
+                  Looking up peer locations...
+                </Typography>
+              </Stack>
+            )}
+
+            {/* Show skeleton alongside accordions when still loading */}
+            {isGeoLoading && peersByCountry.length > 0 && (
+              <Box sx={{ mb: 2 }}>
+                <LinearProgress sx={{ borderRadius: 1, height: 4 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                  Resolving remaining peer locations...
+                </Typography>
+              </Box>
+            )}
+
+            {peersByCountry.length === 0 && !isGeoLoading ? (
               <Paper sx={{ p: 4, textAlign: "center" }}>
                 <Typography variant="h6" color="text.secondary" gutterBottom>
                   No peers found

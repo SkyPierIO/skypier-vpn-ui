@@ -472,9 +472,9 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         {/* World Map with peer locations */}
-        <Box sx={{ mt: 2, borderRadius: 2, overflow: 'hidden', bgcolor: 'background.default' }}>
+        {/* <Box sx={{ mt: 2, borderRadius: 2, overflow: 'hidden', bgcolor: 'background.default' }}>
           <PeerWorldMap height={180} />
-        </Box>
+        </Box> */}
       </CardContent>
     </Card>
   );
