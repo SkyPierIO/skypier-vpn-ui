@@ -13,6 +13,8 @@ import Alert from '@mui/material/Alert';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
+import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
+import StarIcon from '@mui/icons-material/Star';
 import ReactCountryFlag from 'react-country-flag';
 import jazzicon from '@metamask/jazzicon';
 import http from '../http.common';
@@ -95,6 +97,11 @@ const PeerRow = ({
 }) => {
   const [status, setStatus] = useState<string>(peer.status || 'Unknown');
   const [pinging, setPinging] = useState(false);
+  const [isStarred, setIsStarred] = useState<boolean>(() => {
+    const storedPeers = localStorage.getItem('starredPeers');
+    const starredPeers: string[] = storedPeers ? JSON.parse(storedPeers) : [];
+    return starredPeers.includes(peer.peerId);
+  });
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -106,6 +113,34 @@ const PeerRow = ({
   };
 
   const truncatePeerId = (id: string) => `${id.substring(0, 8)}...${id.slice(-6)}`;
+
+  const handleToggleStar = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const storedPeers = localStorage.getItem('starredPeers');
+    const starredPeers: string[] = storedPeers ? JSON.parse(storedPeers) : [];
+    
+    if (isStarred) {
+      // Remove from favorites
+      const updatedPeers = starredPeers.filter(id => id !== peer.peerId);
+      localStorage.setItem('starredPeers', JSON.stringify(updatedPeers));
+      setIsStarred(false);
+      setSnackbar({
+        open: true,
+        message: `Removed from favorites`,
+        severity: 'info',
+      });
+    } else {
+      // Add to favorites
+      starredPeers.push(peer.peerId);
+      localStorage.setItem('starredPeers', JSON.stringify(starredPeers));
+      setIsStarred(true);
+      setSnackbar({
+        open: true,
+        message: `Added to favorites`,
+        severity: 'success',
+      });
+    }
+  };
 
   const handlePing = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -222,6 +257,19 @@ const PeerRow = ({
       />
 
       <Stack direction="row" spacing={0.5}>
+        <Tooltip title={isStarred ? 'Remove from favorites' : 'Add to favorites'}>
+          <IconButton
+            size="small"
+            onClick={handleToggleStar}
+            sx={{ 
+              p: 0.5,
+              color: isStarred ? '#f59e0b' : 'inherit',
+              '&:hover': { color: '#f59e0b' }
+            }}
+          >
+            {isStarred ? <StarIcon fontSize="small" /> : <StarBorderOutlinedIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
         <Tooltip title="Ping">
           <IconButton
             size="small"

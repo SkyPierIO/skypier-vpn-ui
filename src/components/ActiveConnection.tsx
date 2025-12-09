@@ -172,7 +172,7 @@ const ActiveConnection = ({ peer, onDisconnect }: ActiveConnectionProps) => {
               Connected to
             </Typography>
             <Stack direction="row" spacing={1.5} alignItems="center">
-              <JazziconAvatar peerId={peer.peerId} size={32} />
+              {/* <JazziconAvatar peerId={peer.peerId} size={32} /> */}
               <Box>
                 <Stack direction="row" spacing={1} alignItems="center">
                   {peer.countryCode && (

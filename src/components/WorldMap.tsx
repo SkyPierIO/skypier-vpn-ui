@@ -120,6 +120,38 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
   const selectedPeer = peers.find(p => p.peerId === selectedPeerId);
   const connectedPeer = peers.find(p => p.peerId === connectedPeerId);
 
+  // Center map on selected peer
+  useEffect(() => {
+    if (!svgRef.current || !selectedPeer || !zoomRef.current || !selectedPeer.latitude || !selectedPeer.longitude) return;
+
+    const svg = d3.select(svgRef.current);
+    const { width, height } = dimensions;
+
+    // Setup projection (same as in render)
+    const projection = geoNaturalEarth1()
+      .scale(fullscreen ? width / 4.5 : width / 5.5)
+      .translate([width / 2, height / 2]);
+
+    const coords = projection([selectedPeer.longitude, selectedPeer.latitude]);
+    if (!coords) return;
+
+    // Get current transform
+    const currentTransform = d3.zoomTransform(svgRef.current);
+    const scale = currentTransform.k;
+
+    // Calculate new transform to center on the peer
+    const x = width / 2 - coords[0] * scale;
+    const y = height / 2 - coords[1] * scale;
+
+    // Animate to the new position
+    svg.transition()
+      .duration(750)
+      .call(
+        zoomRef.current.transform,
+        d3.zoomIdentity.translate(x, y).scale(scale)
+      );
+  }, [selectedPeerId, dimensions, fullscreen]);
+
   // Render map
   useEffect(() => {
     if (!svgRef.current || !worldData) return;
