@@ -20,6 +20,7 @@ interface WorldMapProps {
   connectedPeerId: string | null;
   userLocation: { latitude: number; longitude: number } | null;
   onPeerSelect?: (peerId: string) => void;
+  fullscreen?: boolean;
 }
 
 // City aggregation for marker sizing
@@ -32,18 +33,19 @@ interface CityGroup {
   city: string;
 }
 
-const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeerSelect }: WorldMapProps) => {
+const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeerSelect, fullscreen = false }: WorldMapProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const theme = useTheme();
   const [worldData, setWorldData] = useState<any>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 450 });
 
   // Theme colors - using emerald green (#10b981, #059669) consistent with Dashboard
   const isDark = theme.palette.mode === 'dark';
-  const landColor = isDark ? '#374151' : '#e2e8f0';
-  const borderColor = isDark ? '#4b5563' : '#cbd5e1';
-  const oceanColor = isDark ? '#17181bff' : '#f1f5f9';
+  const landColor = isDark ? '#374151' : '#c8d3e2';
+  const borderColor = isDark ? '#000000ff' : '#64748b';
+  const oceanColor = 'transparent';
   const markerColor = '#10b981';
   const selectedMarkerColor = '#059669';
   const connectedMarkerColor = '#f59e0b';
@@ -129,7 +131,7 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
 
     // Setup projection
     const projection = geoNaturalEarth1()
-      .scale(width / 5.5)
+      .scale(fullscreen ? width / 4.5 : width / 5.5)
       .translate([width / 2, height / 2]);
 
     const pathGenerator = geoPath().projection(projection);
@@ -137,14 +139,29 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
     // Convert TopoJSON to GeoJSON
     const countries = topojson.feature(worldData, worldData.objects.countries) as any;
 
+    // Create a group for all map elements (for potential zoom/pan)
+    const mapGroup = svg.append('g').attr('class', 'map-group');
+
+    // Setup zoom behavior
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([1, 8])
+      .on('zoom', (event) => {
+        mapGroup.attr('transform', event.transform);
+      });
+
+    svg.call(zoom);
+    zoomRef.current = zoom;
+
     // Background ocean
-    svg.append('rect')
-      .attr('width', width)
-      .attr('height', height)
+    mapGroup.append('rect')
+      .attr('width', width * 3)
+      .attr('height', height * 3)
+      .attr('x', -width)
+      .attr('y', -height)
       .attr('fill', oceanColor);
 
     // Draw countries
-    svg.selectAll('.country')
+    mapGroup.selectAll('.country')
       .data(countries.features)
       .enter()
       .append('path')
@@ -185,7 +202,7 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
         const midX = (userCoords[0] + peerCoords[0]) / 2;
         const midY = Math.min(userCoords[1], peerCoords[1]) - 50;
 
-        svg.append('path')
+        mapGroup.append('path')
           .attr('class', 'connection-line')
           .attr('d', `M ${userCoords[0]} ${userCoords[1]} Q ${midX} ${midY} ${peerCoords[0]} ${peerCoords[1]}`)
           .attr('fill', 'none')
@@ -195,7 +212,7 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
           .style('animation', 'dash 0.5s linear infinite');
 
         // User location marker
-        svg.append('circle')
+        mapGroup.append('circle')
           .attr('cx', userCoords[0])
           .attr('cy', userCoords[1])
           .attr('r', 6)
@@ -215,12 +232,12 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
       const peerCount = group.peers.length;
       
       // Base size + bonus for multiple peers
-      const baseSize = 6;
+      const baseSize = fullscreen ? 8 : 6;
       const size = baseSize + Math.min(peerCount - 1, 4) * 2;
 
       // Outer glow for selected/connected
       if (isSelected || isConnected) {
-        svg.append('circle')
+        mapGroup.append('circle')
           .attr('cx', coords[0])
           .attr('cy', coords[1])
           .attr('r', size + 4)
@@ -231,7 +248,7 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
       }
 
       // Main marker
-      const marker = svg.append('circle')
+      const marker = mapGroup.append('circle')
         .attr('cx', coords[0])
         .attr('cy', coords[1])
         .attr('r', size)
@@ -254,7 +271,7 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
 
       // Peer count label for groups with multiple peers
       if (peerCount > 1) {
-        svg.append('text')
+        mapGroup.append('text')
           .attr('x', coords[0])
           .attr('y', coords[1] + 1)
           .attr('text-anchor', 'middle')
@@ -267,7 +284,7 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
       }
     });
 
-  }, [worldData, dimensions, peers, selectedPeerId, connectedPeerId, userLocation, theme.palette.mode, cityGroups]);
+  }, [worldData, dimensions, peers, selectedPeerId, connectedPeerId, userLocation, theme.palette.mode, cityGroups, fullscreen]);
 
   return (
     <Box
@@ -276,9 +293,13 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
         width: '100%',
         height: '100%',
         minHeight: 300,
-        borderRadius: 2,
+        borderRadius: fullscreen ? 0 : 2,
         overflow: 'hidden',
         bgcolor: oceanColor,
+        cursor: 'grab',
+        '&:active': {
+          cursor: 'grabbing',
+        },
       }}
     >
       <svg

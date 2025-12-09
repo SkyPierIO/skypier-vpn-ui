@@ -490,55 +490,90 @@ const Peers = () => {
       </Box>
     </Container>
   ) : (
-    <Container
-      maxWidth="xl"
+    <Box
       sx={{
-        px: { xs: 1, sm: 2, md: 3 },
-        py: { xs: 2, sm: 3 },
+        position: 'relative',
+        width: '100%',
+        height: 'calc(100vh - 64px)',
+        overflow: 'hidden',
       }}
     >
-      {/* Page Title */}
-      <Typography
-        variant="h4"
-        color="text.primary"
+      {/* Full-screen World Map Background */}
+      <Box
         sx={{
-          fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" },
-          mb: 2,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 0,
         }}
       >
-        Explore Peers
-      </Typography>
-
-      {/* Active Connection Card */}
-      {isVpnConnected && connectedPeerInfo && (
-        <ActiveConnection
-          peer={connectedPeerInfo}
-          onDisconnect={handleDisconnect}
+        <WorldMap
+          peers={peersWithLocation}
+          selectedPeerId={selectedPeerId}
+          connectedPeerId={connectedPeerId}
+          userLocation={userLocation}
+          onPeerSelect={handlePeerSelect}
+          fullscreen
         />
-      )}
+      </Box>
 
-      {/* Main Layout: Left Panel + Right Map */}
-      <Grid container spacing={0} sx={{ height: { md: "calc(100vh - 200px)" } }}>
-        {/* Left Panel: Search + Peer List */}
-        <Grid
-          size={{ xs: 12, md: 5, lg: 4 }}
+      {/* Floating Content Layer */}
+      <Box
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          pointerEvents: 'none',
+          height: '100%',
+          p: { xs: 1, sm: 2, md: 3 },
+          overflow: 'auto',
+        }}
+      >
+        {/* Page Title */}
+        <Typography
+          variant="h4"
           sx={{
-            height: { md: "100%" },
-            display: "flex",
-            flexDirection: "column",
+            fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" },
+            mb: 2,
+            color: 'white',
+            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+            pointerEvents: 'auto',
           }}
         >
-          <Paper
-            elevation={2}
-            sx={{
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: { xs: 2, md: "8px 0 0 8px" },
-              p: 2,
-              overflow: "hidden",
-            }}
-          >
+          Explore Peers
+        </Typography>
+
+        {/* Active Connection Card */}
+        {isVpnConnected && connectedPeerInfo && (
+          <Box sx={{ pointerEvents: 'auto', maxWidth: 600, mb: 2 }}>
+            <ActiveConnection
+              peer={connectedPeerInfo}
+              onDisconnect={handleDisconnect}
+            />
+          </Box>
+        )}
+
+        {/* Floating Peer Selection Panel */}
+        <Paper
+          elevation={8}
+          sx={{
+            pointerEvents: 'auto',
+            width: { xs: '100%', sm: 400, md: 420 },
+            maxHeight: { xs: 'calc(100vh - 200px)', md: 'calc(100vh - 180px)' },
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: 3,
+            overflow: 'hidden',
+            backdropFilter: 'blur(10px)',
+            bgcolor: (theme) => 
+              theme.palette.mode === 'dark' 
+                ? 'rgba(23, 24, 27, 0.95)' 
+                : 'rgba(255, 255, 255, 0.95)',
+          }}
+        >
+          {/* Panel Header */}
+          <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
             {/* Search Bar */}
             <Paper
               component="form"
@@ -549,7 +584,6 @@ const Peers = () => {
                 display: "flex",
                 alignItems: "center",
                 width: "100%",
-                mb: 2,
                 border: 1,
                 borderColor: "divider",
               }}
@@ -613,7 +647,7 @@ const Peers = () => {
             <Stack
               direction="row"
               spacing={1}
-              sx={{ mb: 2 }}
+              sx={{ mt: 1.5 }}
               flexWrap="wrap"
               useFlexGap
             >
@@ -637,24 +671,27 @@ const Peers = () => {
               )}
             </Stack>
           )}
+          </Box>
 
           {/* Results count */}
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            {filteredPeers.length === 0
-              ? "No peers found"
-              : `${filteredPeers.length} peer${
-                  filteredPeers.length !== 1 ? "s" : ""
-                } in ${peersByCountry.length} countr${
-                  peersByCountry.length !== 1 ? "ies" : "y"
-                }`}
-          </Typography>
+          <Box sx={{ px: 2, py: 1, borderBottom: 1, borderColor: 'divider' }}>
+            <Typography variant="body2" color="text.secondary">
+              {filteredPeers.length === 0
+                ? "No peers found"
+                : `${filteredPeers.length} peer${
+                    filteredPeers.length !== 1 ? "s" : ""
+                  } in ${peersByCountry.length} countr${
+                    peersByCountry.length !== 1 ? "ies" : "y"
+                  }`}
+            </Typography>
+          </Box>
 
           {/* Country Accordions */}
           <Box
             sx={{
               flex: 1,
               overflowY: "auto",
-              pr: { md: 1 },
+              p: 1,
             }}
           >
             {/* Skeleton loading state */}
@@ -713,36 +750,9 @@ const Peers = () => {
               ))
             )}
           </Box>
-          </Paper>
-        </Grid>
-
-        {/* Right Panel: World Map (hidden on mobile) */}
-        <Grid
-          size={{ xs: 12, md: 7, lg: 8 }}
-          sx={{
-            display: { xs: "none", md: "block" },
-            height: "100%",
-          }}
-        >
-          <Paper
-            sx={{
-              height: "100%",
-              borderRadius: "0 8px 8px 0",
-              overflow: "hidden",
-              p: 0,
-            }}
-          >
-            <WorldMap
-              peers={peersWithLocation}
-              selectedPeerId={selectedPeerId}
-              connectedPeerId={connectedPeerId}
-              userLocation={userLocation}
-              onPeerSelect={handlePeerSelect}
-            />
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+        </Paper>
+      </Box>
+    </Box>
   );
 };
 
