@@ -108,6 +108,13 @@ const PeerRow = ({
     severity: 'success' | 'error' | 'info' | 'warning';
   }>({ open: false, message: '', severity: 'info' });
 
+  // Update status when peer.status changes
+  useEffect(() => {
+    if (peer.status) {
+      setStatus(peer.status);
+    }
+  }, [peer.status]);
+
   const handleSnackbarClose = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
