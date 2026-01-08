@@ -16,7 +16,7 @@
 		"@metamask/jazzicon": "^2.0.0",
 		"@mui/icons-material": "^7.3.5",
 		"@mui/material": "^7.3.5",
-		"@mui/styled-engine-sc": "6.4.9",
+		"@mui/styled-engine-sc": "7.3.7",
 		"@mui/x-charts": "^8.17.0",
 		"@mui/x-data-grid": "^8.17.0",
 		"@types/react-simple-maps": "^3.0.6",
