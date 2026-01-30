@@ -13,7 +13,18 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Button, TextareaAutosize } from "@mui/material";
+import { 
+  Button, 
+  TextField, 
+  Box, 
+  Stack,
+  Alert,
+  CircularProgress,
+  Divider,
+  Chip,
+} from "@mui/material";
+import SaveIcon from '@mui/icons-material/Save';
+import CodeIcon from '@mui/icons-material/Code';
 
 const ThemeSwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -63,50 +74,53 @@ const ThemeSwitch = styled(Switch)(({ theme }) => ({
 }));
 
 const Settings = () => {
-  // const [theme, setTheme] = useState<string>("");
-
-  // const GetTheme = async () => {
-  //   try {
-  //     const response = await http.get(`/getConfig`);
-  //     if (response.status === 200) {
-  //       console.log(response.data.uiTheme);
-  //       if (response.data.uiTheme) {
-  //         setTheme(response.data.uiTheme);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-  // GetTheme();
-
-  const [config, setConfig] = useState<string>("");
+  const [config, setConfig] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [showRawJson, setShowRawJson] = useState<boolean>(false);
+  const [rawJsonText, setRawJsonText] = useState<string>("");
 
   const fetchConfig = async () => {
     try {
       const response = await http.get(`/getConfig`);
       if (response.status === 200) {
-        setConfig(JSON.stringify(response.data, null, 2)); // Convert JSON object to string with indentation
+        setConfig(response.data);
+        setRawJsonText(JSON.stringify(response.data, null, 2));
       }
     } catch (error) {
       console.error(error);
+      setErrorMessage("Failed to load configuration");
     } finally {
       setIsLoading(false);
     }
   };
 
   const updateConfig = async () => {
+    setIsSaving(true);
+    setSuccessMessage("");
+    setErrorMessage("");
+    
     try {
-      const parsedConfig = JSON.parse(config); // Ensure the config is valid JSON
-      const response = await http.post(`/updateConfig`, parsedConfig);
+      const configToSave = showRawJson ? JSON.parse(rawJsonText) : config;
+      const response = await http.post(`/updateConfig`, configToSave);
       if (response.status === 200) {
-        alert("Configuration updated successfully");
+        setSuccessMessage("Configuration updated successfully!");
+        setConfig(configToSave);
+        setRawJsonText(JSON.stringify(configToSave, null, 2));
+        setTimeout(() => setSuccessMessage(""), 3000);
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to update configuration. Please ensure the configuration is valid JSON.");
+      setErrorMessage("Failed to update configuration. Please ensure all values are valid.");
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleConfigChange = (field: string, value: any) => {
+    setConfig((prev: any) => ({ ...prev, [field]: value }));
   };
 
   const colorMode = useContext(ColorModeContext);
@@ -117,9 +131,24 @@ const Settings = () => {
   }, []);
 
   return (
-    <div>
-      <Typography variant="h4" mb={2} gutterBottom color="text.primary">Settings</Typography>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+      <Typography variant="h4" mb={3} gutterBottom color="text.primary">
+        Settings
+      </Typography>
 
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccessMessage("")}>
+          {successMessage}
+        </Alert>
+      )}
+
+      {errorMessage && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrorMessage("")}>
+          {errorMessage}
+        </Alert>
+      )}
+
+      {/* Theme Settings */}
       <Accordion defaultExpanded>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -129,14 +158,13 @@ const Settings = () => {
           <Typography variant="h6">Theme</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Choose between light and dark theme.
           </Typography>
           <FormGroup>
             <FormControlLabel
               control={
                 <ThemeSwitch
-                  sx={{ m: 1 }}
                   checked={theme.palette.mode === 'dark'}
                   onChange={colorMode.toggleColorMode}
                 />
@@ -147,58 +175,249 @@ const Settings = () => {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion>
+      {/* Skypier Configuration */}
+      <Accordion defaultExpanded>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel2-content"
           id="panel2-header"
         >
-          <Typography variant="h6">Skypier client configuration</Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="h6">Skypier Configuration</Typography>
+            {isSaving && <CircularProgress size={20} />}
+          </Stack>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography variant="body1" color="text.secondary">
-            Edit the Skypier configuration below:
-          </Typography>
-          <TextareaAutosize
-            minRows={10}
-            style={{ width: '100%', padding: '8px', fontSize: '16px', borderRadius: '4px', borderColor: '#ccc' }}
-            value={config}
-            onChange={(e) => setConfig(e.target.value)}
-          />
-          <Button variant="outlined" onClick={updateConfig} disabled={isLoading}>
-            Update configuration
-          </Button>
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : config ? (
+            <Stack spacing={3}>
+              <Typography variant="body2" color="text.secondary">
+                Configure your Skypier client settings below.
+              </Typography>
+
+              {/* Nickname */}
+              <TextField
+                label="Nickname"
+                value={config.nickname || ''}
+                onChange={(e) => handleConfigChange('nickname', e.target.value)}
+                fullWidth
+                helperText="A friendly name for your Skypier node"
+              />
+
+              {/* Log Level */}
+              <TextField
+                label="Log Level"
+                value={config.logLevel || ''}
+                onChange={(e) => handleConfigChange('logLevel', e.target.value)}
+                fullWidth
+                select
+                SelectProps={{ native: true }}
+                helperText="Set the verbosity of logs"
+              >
+                <option value="debug">Debug</option>
+                <option value="info">Info</option>
+                <option value="warn">Warn</option>
+                <option value="error">Error</option>
+              </TextField>
+
+              {/* Private Key */}
+              <TextField
+                label="Private Key"
+                value={config.privateKey || ''}
+                onChange={(e) => handleConfigChange('privateKey', e.target.value)}
+                fullWidth
+                type="password"
+                helperText="Your node's private key (keep this secure!)"
+                InputProps={{
+                  sx: { fontFamily: 'monospace' }
+                }}
+              />
+
+              <Divider />
+
+              {/* Boolean Switches */}
+              <Box>
+                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                  Feature Toggles
+                </Typography>
+                
+                <Stack spacing={1}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={config.advertisePrivateAddresses || false}
+                        onChange={(e) => handleConfigChange('advertisePrivateAddresses', e.target.checked)}
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography variant="body2">Advertise Private Addresses</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Allow advertising of private network addresses
+                        </Typography>
+                      </Box>
+                    }
+                  />
+
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={config.swaggerEnabled || false}
+                        onChange={(e) => handleConfigChange('swaggerEnabled', e.target.checked)}
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography variant="body2">Swagger API Documentation</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Enable the Swagger UI for API testing
+                        </Typography>
+                      </Box>
+                    }
+                  />
+
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={config.dhtDiscovery || false}
+                        onChange={(e) => handleConfigChange('dhtDiscovery', e.target.checked)}
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography variant="body2">DHT Discovery</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Enable peer discovery via Distributed Hash Table
+                        </Typography>
+                      </Box>
+                    }
+                  />
+
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={config.enableProfiling || false}
+                        onChange={(e) => handleConfigChange('enableProfiling', e.target.checked)}
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography variant="body2">Enable Profiling</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Enable performance profiling (for debugging)
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </Stack>
+              </Box>
+
+              <Divider />
+
+              {/* Profiling Port */}
+              <TextField
+                label="Profiling Port"
+                type="number"
+                value={config.profilingPort || 6060}
+                onChange={(e) => handleConfigChange('profilingPort', parseInt(e.target.value) || 6060)}
+                fullWidth
+                helperText="Port for the profiling server"
+                disabled={!config.enableProfiling}
+              />
+
+              {/* Advanced: Raw JSON Editor */}
+              <Box>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                  <Chip
+                    icon={<CodeIcon />}
+                    label={showRawJson ? "Hide Raw JSON" : "Show Raw JSON"}
+                    onClick={() => setShowRawJson(!showRawJson)}
+                    variant={showRawJson ? "filled" : "outlined"}
+                    color="primary"
+                    size="small"
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    Advanced users only
+                  </Typography>
+                </Stack>
+
+                {showRawJson && (
+                  <TextField
+                    multiline
+                    rows={12}
+                    value={rawJsonText}
+                    onChange={(e) => setRawJsonText(e.target.value)}
+                    fullWidth
+                    sx={{
+                      '& textarea': {
+                        fontFamily: 'monospace',
+                        fontSize: '0.875rem',
+                      }
+                    }}
+                    helperText="Edit the raw JSON configuration (be careful!)"
+                  />
+                )}
+              </Box>
+
+              {/* Save Button */}
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="contained"
+                  startIcon={isSaving ? <CircularProgress size={20} /> : <SaveIcon />}
+                  onClick={updateConfig}
+                  disabled={isSaving}
+                  size="large"
+                >
+                  {isSaving ? 'Saving...' : 'Save Configuration'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={fetchConfig}
+                  disabled={isSaving}
+                >
+                  Reset
+                </Button>
+              </Box>
+            </Stack>
+          ) : (
+            <Alert severity="error">Failed to load configuration</Alert>
+          )}
         </AccordionDetails>
       </Accordion>
 
+      {/* Swagger Documentation */}
       <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel2-content"
-          id="panel2-header"
-        >
-          <Typography variant="h6">Swagger</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>
-            In debug mode you can use the Skypier Swagger UI.
-          </Typography>
-          <Typography>
-            Visit Swagger API <a href="/swagger/index.html">here</a>
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion disabled>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel3-content"
           id="panel3-header"
         >
-          <Typography variant="h6">More controls to come...</Typography>
+          <Typography variant="h6">API Documentation</Typography>
         </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Access the Swagger UI for API testing and documentation.
+          </Typography>
+          <Button
+            variant="outlined"
+            href="/swagger/index.html"
+            target="_blank"
+            disabled={!config?.swaggerEnabled}
+            sx={{ mt: 2 }}
+          >
+            Open Swagger UI
+          </Button>
+          {!config?.swaggerEnabled && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              Enable Swagger in the configuration above to access the API documentation
+            </Typography>
+          )}
+        </AccordionDetails>
       </Accordion>
-    </div>
-
+    </Box>
   );
 };
 export default Settings;
