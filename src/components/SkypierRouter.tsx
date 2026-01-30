@@ -12,19 +12,17 @@ import Goodbye from '../pages/Goodbye';
 export default function SkypierRouter() {
 
     return (
-        <>        
-            <BrowserRouter>      
-                <Routes>
-                    <Route path="/" element={<Peers/>}/>
-                    <Route path="/Dashboard" element={<Dashboard/>}/>
-                    <Route path="/Explore_peers" element={<Peers/>}/>
-                    <Route path="/Saved_peers" element={<SavedPeers/>}/>
-                    <Route path="/My_subscription" element={<Subscription/>}/>
-                    <Route path="/Host_a_node" element={<Host/>}/>
-                    <Route path="/Settings" element={<Settings/>}/>
-                    <Route path="/Goodbye" element={<Goodbye/>}/>
-                </Routes>
-            </BrowserRouter>
+        <>
+            <Routes>
+                <Route path="/" element={<Peers />} />
+                <Route path="/Dashboard" element={<Dashboard />} />
+                <Route path="/Explore_peers" element={<Peers />} />
+                <Route path="/Saved_peers" element={<SavedPeers />} />
+                <Route path="/My_subscription" element={<Subscription />} />
+                <Route path="/Host_a_node" element={<Host />} />
+                <Route path="/Settings" element={<Settings />} />
+                <Route path="/Goodbye" element={<Goodbye />} />
+            </Routes>
         </>
     );
 }

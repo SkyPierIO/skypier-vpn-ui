@@ -1,5 +1,7 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { ColorModeContext } from "../App";
+import { useTheme } from "@mui/material/styles";
 import http from "../http.common";
 
 import { styled } from '@mui/material/styles';
@@ -107,6 +109,9 @@ const Settings = () => {
     }
   };
 
+  const colorMode = useContext(ColorModeContext);
+  const theme = useTheme();
+
   useEffect(() => {
     fetchConfig();
   }, []);
@@ -129,8 +134,14 @@ const Settings = () => {
           </Typography>
           <FormGroup>
             <FormControlLabel
-              control={<ThemeSwitch sx={{ m: 1 }} defaultChecked />}
-              label={" mode"}
+              control={
+                <ThemeSwitch
+                  sx={{ m: 1 }}
+                  checked={theme.palette.mode === 'dark'}
+                  onChange={colorMode.toggleColorMode}
+                />
+              }
+              label={theme.palette.mode === 'dark' ? "Dark mode" : "Light mode"}
             />
           </FormGroup>
         </AccordionDetails>

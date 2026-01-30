@@ -1,4 +1,5 @@
 import React from "react";
+import { BrowserRouter } from 'react-router-dom';
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import CssBaseline from '@mui/material/CssBaseline';
 import ReactDOM from "react-dom/client";
@@ -43,25 +44,27 @@ const metadata = {
 
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
-createWeb3Modal({ 
-	wagmiConfig, 
-	projectId, 
+createWeb3Modal({
+	wagmiConfig,
+	projectId,
 	chains,
 	termsConditionsUrl: 'https://skypier.io/terms-of-service/'
 });
 
 const subgraphUri = "https://api.studio.thegraph.com/query/74284/skypier_vpn_nodes/version/latest";
 const apolloClient = new ApolloClient({
-  uri: subgraphUri,
-  cache: new InMemoryCache(),
+	uri: subgraphUri,
+	cache: new InMemoryCache(),
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
 		<ApolloProvider client={apolloClient}>
 			<WagmiConfig config={wagmiConfig}>
-				<CssBaseline />
-				<App />
+				<BrowserRouter>
+					<CssBaseline />
+					<App />
+				</BrowserRouter>
 			</WagmiConfig>
 		</ApolloProvider>
 	</React.StrictMode>
