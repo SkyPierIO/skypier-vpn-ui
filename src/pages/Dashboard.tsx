@@ -437,7 +437,7 @@ const Dashboard: React.FC = () => {
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
           P2P Network
         </Typography>
-        
+
         <Grid container spacing={2}>
           <Grid size={{ xs: 4 }}>
             <Box sx={{ textAlign: 'center' }}>
@@ -492,6 +492,7 @@ const Dashboard: React.FC = () => {
       <Box sx={{ mb: { xs: 3, md: 4 } }}>
         <Typography
           variant="h4"
+          color="text.primary"
           sx={{
             fontWeight: 700,
             fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
@@ -572,33 +573,123 @@ const Dashboard: React.FC = () => {
                 Quick Actions
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  href="/Explore_peers"
-                  startIcon={<PublicIcon />}
-                  sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
-                >
-                  Browse Available Peers
-                </Button>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  href="/Saved_peers"
-                  startIcon={<VpnKeyIcon />}
-                  sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
-                >
-                  Saved Peers
-                </Button>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  href="/Settings"
-                  startIcon={<SecurityIcon />}
-                  sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
-                >
-                  Settings
-                </Button>
+                {[
+                  {
+                    href: '/Explore_peers',
+                    icon: <PublicIcon />,
+                    label: 'Browse Peers',
+                    description: 'Discover available nodes',
+                    color: '#6366f1',
+                    gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  },
+                  {
+                    href: '/Saved_peers',
+                    icon: <VpnKeyIcon />,
+                    label: 'Saved Peers',
+                    description: 'Your trusted connections',
+                    color: '#f6547d',
+                    gradient: 'linear-gradient(135deg, #f6547d 0%, #ec4899 100%)',
+                  },
+                  {
+                    href: '/Settings',
+                    icon: <SecurityIcon />,
+                    label: 'Settings',
+                    description: 'Configure your node',
+                    color: '#10b981',
+                    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  },
+                ].map(({ href, icon, label, description, color, gradient }) => (
+                  <Box
+                    key={href}
+                    component="a"
+                    href={href}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      px: 2,
+                      py: 1.5,
+                      borderRadius: 2.5,
+                      textDecoration: 'none',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      border: '1px solid',
+                      borderColor: alpha(color, 0.15),
+                      transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        inset: 0,
+                        background: `linear-gradient(135deg, ${alpha(color, 0)} 0%, ${alpha(color, 0.08)} 100%)`,
+                        opacity: 0,
+                        transition: 'opacity 0.25s ease',
+                      },
+                      '&:hover': {
+                        borderColor: alpha(color, 0.5),
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 8px 24px ${alpha(color, 0.2)}`,
+                        '&::before': { opacity: 1 },
+                        '& .action-arrow': { transform: 'translateX(4px)', opacity: 1 },
+                        '& .action-icon-bg': { transform: 'scale(1.08)' },
+                      },
+                    }}
+                  >
+                    {/* Icon badge */}
+                    <Avatar
+                      className="action-icon-bg"
+                      sx={{
+                        width: 42,
+                        height: 42,
+                        background: gradient,
+                        boxShadow: `0 4px 12px ${alpha(color, 0.35)}`,
+                        flexShrink: 0,
+                        transition: 'transform 0.25s ease',
+                        '& .MuiSvgIcon-root': { fontSize: 20, color: '#fff' },
+                      }}
+                    >
+                      {icon}
+                    </Avatar>
+
+                    {/* Text */}
+                    <Box sx={{ flexGrow: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 700, color: 'text.primary', lineHeight: 1.2 }}
+                      >
+                        {label}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: 'text.secondary', lineHeight: 1.4 }}
+                      >
+                        {description}
+                      </Typography>
+                    </Box>
+
+                    {/* Arrow */}
+                    <Box
+                      className="action-arrow"
+                      sx={{
+                        color,
+                        opacity: 0.4,
+                        transition: 'transform 0.25s ease, opacity 0.25s ease',
+                        display: 'flex',
+                        position: 'relative',
+                        zIndex: 1,
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M9 18l6-6-6-6"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </Box>
+                  </Box>
+                ))}
               </Box>
             </CardContent>
           </Card>
