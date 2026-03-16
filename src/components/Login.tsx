@@ -9,6 +9,7 @@ import { useAccount } from 'wagmi'
 
 // COMPONENTS
 import SkypierRouter from './SkypierRouter';
+import ConnectWalletButton from './ConnectWalletButton';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -46,7 +47,7 @@ export default function Login() {
                                 <Typography variant='h6' mb={2}>
                                     Please connect your wallet to be able to use the app.
                                 </Typography>
-                                <w3m-button />
+                                <ConnectWalletButton />
                             </Stack>
                         </Item>
                     </Box>

@@ -155,3 +155,14 @@ header {
     background-color:#77777777;
     z-index: 99;
 }
+
+w3m-button {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1000px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+w3m-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

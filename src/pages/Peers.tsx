@@ -32,9 +32,9 @@ import { styled } from "@mui/material/styles";
 import { PublicLockV14 } from "@unlock-protocol/contracts";
 import networks from "@unlock-protocol/networks";
 import { Paywall } from "@unlock-protocol/paywall";
-import { useAccount, useConnect, useContractRead } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
-import { sepolia } from "wagmi/chains";
+import { useAccount, useReadContract } from "wagmi";
+import { sepolia } from "viem/chains";
+import ConnectWalletButton from "../components/ConnectWalletButton";
 import UtilityCard from "../components/UtilityCard";
 
 // Axios
@@ -239,16 +239,15 @@ const Peers = () => {
     data: isMember,
     isError,
     isLoading,
-  } = useContractRead({
+  } = useReadContract({
     address: LOCK,
     abi: PublicLockV14.abi,
     functionName: "balanceOf",
     chainId: configuredNetworkID,
-    enabled: !!address,
-    args: [address],
-    watch: true,
-    select: (data: any) => {
-      return data > 0;
+    args: [address!],
+    query: {
+      enabled: !!address,
+      select: (data: any) => data > 0,
     },
   });
 
@@ -759,20 +758,12 @@ const Peers = () => {
 export default Peers;
 
 const Connect = () => {
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  });
   return (
     <section>
       <p className="mb-4">
         To continue using the app you need to have a valid membership!
       </p>
-      <button
-        onClick={() => connect()}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Sign-In
-      </button>
+      <ConnectWalletButton />
     </section>
   );
 };

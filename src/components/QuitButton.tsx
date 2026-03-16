@@ -6,7 +6,7 @@ import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import http from "../http.common";
 
 const fabHeaderStyle = {
-  borderRadius: "var(--wui-border-radius-3xl)",
+  borderRadius: "1000px",
   textTransform: "none",
   fontSize: "16px",
   color: "#fff",

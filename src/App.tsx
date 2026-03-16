@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 // COMPONENTS
 import IpLocation from "./components/IpLocation"
 import Login from "./components/Login"
+import ConnectWalletButton from "./components/ConnectWalletButton";
 
 // MUI ICONS
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -136,7 +137,7 @@ function MyApp() {
   };
 
   const fabHeaderStyle = {
-    borderRadius: "var(--wui-border-radius-3xl)",
+    borderRadius: "1000px",
     textTransform: "none",
     fontSize: "16px",
     color: "#fff",
@@ -183,7 +184,7 @@ function MyApp() {
               <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <IpLocation />
               </Box>
-              <w3m-button />
+              <ConnectWalletButton header />
               <Fab
                 sx={{
                   ...fabHeaderStyle,

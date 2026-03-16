@@ -9,8 +9,14 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
-import { WagmiConfig } from "wagmi";
+
+// Reown AppKit (replaces @web3modal/wagmi)
+import { createAppKit } from "@reown/appkit/react";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Networks from @reown/appkit (includes viem-compatible chain definitions)
 import {
 	sepolia,
 	arbitrum,
@@ -19,19 +25,10 @@ import {
 	optimism,
 	polygon,
 	base,
-	localhost
-} from "wagmi/chains";
-
-const chains = [
 	localhost,
-	sepolia,
-	mainnet,
-	polygon,
-	base,
-	arbitrum,
-	optimism,
-	gnosis,
-];
+} from "@reown/appkit/networks";
+
+const queryClient = new QueryClient();
 
 const projectId = import.meta.env.VITE_PROJECT_ID || "";
 
@@ -42,13 +39,30 @@ const metadata = {
 	icons: ["https://avatars.githubusercontent.com/u/145208723"],
 };
 
-const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
+const networks = [localhost, sepolia, mainnet, polygon, base, arbitrum, optimism, gnosis];
 
-createWeb3Modal({
-	wagmiConfig,
+// Create WagmiAdapter (replaces defaultWagmiConfig)
+const wagmiAdapter = new WagmiAdapter({
+	networks: networks as any,
 	projectId,
-	chains,
-	termsConditionsUrl: 'https://skypier.io/terms-of-service/'
+});
+
+// Create AppKit modal (replaces createWeb3Modal)
+createAppKit({
+	adapters: [wagmiAdapter],
+	networks: networks as any,
+	projectId,
+	metadata,
+	features: {
+		analytics: false,
+	},
+	themeMode: 'dark',
+	themeVariables: {
+		'--w3m-accent': 'rgba(255, 255, 255, 0.1)',
+		'--w3m-border-radius-master': '1000px',
+		'--w3m-font-family': '"Roboto","Helvetica","Arial",sans-serif',
+	},
+	termsConditionsUrl: 'https://skypier.io/terms-of-service/',
 });
 
 const subgraphUri = "https://api.studio.thegraph.com/query/74284/skypier_vpn_nodes/version/latest";
@@ -60,12 +74,15 @@ const apolloClient = new ApolloClient({
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
 		<ApolloProvider client={apolloClient}>
-			<WagmiConfig config={wagmiConfig}>
-				<BrowserRouter>
-					<CssBaseline />
-					<App />
-				</BrowserRouter>
-			</WagmiConfig>
+			{/* WagmiProvider replaces WagmiConfig; QueryClientProvider is now required */}
+			<WagmiProvider config={wagmiAdapter.wagmiConfig}>
+				<QueryClientProvider client={queryClient}>
+					<BrowserRouter>
+						<CssBaseline />
+						<App />
+					</BrowserRouter>
+				</QueryClientProvider>
+			</WagmiProvider>
 		</ApolloProvider>
 	</React.StrictMode>
 );

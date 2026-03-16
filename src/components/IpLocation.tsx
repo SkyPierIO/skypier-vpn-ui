@@ -7,7 +7,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 
 const fabStyle = {
-  borderRadius: "var(--wui-border-radius-3xl)",
+  borderRadius: "1000px",
   textTransform: "none",
   fontSize: "16px",
   color: "#fff",
