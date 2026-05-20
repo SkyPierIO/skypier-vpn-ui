@@ -11,14 +11,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import StarIcon from '@mui/icons-material/Star';
 import ReactCountryFlag from 'react-country-flag';
 import jazzicon from '@metamask/jazzicon';
-import http from '../http.common';
 
 interface PeerInfo {
   peerId: string;
@@ -107,7 +104,6 @@ const PeerRow = ({
   onOpenDetails: () => void;
 }) => {
   const [status, setStatus] = useState<string>(peer.status || 'Unknown');
-  const [pinging, setPinging] = useState(false);
   const [isStarred, setIsStarred] = useState<boolean>(() => {
     const storedPeers = localStorage.getItem('starredPeers');
     const starredPeers: string[] = storedPeers ? JSON.parse(storedPeers) : [];
@@ -160,37 +156,6 @@ const PeerRow = ({
     }
   };
 
-  const handlePing = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setPinging(true);
-    try {
-      const response = await http.get(`/ping/${peer.peerId}`);
-      if (response.status === 200 && response.data.result) {
-        setStatus('Online');
-        setSnackbar({
-          open: true,
-          message: `✓ Peer ${truncatePeerId(peer.peerId)} is reachable`,
-          severity: 'success',
-        });
-      } else {
-        setStatus('Unreachable');
-        setSnackbar({
-          open: true,
-          message: `✗ Peer ${truncatePeerId(peer.peerId)} is unreachable`,
-          severity: 'warning',
-        });
-      }
-    } catch (error) {
-      setStatus('Unreachable');
-      setSnackbar({
-        open: true,
-        message: `✗ Failed to ping peer ${truncatePeerId(peer.peerId)}`,
-        severity: 'error',
-      });
-    }
-    setPinging(false);
-  };
-
   const handleConnect = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -211,9 +176,14 @@ const PeerRow = ({
 
   const statusColor = status === 'Online' ? 'success' : status === 'Unreachable' ? 'default' : 'warning';
 
+  const handleRowClick = () => {
+    onSelect();
+    onOpenDetails();
+  };
+
   return (
     <Box
-      onClick={onSelect}
+      onClick={handleRowClick}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -315,31 +285,6 @@ const PeerRow = ({
             }}
           >
             {isStarred ? <StarIcon fontSize="small" /> : <StarBorderOutlinedIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Details">
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenDetails();
-            }}
-            sx={{ p: 0.5 }}
-          >
-            <InfoOutlinedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Ping">
-          <IconButton
-            size="small"
-            onClick={handlePing}
-            disabled={pinging}
-            sx={{ 
-              p: 0.5,
-              '&:hover': { color: 'info.main' }
-            }}
-          >
-            <NetworkPingIcon fontSize="small" />
           </IconButton>
         </Tooltip>
         <Tooltip title={isConnected ? 'Connected' : 'Connect'}>

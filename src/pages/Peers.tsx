@@ -18,6 +18,12 @@ import Divider from "@mui/material/Divider";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import ClearIcon from "@mui/icons-material/Clear";
+import TerminalIcon from "@mui/icons-material/Terminal";
+import WindowIcon from "@mui/icons-material/Window";
+import LaptopMacIcon from "@mui/icons-material/LaptopMac";
+import DnsOutlinedIcon from "@mui/icons-material/DnsOutlined";
+import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
+import LinkOffIcon from "@mui/icons-material/LinkOff";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Menu from "@mui/material/Menu";
@@ -33,6 +39,8 @@ import { useAccount, useReadContract } from "wagmi";
 import { sepolia } from "viem/chains";
 import ConnectWalletButton from "../components/ConnectWalletButton";
 import UtilityCard from "../components/UtilityCard";
+import ReactCountryFlag from "react-country-flag";
+import jazzicon from "@metamask/jazzicon";
 
 // Axios
 import http from "../http.common";
@@ -52,6 +60,62 @@ const Item = styled(Paper)(({ theme }: { theme: any }) => ({
   maxWidth: 550,
   minHeight: "20vh",
 }));
+
+const JazziconAvatar = ({ peerId, size = 40 }: { peerId: string; size?: number }) => {
+  const avatarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const generateIdenticon = async () => {
+      if (avatarRef.current && peerId) {
+        const sha256 = async (message: string) => {
+          const msgBuffer = new TextEncoder().encode(message);
+          const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+        };
+
+        const hash = await sha256(peerId);
+        const numericValue = parseInt(hash.slice(0, 8), 16);
+        const icon = jazzicon(size, numericValue);
+        avatarRef.current.innerHTML = "";
+        avatarRef.current.appendChild(icon);
+      }
+    };
+
+    generateIdenticon();
+  }, [peerId, size]);
+
+  return (
+    <Box
+      ref={avatarRef}
+      sx={{
+        width: size,
+        height: size,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        "& > div": {
+          borderRadius: "50%",
+        },
+      }}
+    />
+  );
+};
+
+const getOsFingerprintIcon = (os?: string) => {
+  const normalized = (os || "").toLowerCase();
+  if (normalized.includes("linux")) {
+    return <TerminalIcon fontSize="small" />;
+  }
+  if (normalized.includes("win")) {
+    return <WindowIcon fontSize="small" />;
+  }
+  if (normalized.includes("darwin") || normalized.includes("mac") || normalized.includes("osx")) {
+    return <LaptopMacIcon fontSize="small" />;
+  }
+  return <DnsOutlinedIcon fontSize="small" />;
+};
 
 interface PeerLocation {
   peerId: string;
@@ -166,8 +230,7 @@ const Peers = () => {
   const [isVpnConnected, setIsVpnConnected] = useState(false);
   const [detailsPeerId, setDetailsPeerId] = useState<string | null>(null);
   const [detailsDrawerOpen, setDetailsDrawerOpen] = useState(false);
-  const [drawerPingStatus, setDrawerPingStatus] = useState<string | null>(null);
-  const [drawerPinging, setDrawerPinging] = useState(false);
+  const [drawerActionLoading, setDrawerActionLoading] = useState(false);
 
   // Peer locations with geo data
   const [peerLocations, setPeerLocations] = useState<{
@@ -288,7 +351,6 @@ const Peers = () => {
     setSelectedPeerId(peerId);
     setDetailsPeerId(peerId);
     setDetailsDrawerOpen(true);
-    setDrawerPingStatus(null);
   };
 
   const handleDrawerClose = () => {
@@ -310,6 +372,16 @@ const Peers = () => {
   const handleDisconnect = () => {
     setConnectedPeerId(null);
     setIsVpnConnected(false);
+  };
+
+  const handlePeerDisconnect = async (peerId: string) => {
+    try {
+      await http.get(`/disconnect/${peerId}`);
+      setConnectedPeerId(null);
+      setIsVpnConnected(false);
+    } catch (error) {
+      console.error("Error disconnecting from peer:", error);
+    }
   };
 
   // Fetch geo data for a peer
@@ -359,29 +431,16 @@ const Peers = () => {
     }
   };
 
-  const handleDrawerPing = async () => {
-    if (!detailsPeerId) {
-      return;
-    }
-
-    setDrawerPinging(true);
+  const handleDrawerConnectionAction = async (peerId: string) => {
+    setDrawerActionLoading(true);
     try {
-      const status = await checkPeerStatus(detailsPeerId);
-      setDrawerPingStatus(status);
-      setPeerLocations((prev) => {
-        if (!prev[detailsPeerId]) {
-          return prev;
-        }
-        return {
-          ...prev,
-          [detailsPeerId]: {
-            ...prev[detailsPeerId],
-            status,
-          },
-        };
-      });
+      if (connectedPeerId === peerId) {
+        await handlePeerDisconnect(peerId);
+      } else {
+        await handlePeerConnect(peerId);
+      }
     } finally {
-      setDrawerPinging(false);
+      setDrawerActionLoading(false);
     }
   };
 
@@ -1000,118 +1059,162 @@ const Peers = () => {
         </Paper>
       </Box>
 
-      <Drawer anchor="bottom" open={detailsDrawerOpen} onClose={handleDrawerClose}>
-        <Box
-          sx={{
-            maxHeight: "60vh",
-            overflowY: "auto",
-            p: { xs: 2, sm: 3 },
-          }}
-        >
+      <Drawer
+        anchor="bottom"
+        open={detailsDrawerOpen}
+        onClose={handleDrawerClose}
+        PaperProps={{
+          sx: {
+            width: { xs: "100%", md: "min(860px, calc(100vw - 64px))" },
+            maxHeight: "70vh",
+            left: { xs: 0, md: "50%" },
+            right: { xs: 0, md: "auto" },
+            transform: { xs: "none", md: "translateX(-50%)" },
+            mb: { xs: 0, md: 2 },
+            borderTopLeftRadius: { xs: 16, md: 18 },
+            borderTopRightRadius: { xs: 16, md: 18 },
+            borderBottomLeftRadius: { xs: 0, md: 18 },
+            borderBottomRightRadius: { xs: 0, md: 18 },
+            border: 1,
+            borderColor: "divider",
+            backdropFilter: "blur(12px)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(23, 24, 27, 0.94)"
+                : "rgba(255, 255, 255, 0.94)",
+            backgroundImage: "none",
+            overflow: "hidden",
+          },
+        }}
+      >
+        <Box sx={{ overflowY: "auto", p: { xs: 2, sm: 3 } }}>
           {selectedPeerDetails ? (
-            <Stack spacing={2}>
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                justifyContent="space-between"
-                alignItems={{ xs: "flex-start", sm: "center" }}
-                spacing={1}
-              >
-                <Box>
-                  <Typography variant="h6">
-                    {selectedPeerDetails.nickname || "Unnamed Node"}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontFamily: "monospace",
-                      wordBreak: "break-all",
-                    }}
-                  >
-                    {selectedPeerDetails.peerId}
-                  </Typography>
-                </Box>
-                <Stack direction="row" spacing={1}>
+            <Stack spacing={2.5}>
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
+                  <JazziconAvatar peerId={selectedPeerDetails.peerId} size={42} />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.25 }}>
+                      <Typography variant="h6" sx={{ lineHeight: 1.15 }}>
+                        {selectedPeerDetails.nickname || "Unnamed Node"}
+                      </Typography>
+                      {selectedPeerDetails.countryCode &&
+                        selectedPeerDetails.countryCode !== "xx" && (
+                          <ReactCountryFlag
+                            countryCode={selectedPeerDetails.countryCode.toUpperCase()}
+                            svg
+                            style={{ width: "1.15rem", height: "0.95rem", borderRadius: 2 }}
+                          />
+                        )}
+                    </Stack>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontFamily: "monospace", opacity: 0.9, wordBreak: "break-all" }}
+                    >
+                      {selectedPeerDetails.peerId}
+                    </Typography>
+                  </Box>
+                </Stack>
+
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
                   <Chip
-                    label={
-                      drawerPingStatus || selectedPeerDetails.status || "Unknown"
-                    }
-                    color={
-                      (drawerPingStatus || selectedPeerDetails.status) ===
-                      "Online"
-                        ? "success"
-                        : "default"
-                    }
+                    label={selectedPeerDetails.status || "Unknown"}
+                    color={selectedPeerDetails.status === "Online" ? "success" : "default"}
+                    size="small"
+                    sx={{ fontWeight: 600 }}
                   />
                   <Chip
                     label={selectedPeerDetails.resourceStatus || "unknown"}
                     color={getStabilityChipColor(selectedPeerDetails.resourceStatus)}
                     variant="outlined"
+                    size="small"
                     sx={{ textTransform: "capitalize" }}
                   />
                 </Stack>
               </Stack>
 
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-                <Button
-                  variant="outlined"
-                  onClick={handleDrawerPing}
-                  disabled={drawerPinging}
-                >
-                  {drawerPinging ? "Pinging..." : "Ping Node"}
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={() => handlePeerConnect(selectedPeerDetails.peerId)}
-                  disabled={connectedPeerId === selectedPeerDetails.peerId}
-                >
-                  {connectedPeerId === selectedPeerDetails.peerId
-                    ? "Connected"
-                    : "Connect"}
-                </Button>
-              </Stack>
+              <Button
+                onClick={() => handleDrawerConnectionAction(selectedPeerDetails.peerId)}
+                disabled={drawerActionLoading}
+                startIcon={
+                  connectedPeerId === selectedPeerDetails.peerId ? (
+                    <LinkOffIcon />
+                  ) : (
+                    <ElectricalServicesIcon />
+                  )
+                }
+                sx={{
+                  alignSelf: "flex-start",
+                  px: 2.2,
+                  py: 1,
+                  borderRadius: 999,
+                  fontWeight: 700,
+                  textTransform: "none",
+                  letterSpacing: 0.2,
+                  color: "#fff",
+                  bgcolor:
+                    connectedPeerId === selectedPeerDetails.peerId
+                      ? "#dc2626"
+                      : "#0f766e",
+                  boxShadow:
+                    connectedPeerId === selectedPeerDetails.peerId
+                      ? "0 10px 22px rgba(220, 38, 38, 0.28)"
+                      : "0 10px 22px rgba(15, 118, 110, 0.28)",
+                  "&:hover": {
+                    bgcolor:
+                      connectedPeerId === selectedPeerDetails.peerId
+                        ? "#b91c1c"
+                        : "#0d6660",
+                  },
+                }}
+              >
+                {drawerActionLoading
+                  ? "Working..."
+                  : connectedPeerId === selectedPeerDetails.peerId
+                  ? "Disconnect"
+                  : "Connect"}
+              </Button>
 
               <Divider />
 
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} useFlexGap flexWrap="wrap">
+                <Chip
+                  icon={getOsFingerprintIcon(selectedPeerDetails.os)}
+                  label={selectedPeerDetails.os || "unknown os"}
+                  variant="outlined"
+                  size="small"
+                  sx={{ textTransform: "capitalize" }}
+                />
+                <Chip
+                  label={`Uptime ${formatUptime(selectedPeerDetails.uptimeSeconds)}`}
+                  variant="outlined"
+                  size="small"
+                />
+                <Chip
+                  label={selectedPeerDetails.version || "Version N/A"}
+                  variant="outlined"
+                  size="small"
+                />
+              </Stack>
+
               <Stack spacing={1}>
                 <Typography variant="body2">
-                  Location: {selectedPeerDetails.city || "Unknown"},{" "}
-                  {selectedPeerDetails.country || "Unknown"}
-                </Typography>
-                <Typography variant="body2">
-                  Uptime: {formatUptime(selectedPeerDetails.uptimeSeconds)}
-                </Typography>
-                <Typography variant="body2">
-                  Version / OS: {selectedPeerDetails.version || "N/A"} /{" "}
-                  {selectedPeerDetails.os || "N/A"}
+                  Location: {selectedPeerDetails.city || "Unknown"}, {selectedPeerDetails.country || "Unknown"}
                 </Typography>
                 <Typography variant="body2">
                   Node Status: {selectedPeerDetails.nodeStatus || "N/A"}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ fontFamily: "monospace", wordBreak: "break-all" }}
-                >
+                <Typography variant="body2" sx={{ fontFamily: "monospace", wordBreak: "break-all" }}>
                   Skypier ID: {selectedPeerDetails.skypierId || "N/A"}
                 </Typography>
                 <Typography variant="body2">
-                  Last Seen:{" "}
-                  {selectedPeerDetails.lastSeenAt
-                    ? new Date(selectedPeerDetails.lastSeenAt).toLocaleString()
-                    : "N/A"}
+                  Last Seen: {selectedPeerDetails.lastSeenAt ? new Date(selectedPeerDetails.lastSeenAt).toLocaleString() : "N/A"}
                 </Typography>
                 <Typography variant="body2">
-                  First Seen:{" "}
-                  {selectedPeerDetails.firstSeenAt
-                    ? new Date(selectedPeerDetails.firstSeenAt).toLocaleString()
-                    : "N/A"}
+                  First Seen: {selectedPeerDetails.firstSeenAt ? new Date(selectedPeerDetails.firstSeenAt).toLocaleString() : "N/A"}
                 </Typography>
                 <Typography variant="body2">
-                  Last Valid Signature:{" "}
-                  {selectedPeerDetails.lastValidSignatureAt
-                    ? new Date(
-                        selectedPeerDetails.lastValidSignatureAt
-                      ).toLocaleString()
-                    : "N/A"}
+                  Last Valid Signature: {selectedPeerDetails.lastValidSignatureAt ? new Date(selectedPeerDetails.lastValidSignatureAt).toLocaleString() : "N/A"}
                 </Typography>
                 <Typography variant="body2">
                   Source Topic: {selectedPeerDetails.sourceTopic || "N/A"}
