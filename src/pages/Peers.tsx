@@ -1,9 +1,6 @@
 // React
 import { useState, useMemo, useEffect, useRef } from "react";
 
-// GraphQL
-import { gql, useQuery } from "@apollo/client";
-
 // Components
 import WorldMap from "../components/WorldMap";
 import CountryAccordion from "../components/CountryAccordion";
@@ -26,7 +23,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
-import Grid from "@mui/material/Grid";
+import Drawer from "@mui/material/Drawer";
 import Skeleton from "@mui/material/Skeleton";
 import { styled } from "@mui/material/styles";
 import { PublicLockV14 } from "@unlock-protocol/contracts";
@@ -72,6 +69,80 @@ interface VPNStatusResponse {
   peer_id?: string;
 }
 
+interface NodeRegistryApiEntry {
+  peerId: string;
+  stale: boolean;
+  firstSeenAt?: string;
+  lastSeenAt?: string;
+  lastValidSignatureAt?: string;
+  sourceTopic?: string;
+  ageSeconds?: number;
+  metadata?: {
+    peerId?: string;
+    skypierId?: string;
+    status?: string;
+    statusHex?: string;
+    nickname?: string;
+    timestamp?: number;
+    uptimeSeconds?: number;
+    resourceStatus?: string;
+    version?: string;
+    os?: string;
+  };
+}
+
+type StabilityFilter = "all" | "stable" | "degraded" | "critical" | "unknown";
+
+interface PeerViewModel extends PeerLocation {
+  nickname?: string;
+  resourceStatus?: string;
+  uptimeSeconds?: number;
+  version?: string;
+  os?: string;
+  skypierId?: string;
+  nodeStatus?: string;
+  statusHex?: string;
+  firstSeenAt?: string;
+  lastSeenAt?: string;
+  lastValidSignatureAt?: string;
+  sourceTopic?: string;
+  ageSeconds?: number;
+  stale?: boolean;
+}
+
+const getStabilityChipColor = (
+  resourceStatus?: string
+): "default" | "success" | "warning" | "error" => {
+  switch ((resourceStatus || "").toLowerCase()) {
+    case "stable":
+      return "success";
+    case "degraded":
+      return "warning";
+    case "critical":
+      return "error";
+    default:
+      return "default";
+  }
+};
+
+const formatUptime = (uptimeSeconds?: number): string => {
+  if (!uptimeSeconds || uptimeSeconds <= 0) {
+    return "N/A";
+  }
+
+  const days = Math.floor(uptimeSeconds / 86400);
+  const hours = Math.floor((uptimeSeconds % 86400) / 3600);
+  const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+
+  if (days > 0) {
+    return `${days}d ${hours}h ${minutes}m`;
+  }
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
+};
+
 // Cache for peer geo data
 const geoCache: { [key: string]: PeerLocation } = {};
 
@@ -81,7 +152,11 @@ const Peers = () => {
 
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filterType, setFilterType] = useState<string>("all");
+  const [filterType, setFilterType] = useState<
+    "all" | "peerId" | "location" | "status" | "nickname" | "stability"
+  >("all");
+  const [stabilityFilter, setStabilityFilter] =
+    useState<StabilityFilter>("all");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const filterOpen = Boolean(anchorEl);
 
@@ -89,6 +164,10 @@ const Peers = () => {
   const [selectedPeerId, setSelectedPeerId] = useState<string | null>(null);
   const [connectedPeerId, setConnectedPeerId] = useState<string | null>(null);
   const [isVpnConnected, setIsVpnConnected] = useState(false);
+  const [detailsPeerId, setDetailsPeerId] = useState<string | null>(null);
+  const [detailsDrawerOpen, setDetailsDrawerOpen] = useState(false);
+  const [drawerPingStatus, setDrawerPingStatus] = useState<string | null>(null);
+  const [drawerPinging, setDrawerPinging] = useState(false);
 
   // Peer locations with geo data
   const [peerLocations, setPeerLocations] = useState<{
@@ -97,6 +176,8 @@ const Peers = () => {
 
   // Loading state for geo lookup
   const [isGeoLoading, setIsGeoLoading] = useState(false);
+  const [nodesLoading, setNodesLoading] = useState(true);
+  const [registryPeers, setRegistryPeers] = useState<NodeRegistryApiEntry[]>([]);
 
   // User's current location
   const [userLocation, setUserLocation] = useState<{
@@ -150,6 +231,36 @@ const Peers = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchNodes = async () => {
+      try {
+        const response = await http.get("/nodes", { timeout: 5000 });
+        const rawNodes: NodeRegistryApiEntry[] = response.data?.nodes || [];
+        const deduped = rawNodes
+          .filter((node) => !node.stale)
+          .filter(
+            (node, index, self) =>
+              Boolean(node.peerId && node.peerId.length > 43) &&
+              index === self.findIndex((item) => item.peerId === node.peerId)
+          );
+
+        setRegistryPeers(deduped);
+      } catch (error) {
+        console.error("Error fetching nodes from backend:", error);
+        setRegistryPeers([]);
+      } finally {
+        setNodesLoading(false);
+      }
+    };
+
+    fetchNodes();
+    const nodesPoller = setInterval(fetchNodes, 20000);
+
+    return () => {
+      clearInterval(nodesPoller);
+    };
+  }, []);
+
   const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -158,7 +269,9 @@ const Peers = () => {
     setAnchorEl(null);
   };
 
-  const handleFilterSelect = (filter: string) => {
+  const handleFilterSelect = (
+    filter: "all" | "peerId" | "location" | "status" | "nickname" | "stability"
+  ) => {
     setFilterType(filter);
     handleFilterClose();
   };
@@ -169,6 +282,17 @@ const Peers = () => {
 
   const handlePeerSelect = (peerId: string) => {
     setSelectedPeerId(peerId === selectedPeerId ? null : peerId);
+  };
+
+  const handlePeerOpenDetails = (peerId: string) => {
+    setSelectedPeerId(peerId);
+    setDetailsPeerId(peerId);
+    setDetailsDrawerOpen(true);
+    setDrawerPingStatus(null);
+  };
+
+  const handleDrawerClose = () => {
+    setDetailsDrawerOpen(false);
   };
 
   const handlePeerConnect = async (peerId: string) => {
@@ -235,6 +359,32 @@ const Peers = () => {
     }
   };
 
+  const handleDrawerPing = async () => {
+    if (!detailsPeerId) {
+      return;
+    }
+
+    setDrawerPinging(true);
+    try {
+      const status = await checkPeerStatus(detailsPeerId);
+      setDrawerPingStatus(status);
+      setPeerLocations((prev) => {
+        if (!prev[detailsPeerId]) {
+          return prev;
+        }
+        return {
+          ...prev,
+          [detailsPeerId]: {
+            ...prev[detailsPeerId],
+            status,
+          },
+        };
+      });
+    } finally {
+      setDrawerPinging(false);
+    }
+  };
+
   const {
     data: isMember,
     isError,
@@ -251,34 +401,22 @@ const Peers = () => {
     },
   });
 
-  const NODES_GRAPHQL = `
-  {
-    newPeers(first: 100) {
-      from
-      timestamp
-      peerId
-    }
-  }
-  `;
-
-  const NODES_GQL = gql(NODES_GRAPHQL);
-  const nodesData = useQuery(NODES_GQL, { pollInterval: 5 * 60000 });
-
   // Load all peers immediately, then fetch geo data
   useEffect(() => {
-    if (!nodesData.data?.newPeers) return;
+    if (!registryPeers.length) return;
 
     const loadAllGeoData = async () => {
       setIsGeoLoading(true);
-      const peers = nodesData.data.newPeers.filter(
-        (node: any, index: any, self: any) =>
-          node.peerId &&
-          node.peerId.length > 43 &&
-          index ===
-            self.findIndex(
-              (item: { peerId: any }) => item.peerId === node.peerId
-            )
-      );
+      const peers = registryPeers.map((node) => {
+        const fallbackTimestamp = node.lastSeenAt
+          ? Math.floor(Date.parse(node.lastSeenAt) / 1000)
+          : Math.floor(Date.now() / 1000);
+
+        return {
+          peerId: node.peerId,
+          timestamp: node.metadata?.timestamp ?? fallbackTimestamp,
+        };
+      });
 
       // First, add all peers - use cached data if available, otherwise "Unknown"
       const initialPeers: { [key: string]: PeerLocation } = {};
@@ -360,16 +498,64 @@ const Peers = () => {
     };
 
     loadAllGeoData();
-  }, [nodesData.data]);
+  }, [registryPeers]);
 
-  // Get all peers with location data
-  const peersWithLocation = useMemo(() => {
-    return Object.values(peerLocations);
-  }, [peerLocations]);
+  const registryByPeerId = useMemo(() => {
+    return registryPeers.reduce<Record<string, NodeRegistryApiEntry>>(
+      (acc, node) => {
+        acc[node.peerId] = node;
+        return acc;
+      },
+      {}
+    );
+  }, [registryPeers]);
+
+  // Merge GeoIP state with node registry metadata.
+  const peersWithLocation = useMemo<PeerViewModel[]>(() => {
+    return Object.values(peerLocations).map((peer) => {
+      const registryEntry = registryByPeerId[peer.peerId];
+      const metadata = registryEntry?.metadata;
+
+      return {
+        ...peer,
+        nickname: metadata?.nickname,
+        resourceStatus: metadata?.resourceStatus,
+        uptimeSeconds: metadata?.uptimeSeconds,
+        version: metadata?.version,
+        os: metadata?.os,
+        skypierId: metadata?.skypierId,
+        nodeStatus: metadata?.status,
+        statusHex: metadata?.statusHex,
+        firstSeenAt: registryEntry?.firstSeenAt,
+        lastSeenAt: registryEntry?.lastSeenAt,
+        lastValidSignatureAt: registryEntry?.lastValidSignatureAt,
+        sourceTopic: registryEntry?.sourceTopic,
+        ageSeconds: registryEntry?.ageSeconds,
+        stale: registryEntry?.stale,
+      };
+    });
+  }, [peerLocations, registryByPeerId]);
+
+  const availableStabilityFilters = useMemo<StabilityFilter[]>(() => {
+    const statuses = new Set<StabilityFilter>();
+    peersWithLocation.forEach((peer) => {
+      const normalized = (peer.resourceStatus || "unknown").toLowerCase() as StabilityFilter;
+      if (["stable", "degraded", "critical", "unknown"].includes(normalized)) {
+        statuses.add(normalized);
+      }
+    });
+    return ["all", ...Array.from(statuses)];
+  }, [peersWithLocation]);
 
   // Filter and search peers
   const filteredPeers = useMemo(() => {
     let peers = peersWithLocation;
+
+    if (stabilityFilter !== "all") {
+      peers = peers.filter(
+        (peer) => (peer.resourceStatus || "unknown").toLowerCase() === stabilityFilter
+      );
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -391,17 +577,40 @@ const Peers = () => {
           if (peer.status?.toLowerCase().includes(query)) return true;
         }
 
+        // Search by nickname
+        if (filterType === "nickname" || filterType === "all") {
+          if (peer.nickname?.toLowerCase().includes(query)) return true;
+        }
+
+        // Search by stability/resource state
+        if (filterType === "stability" || filterType === "all") {
+          if (peer.resourceStatus?.toLowerCase().includes(query)) return true;
+        }
+
+        // Include version and OS in broad search mode.
+        if (filterType === "all") {
+          if (peer.version?.toLowerCase().includes(query)) return true;
+          if (peer.os?.toLowerCase().includes(query)) return true;
+        }
+
         return false;
       });
     }
 
     return peers;
-  }, [peersWithLocation, searchQuery, filterType]);
+  }, [peersWithLocation, searchQuery, filterType, stabilityFilter]);
+
+  const selectedPeerDetails = useMemo(() => {
+    if (!detailsPeerId) {
+      return null;
+    }
+    return peersWithLocation.find((peer) => peer.peerId === detailsPeerId) || null;
+  }, [detailsPeerId, peersWithLocation]);
 
   // Group peers by country (sorted alphabetically, Unknown at end)
   const peersByCountry = useMemo(() => {
     const grouped: {
-      [country: string]: { countryCode: string; peers: PeerLocation[] };
+      [country: string]: { countryCode: string; peers: PeerViewModel[] };
     } = {};
 
     filteredPeers.forEach((peer) => {
@@ -458,7 +667,7 @@ const Peers = () => {
     return <Checkout network={configuredNetworkID} connector={connector} />;
   }
 
-  return nodesData.loading ? (
+  return nodesLoading ? (
     <Container
       maxWidth="xl"
       sx={{
@@ -482,7 +691,7 @@ const Peers = () => {
               <LinearProgress />
             </Box>
             <Typography variant="body1" mb={2}>
-              Getting on-chain peers data...
+              Getting peers data from node registry...
             </Typography>
           </Stack>
         </Item>
@@ -615,6 +824,12 @@ const Peers = () => {
               <MenuItem onClick={() => handleFilterSelect("status")}>
                 Status
               </MenuItem>
+              <MenuItem onClick={() => handleFilterSelect("nickname")}>
+                Nickname
+              </MenuItem>
+              <MenuItem onClick={() => handleFilterSelect("stability")}>
+                Stability
+              </MenuItem>
             </Menu>
             <Divider orientation="vertical" flexItem />
             <InputBase
@@ -668,8 +883,40 @@ const Peers = () => {
                   variant="outlined"
                 />
               )}
+              {stabilityFilter !== "all" && (
+                <Chip
+                  label={`Stability: ${stabilityFilter}`}
+                  size="small"
+                  onDelete={() => setStabilityFilter("all")}
+                  color={getStabilityChipColor(stabilityFilter)}
+                  variant="outlined"
+                />
+              )}
             </Stack>
           )}
+
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ mt: 1.5 }}
+            flexWrap="wrap"
+            useFlexGap
+          >
+            {availableStabilityFilters.map((status) => (
+              <Chip
+                key={status}
+                label={status === "all" ? "All Stability" : status}
+                size="small"
+                clickable
+                color={
+                  status === "all" ? "default" : getStabilityChipColor(status)
+                }
+                variant={stabilityFilter === status ? "filled" : "outlined"}
+                onClick={() => setStabilityFilter(status)}
+                sx={{ textTransform: "capitalize" }}
+              />
+            ))}
+          </Stack>
           </Box>
 
           {/* Results count */}
@@ -745,12 +992,142 @@ const Peers = () => {
                   connectedPeerId={connectedPeerId}
                   onPeerSelect={handlePeerSelect}
                   onPeerConnect={handlePeerConnect}
+                  onPeerOpenDetails={handlePeerOpenDetails}
                 />
               ))
             )}
           </Box>
         </Paper>
       </Box>
+
+      <Drawer anchor="bottom" open={detailsDrawerOpen} onClose={handleDrawerClose}>
+        <Box
+          sx={{
+            maxHeight: "60vh",
+            overflowY: "auto",
+            p: { xs: 2, sm: 3 },
+          }}
+        >
+          {selectedPeerDetails ? (
+            <Stack spacing={2}>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                justifyContent="space-between"
+                alignItems={{ xs: "flex-start", sm: "center" }}
+                spacing={1}
+              >
+                <Box>
+                  <Typography variant="h6">
+                    {selectedPeerDetails.nickname || "Unnamed Node"}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontFamily: "monospace",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {selectedPeerDetails.peerId}
+                  </Typography>
+                </Box>
+                <Stack direction="row" spacing={1}>
+                  <Chip
+                    label={
+                      drawerPingStatus || selectedPeerDetails.status || "Unknown"
+                    }
+                    color={
+                      (drawerPingStatus || selectedPeerDetails.status) ===
+                      "Online"
+                        ? "success"
+                        : "default"
+                    }
+                  />
+                  <Chip
+                    label={selectedPeerDetails.resourceStatus || "unknown"}
+                    color={getStabilityChipColor(selectedPeerDetails.resourceStatus)}
+                    variant="outlined"
+                    sx={{ textTransform: "capitalize" }}
+                  />
+                </Stack>
+              </Stack>
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+                <Button
+                  variant="outlined"
+                  onClick={handleDrawerPing}
+                  disabled={drawerPinging}
+                >
+                  {drawerPinging ? "Pinging..." : "Ping Node"}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => handlePeerConnect(selectedPeerDetails.peerId)}
+                  disabled={connectedPeerId === selectedPeerDetails.peerId}
+                >
+                  {connectedPeerId === selectedPeerDetails.peerId
+                    ? "Connected"
+                    : "Connect"}
+                </Button>
+              </Stack>
+
+              <Divider />
+
+              <Stack spacing={1}>
+                <Typography variant="body2">
+                  Location: {selectedPeerDetails.city || "Unknown"},{" "}
+                  {selectedPeerDetails.country || "Unknown"}
+                </Typography>
+                <Typography variant="body2">
+                  Uptime: {formatUptime(selectedPeerDetails.uptimeSeconds)}
+                </Typography>
+                <Typography variant="body2">
+                  Version / OS: {selectedPeerDetails.version || "N/A"} /{" "}
+                  {selectedPeerDetails.os || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Node Status: {selectedPeerDetails.nodeStatus || "N/A"}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ fontFamily: "monospace", wordBreak: "break-all" }}
+                >
+                  Skypier ID: {selectedPeerDetails.skypierId || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Last Seen:{" "}
+                  {selectedPeerDetails.lastSeenAt
+                    ? new Date(selectedPeerDetails.lastSeenAt).toLocaleString()
+                    : "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  First Seen:{" "}
+                  {selectedPeerDetails.firstSeenAt
+                    ? new Date(selectedPeerDetails.firstSeenAt).toLocaleString()
+                    : "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Last Valid Signature:{" "}
+                  {selectedPeerDetails.lastValidSignatureAt
+                    ? new Date(
+                        selectedPeerDetails.lastValidSignatureAt
+                      ).toLocaleString()
+                    : "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Source Topic: {selectedPeerDetails.sourceTopic || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Age Seconds: {selectedPeerDetails.ageSeconds ?? "N/A"}
+                </Typography>
+              </Stack>
+            </Stack>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              Select a peer to view details.
+            </Typography>
+          )}
+        </Box>
+      </Drawer>
     </Box>
   );
 };

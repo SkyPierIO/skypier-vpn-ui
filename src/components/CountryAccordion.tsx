@@ -13,6 +13,7 @@ import Alert from '@mui/material/Alert';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import StarIcon from '@mui/icons-material/Star';
 import ReactCountryFlag from 'react-country-flag';
@@ -21,6 +22,13 @@ import http from '../http.common';
 
 interface PeerInfo {
   peerId: string;
+  nickname?: string;
+  resourceStatus?: string;
+  uptimeSeconds?: number;
+  version?: string;
+  os?: string;
+  lastSeenAt?: string;
+  ageSeconds?: number;
   status?: string;
   city?: string;
   countryCode?: string;
@@ -37,6 +45,7 @@ interface CountryAccordionProps {
   connectedPeerId: string | null;
   onPeerSelect: (peerId: string) => void;
   onPeerConnect: (peerId: string) => void;
+  onPeerOpenDetails: (peerId: string) => void;
 }
 
 // Jazzicon component
@@ -87,13 +96,15 @@ const PeerRow = ({
   isSelected, 
   isConnected,
   onSelect, 
-  onConnect 
+  onConnect,
+  onOpenDetails,
 }: { 
   peer: PeerInfo; 
   isSelected: boolean;
   isConnected: boolean;
   onSelect: () => void; 
   onConnect: () => void;
+  onOpenDetails: () => void;
 }) => {
   const [status, setStatus] = useState<string>(peer.status || 'Unknown');
   const [pinging, setPinging] = useState(false);
@@ -119,7 +130,7 @@ const PeerRow = ({
     setSnackbar(prev => ({ ...prev, open: false }));
   };
 
-  const truncatePeerId = (id: string) => `${id.substring(0, 8)}...${id.slice(-6)}`;
+  const truncatePeerId = (id: string) => `${id.substring(0, 4)}...${id.slice(-6)}`;
 
   const handleToggleStar = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -229,6 +240,19 @@ const PeerRow = ({
       <JazziconAvatar peerId={peer.peerId} size={28} />
       
       <Box sx={{ flex: 1, minWidth: 0 }}>
+        {peer.nickname && (
+          <Typography
+            variant="caption"
+            sx={{
+              display: 'block',
+              fontWeight: 600,
+              color: 'text.primary',
+              lineHeight: 1.2,
+            }}
+          >
+            {peer.nickname}
+          </Typography>
+        )}
         <Tooltip title={peer.peerId} arrow>
           <Typography
             variant="body2"
@@ -245,23 +269,33 @@ const PeerRow = ({
           </Typography>
         </Tooltip>
         {peer.city && (
-          <Typography variant="caption" color="text.secondary">
-            {peer.city}
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+            {peer.city}{peer.country ? `, ${peer.country}` : ''}
           </Typography>
         )}
       </Box>
 
-      <Chip
-        label={status}
-        size="small"
-        color={statusColor}
-        sx={{ 
-          fontSize: '0.65rem', 
-          height: 20,
-          minWidth: 60,
-          ...(status === 'Online' && { bgcolor: '#10b981', color: '#fff' }),
-        }}
-      />
+      <Stack spacing={0.5} alignItems="flex-end">
+        <Chip
+          label={status}
+          size="small"
+          color={statusColor}
+          sx={{ 
+            fontSize: '0.65rem', 
+            height: 20,
+            minWidth: 60,
+            ...(status === 'Online' && { bgcolor: '#10b981', color: '#fff' }),
+          }}
+        />
+        {peer.resourceStatus && (
+          <Chip
+            label={peer.resourceStatus}
+            size="small"
+            variant="outlined"
+            sx={{ fontSize: '0.6rem', height: 18, textTransform: 'capitalize' }}
+          />
+        )}
+      </Stack>
 
       <Stack direction="row" spacing={0.5}>
         <Tooltip title={isStarred ? 'Remove from favorites' : 'Add to favorites'}>
@@ -275,6 +309,18 @@ const PeerRow = ({
             }}
           >
             {isStarred ? <StarIcon fontSize="small" /> : <StarBorderOutlinedIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Details">
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails();
+            }}
+            sx={{ p: 0.5 }}
+          >
+            <InfoOutlinedIcon fontSize="small" />
           </IconButton>
         </Tooltip>
         <Tooltip title="Ping">
@@ -333,6 +379,7 @@ const CountryAccordion = ({
   connectedPeerId,
   onPeerSelect,
   onPeerConnect,
+  onPeerOpenDetails,
 }: CountryAccordionProps) => {
   const onlinePeers = peers.filter(p => p.status === 'Online').length;
   
@@ -401,6 +448,7 @@ const CountryAccordion = ({
               isConnected={peer.peerId === connectedPeerId}
               onSelect={() => onPeerSelect(peer.peerId)}
               onConnect={() => onPeerConnect(peer.peerId)}
+              onOpenDetails={() => onPeerOpenDetails(peer.peerId)}
             />
           ))}
         </Stack>
