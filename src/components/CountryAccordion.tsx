@@ -209,13 +209,6 @@ const PeerRow = ({
     }
   };
 
-  // Use emerald green for Online status
-  const getStatusChipSx = () => {
-    if (status === 'Online') {
-      return { bgcolor: '#10b981', color: '#fff' };
-    }
-    return {};
-  };
   const statusColor = status === 'Online' ? 'success' : status === 'Unreachable' ? 'default' : 'warning';
 
   return (
@@ -276,17 +269,30 @@ const PeerRow = ({
       </Box>
 
       <Stack spacing={0.5} alignItems="flex-end">
-        <Chip
-          label={status}
-          size="small"
-          color={statusColor}
-          sx={{ 
-            fontSize: '0.65rem', 
-            height: 20,
-            minWidth: 60,
-            ...(status === 'Online' && { bgcolor: '#10b981', color: '#fff' }),
-          }}
-        />
+        {status === 'Online' ? (
+          <Tooltip title="Online">
+            <Box
+              sx={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                bgcolor: '#10b981',
+                boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.18)',
+              }}
+            />
+          </Tooltip>
+        ) : (
+          <Chip
+            label={status}
+            size="small"
+            color={statusColor}
+            sx={{ 
+              fontSize: '0.65rem', 
+              height: 20,
+              minWidth: 60,
+            }}
+          />
+        )}
         {peer.resourceStatus && (
           <Chip
             label={peer.resourceStatus}
@@ -381,8 +387,6 @@ const CountryAccordion = ({
   onPeerConnect,
   onPeerOpenDetails,
 }: CountryAccordionProps) => {
-  const onlinePeers = peers.filter(p => p.status === 'Online').length;
-  
   return (
     <Accordion 
       disableGutters
@@ -418,18 +422,6 @@ const CountryAccordion = ({
           {countryName}
         </Typography>
         <Stack direction="row" spacing={1} alignItems="center">
-          {onlinePeers > 0 && (
-            <Chip
-              label={`${onlinePeers} online`}
-              size="small"
-              sx={{ 
-                fontSize: '0.7rem', 
-                height: 22,
-                bgcolor: '#10b981',
-                color: '#fff',
-              }}
-            />
-          )}
           <Chip
             label={`${peers.length} peer${peers.length !== 1 ? 's' : ''}`}
             size="small"
