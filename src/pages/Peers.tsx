@@ -781,7 +781,7 @@ const Peers = () => {
           selectedPeerId={selectedPeerId}
           connectedPeerId={connectedPeerId}
           userLocation={userLocation}
-          onPeerSelect={handlePeerSelect}
+          onPeerSelect={handlePeerOpenDetails}
           fullscreen
         />
       </Box>

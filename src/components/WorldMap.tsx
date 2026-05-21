@@ -292,9 +292,15 @@ const WorldMap = ({ peers, selectedPeerId, connectedPeerId, userLocation, onPeer
 
       // Click handler
       marker.on('click', () => {
-        if (group.peers.length === 1 && onPeerSelect) {
-          onPeerSelect(group.peers[0].peerId);
+        if (!onPeerSelect || group.peers.length === 0) {
+          return;
         }
+
+        const targetPeer =
+          group.peers.find((peer) => peer.peerId === selectedPeerId) ||
+          group.peers[0];
+
+        onPeerSelect(targetPeer.peerId);
       });
 
       // Tooltip
