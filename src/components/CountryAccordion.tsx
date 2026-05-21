@@ -11,16 +11,21 @@ import Tooltip from '@mui/material/Tooltip';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import StarIcon from '@mui/icons-material/Star';
 import ReactCountryFlag from 'react-country-flag';
 import jazzicon from '@metamask/jazzicon';
-import http from '../http.common';
 
 interface PeerInfo {
   peerId: string;
+  nickname?: string;
+  resourceStatus?: string;
+  uptimeSeconds?: number;
+  version?: string;
+  os?: string;
+  lastSeenAt?: string;
+  ageSeconds?: number;
   status?: string;
   city?: string;
   countryCode?: string;
@@ -37,6 +42,7 @@ interface CountryAccordionProps {
   connectedPeerId: string | null;
   onPeerSelect: (peerId: string) => void;
   onPeerConnect: (peerId: string) => void;
+  onPeerOpenDetails: (peerId: string) => void;
 }
 
 // Jazzicon component
@@ -87,16 +93,17 @@ const PeerRow = ({
   isSelected, 
   isConnected,
   onSelect, 
-  onConnect 
+  onConnect,
+  onOpenDetails,
 }: { 
   peer: PeerInfo; 
   isSelected: boolean;
   isConnected: boolean;
   onSelect: () => void; 
   onConnect: () => void;
+  onOpenDetails: () => void;
 }) => {
   const [status, setStatus] = useState<string>(peer.status || 'Unknown');
-  const [pinging, setPinging] = useState(false);
   const [isStarred, setIsStarred] = useState<boolean>(() => {
     const storedPeers = localStorage.getItem('starredPeers');
     const starredPeers: string[] = storedPeers ? JSON.parse(storedPeers) : [];
@@ -119,7 +126,7 @@ const PeerRow = ({
     setSnackbar(prev => ({ ...prev, open: false }));
   };
 
-  const truncatePeerId = (id: string) => `${id.substring(0, 8)}...${id.slice(-6)}`;
+  const truncatePeerId = (id: string) => `${id.substring(0, 4)}...${id.slice(-6)}`;
 
   const handleToggleStar = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -149,37 +156,6 @@ const PeerRow = ({
     }
   };
 
-  const handlePing = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setPinging(true);
-    try {
-      const response = await http.get(`/ping/${peer.peerId}`);
-      if (response.status === 200 && response.data.result) {
-        setStatus('Online');
-        setSnackbar({
-          open: true,
-          message: `✓ Peer ${truncatePeerId(peer.peerId)} is reachable`,
-          severity: 'success',
-        });
-      } else {
-        setStatus('Unreachable');
-        setSnackbar({
-          open: true,
-          message: `✗ Peer ${truncatePeerId(peer.peerId)} is unreachable`,
-          severity: 'warning',
-        });
-      }
-    } catch (error) {
-      setStatus('Unreachable');
-      setSnackbar({
-        open: true,
-        message: `✗ Failed to ping peer ${truncatePeerId(peer.peerId)}`,
-        severity: 'error',
-      });
-    }
-    setPinging(false);
-  };
-
   const handleConnect = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -198,18 +174,16 @@ const PeerRow = ({
     }
   };
 
-  // Use emerald green for Online status
-  const getStatusChipSx = () => {
-    if (status === 'Online') {
-      return { bgcolor: '#10b981', color: '#fff' };
-    }
-    return {};
-  };
   const statusColor = status === 'Online' ? 'success' : status === 'Unreachable' ? 'default' : 'warning';
+
+  const handleRowClick = () => {
+    onSelect();
+    onOpenDetails();
+  };
 
   return (
     <Box
-      onClick={onSelect}
+      onClick={handleRowClick}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -229,6 +203,19 @@ const PeerRow = ({
       <JazziconAvatar peerId={peer.peerId} size={28} />
       
       <Box sx={{ flex: 1, minWidth: 0 }}>
+        {peer.nickname && (
+          <Typography
+            variant="caption"
+            sx={{
+              display: 'block',
+              fontWeight: 600,
+              color: 'text.primary',
+              lineHeight: 1.2,
+            }}
+          >
+            {peer.nickname}
+          </Typography>
+        )}
         <Tooltip title={peer.peerId} arrow>
           <Typography
             variant="body2"
@@ -245,23 +232,46 @@ const PeerRow = ({
           </Typography>
         </Tooltip>
         {peer.city && (
-          <Typography variant="caption" color="text.secondary">
-            {peer.city}
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+            {peer.city}{peer.country ? `, ${peer.country}` : ''}
           </Typography>
         )}
       </Box>
 
-      <Chip
-        label={status}
-        size="small"
-        color={statusColor}
-        sx={{ 
-          fontSize: '0.65rem', 
-          height: 20,
-          minWidth: 60,
-          ...(status === 'Online' && { bgcolor: '#10b981', color: '#fff' }),
-        }}
-      />
+      <Stack spacing={0.5} alignItems="flex-end">
+        {status === 'Online' ? (
+          <Tooltip title="Online">
+            <Box
+              sx={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                bgcolor: '#10b981',
+                boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.18)',
+              }}
+            />
+          </Tooltip>
+        ) : (
+          <Chip
+            label={status}
+            size="small"
+            color={statusColor}
+            sx={{ 
+              fontSize: '0.65rem', 
+              height: 20,
+              minWidth: 60,
+            }}
+          />
+        )}
+        {peer.resourceStatus && (
+          <Chip
+            label={peer.resourceStatus}
+            size="small"
+            variant="outlined"
+            sx={{ fontSize: '0.6rem', height: 18, textTransform: 'capitalize' }}
+          />
+        )}
+      </Stack>
 
       <Stack direction="row" spacing={0.5}>
         <Tooltip title={isStarred ? 'Remove from favorites' : 'Add to favorites'}>
@@ -275,19 +285,6 @@ const PeerRow = ({
             }}
           >
             {isStarred ? <StarIcon fontSize="small" /> : <StarBorderOutlinedIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Ping">
-          <IconButton
-            size="small"
-            onClick={handlePing}
-            disabled={pinging}
-            sx={{ 
-              p: 0.5,
-              '&:hover': { color: 'info.main' }
-            }}
-          >
-            <NetworkPingIcon fontSize="small" />
           </IconButton>
         </Tooltip>
         <Tooltip title={isConnected ? 'Connected' : 'Connect'}>
@@ -333,9 +330,8 @@ const CountryAccordion = ({
   connectedPeerId,
   onPeerSelect,
   onPeerConnect,
+  onPeerOpenDetails,
 }: CountryAccordionProps) => {
-  const onlinePeers = peers.filter(p => p.status === 'Online').length;
-  
   return (
     <Accordion 
       disableGutters
@@ -371,18 +367,6 @@ const CountryAccordion = ({
           {countryName}
         </Typography>
         <Stack direction="row" spacing={1} alignItems="center">
-          {onlinePeers > 0 && (
-            <Chip
-              label={`${onlinePeers} online`}
-              size="small"
-              sx={{ 
-                fontSize: '0.7rem', 
-                height: 22,
-                bgcolor: '#10b981',
-                color: '#fff',
-              }}
-            />
-          )}
           <Chip
             label={`${peers.length} peer${peers.length !== 1 ? 's' : ''}`}
             size="small"
@@ -401,6 +385,7 @@ const CountryAccordion = ({
               isConnected={peer.peerId === connectedPeerId}
               onSelect={() => onPeerSelect(peer.peerId)}
               onConnect={() => onPeerConnect(peer.peerId)}
+              onOpenDetails={() => onPeerOpenDetails(peer.peerId)}
             />
           ))}
         </Stack>

@@ -1,9 +1,6 @@
 // React
 import { useState, useMemo, useEffect, useRef } from "react";
 
-// GraphQL
-import { gql, useQuery } from "@apollo/client";
-
 // Components
 import WorldMap from "../components/WorldMap";
 import CountryAccordion from "../components/CountryAccordion";
@@ -21,12 +18,18 @@ import Divider from "@mui/material/Divider";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import ClearIcon from "@mui/icons-material/Clear";
+import TerminalIcon from "@mui/icons-material/Terminal";
+import WindowIcon from "@mui/icons-material/Window";
+import LaptopMacIcon from "@mui/icons-material/LaptopMac";
+import DnsOutlinedIcon from "@mui/icons-material/DnsOutlined";
+import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
+import LinkOffIcon from "@mui/icons-material/LinkOff";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
-import Grid from "@mui/material/Grid";
+import Drawer from "@mui/material/Drawer";
 import Skeleton from "@mui/material/Skeleton";
 import { styled } from "@mui/material/styles";
 import { PublicLockV14 } from "@unlock-protocol/contracts";
@@ -36,6 +39,8 @@ import { useAccount, useReadContract } from "wagmi";
 import { sepolia } from "viem/chains";
 import ConnectWalletButton from "../components/ConnectWalletButton";
 import UtilityCard from "../components/UtilityCard";
+import ReactCountryFlag from "react-country-flag";
+import jazzicon from "@metamask/jazzicon";
 
 // Axios
 import http from "../http.common";
@@ -56,6 +61,62 @@ const Item = styled(Paper)(({ theme }: { theme: any }) => ({
   minHeight: "20vh",
 }));
 
+const JazziconAvatar = ({ peerId, size = 40 }: { peerId: string; size?: number }) => {
+  const avatarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const generateIdenticon = async () => {
+      if (avatarRef.current && peerId) {
+        const sha256 = async (message: string) => {
+          const msgBuffer = new TextEncoder().encode(message);
+          const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+        };
+
+        const hash = await sha256(peerId);
+        const numericValue = parseInt(hash.slice(0, 8), 16);
+        const icon = jazzicon(size, numericValue);
+        avatarRef.current.innerHTML = "";
+        avatarRef.current.appendChild(icon);
+      }
+    };
+
+    generateIdenticon();
+  }, [peerId, size]);
+
+  return (
+    <Box
+      ref={avatarRef}
+      sx={{
+        width: size,
+        height: size,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        "& > div": {
+          borderRadius: "50%",
+        },
+      }}
+    />
+  );
+};
+
+const getOsFingerprintIcon = (os?: string) => {
+  const normalized = (os || "").toLowerCase();
+  if (normalized.includes("linux")) {
+    return <TerminalIcon fontSize="small" />;
+  }
+  if (normalized.includes("win")) {
+    return <WindowIcon fontSize="small" />;
+  }
+  if (normalized.includes("darwin") || normalized.includes("mac") || normalized.includes("osx")) {
+    return <LaptopMacIcon fontSize="small" />;
+  }
+  return <DnsOutlinedIcon fontSize="small" />;
+};
+
 interface PeerLocation {
   peerId: string;
   latitude: number;
@@ -72,6 +133,80 @@ interface VPNStatusResponse {
   peer_id?: string;
 }
 
+interface NodeRegistryApiEntry {
+  peerId: string;
+  stale: boolean;
+  firstSeenAt?: string;
+  lastSeenAt?: string;
+  lastValidSignatureAt?: string;
+  sourceTopic?: string;
+  ageSeconds?: number;
+  metadata?: {
+    peerId?: string;
+    skypierId?: string;
+    status?: string;
+    statusHex?: string;
+    nickname?: string;
+    timestamp?: number;
+    uptimeSeconds?: number;
+    resourceStatus?: string;
+    version?: string;
+    os?: string;
+  };
+}
+
+type StabilityFilter = "all" | "stable" | "degraded" | "critical" | "unknown";
+
+interface PeerViewModel extends PeerLocation {
+  nickname?: string;
+  resourceStatus?: string;
+  uptimeSeconds?: number;
+  version?: string;
+  os?: string;
+  skypierId?: string;
+  nodeStatus?: string;
+  statusHex?: string;
+  firstSeenAt?: string;
+  lastSeenAt?: string;
+  lastValidSignatureAt?: string;
+  sourceTopic?: string;
+  ageSeconds?: number;
+  stale?: boolean;
+}
+
+const getStabilityChipColor = (
+  resourceStatus?: string
+): "default" | "success" | "warning" | "error" => {
+  switch ((resourceStatus || "").toLowerCase()) {
+    case "stable":
+      return "success";
+    case "degraded":
+      return "warning";
+    case "critical":
+      return "error";
+    default:
+      return "default";
+  }
+};
+
+const formatUptime = (uptimeSeconds?: number): string => {
+  if (!uptimeSeconds || uptimeSeconds <= 0) {
+    return "N/A";
+  }
+
+  const days = Math.floor(uptimeSeconds / 86400);
+  const hours = Math.floor((uptimeSeconds % 86400) / 3600);
+  const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+
+  if (days > 0) {
+    return `${days}d ${hours}h ${minutes}m`;
+  }
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
+};
+
 // Cache for peer geo data
 const geoCache: { [key: string]: PeerLocation } = {};
 
@@ -81,7 +216,11 @@ const Peers = () => {
 
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filterType, setFilterType] = useState<string>("all");
+  const [filterType, setFilterType] = useState<
+    "all" | "peerId" | "location" | "status" | "nickname" | "stability"
+  >("all");
+  const [stabilityFilter, setStabilityFilter] =
+    useState<StabilityFilter>("all");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const filterOpen = Boolean(anchorEl);
 
@@ -89,6 +228,9 @@ const Peers = () => {
   const [selectedPeerId, setSelectedPeerId] = useState<string | null>(null);
   const [connectedPeerId, setConnectedPeerId] = useState<string | null>(null);
   const [isVpnConnected, setIsVpnConnected] = useState(false);
+  const [detailsPeerId, setDetailsPeerId] = useState<string | null>(null);
+  const [detailsDrawerOpen, setDetailsDrawerOpen] = useState(false);
+  const [drawerActionLoading, setDrawerActionLoading] = useState(false);
 
   // Peer locations with geo data
   const [peerLocations, setPeerLocations] = useState<{
@@ -97,6 +239,8 @@ const Peers = () => {
 
   // Loading state for geo lookup
   const [isGeoLoading, setIsGeoLoading] = useState(false);
+  const [nodesLoading, setNodesLoading] = useState(true);
+  const [registryPeers, setRegistryPeers] = useState<NodeRegistryApiEntry[]>([]);
 
   // User's current location
   const [userLocation, setUserLocation] = useState<{
@@ -150,6 +294,36 @@ const Peers = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchNodes = async () => {
+      try {
+        const response = await http.get("/nodes", { timeout: 5000 });
+        const rawNodes: NodeRegistryApiEntry[] = response.data?.nodes || [];
+        const deduped = rawNodes
+          .filter((node) => !node.stale)
+          .filter(
+            (node, index, self) =>
+              Boolean(node.peerId && node.peerId.length > 43) &&
+              index === self.findIndex((item) => item.peerId === node.peerId)
+          );
+
+        setRegistryPeers(deduped);
+      } catch (error) {
+        console.error("Error fetching nodes from backend:", error);
+        setRegistryPeers([]);
+      } finally {
+        setNodesLoading(false);
+      }
+    };
+
+    fetchNodes();
+    const nodesPoller = setInterval(fetchNodes, 20000);
+
+    return () => {
+      clearInterval(nodesPoller);
+    };
+  }, []);
+
   const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -158,7 +332,9 @@ const Peers = () => {
     setAnchorEl(null);
   };
 
-  const handleFilterSelect = (filter: string) => {
+  const handleFilterSelect = (
+    filter: "all" | "peerId" | "location" | "status" | "nickname" | "stability"
+  ) => {
     setFilterType(filter);
     handleFilterClose();
   };
@@ -169,6 +345,16 @@ const Peers = () => {
 
   const handlePeerSelect = (peerId: string) => {
     setSelectedPeerId(peerId === selectedPeerId ? null : peerId);
+  };
+
+  const handlePeerOpenDetails = (peerId: string) => {
+    setSelectedPeerId(peerId);
+    setDetailsPeerId(peerId);
+    setDetailsDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDetailsDrawerOpen(false);
   };
 
   const handlePeerConnect = async (peerId: string) => {
@@ -186,6 +372,16 @@ const Peers = () => {
   const handleDisconnect = () => {
     setConnectedPeerId(null);
     setIsVpnConnected(false);
+  };
+
+  const handlePeerDisconnect = async (peerId: string) => {
+    try {
+      await http.get(`/disconnect/${peerId}`);
+      setConnectedPeerId(null);
+      setIsVpnConnected(false);
+    } catch (error) {
+      console.error("Error disconnecting from peer:", error);
+    }
   };
 
   // Fetch geo data for a peer
@@ -235,6 +431,19 @@ const Peers = () => {
     }
   };
 
+  const handleDrawerConnectionAction = async (peerId: string) => {
+    setDrawerActionLoading(true);
+    try {
+      if (connectedPeerId === peerId) {
+        await handlePeerDisconnect(peerId);
+      } else {
+        await handlePeerConnect(peerId);
+      }
+    } finally {
+      setDrawerActionLoading(false);
+    }
+  };
+
   const {
     data: isMember,
     isError,
@@ -251,34 +460,22 @@ const Peers = () => {
     },
   });
 
-  const NODES_GRAPHQL = `
-  {
-    newPeers(first: 100) {
-      from
-      timestamp
-      peerId
-    }
-  }
-  `;
-
-  const NODES_GQL = gql(NODES_GRAPHQL);
-  const nodesData = useQuery(NODES_GQL, { pollInterval: 5 * 60000 });
-
   // Load all peers immediately, then fetch geo data
   useEffect(() => {
-    if (!nodesData.data?.newPeers) return;
+    if (!registryPeers.length) return;
 
     const loadAllGeoData = async () => {
       setIsGeoLoading(true);
-      const peers = nodesData.data.newPeers.filter(
-        (node: any, index: any, self: any) =>
-          node.peerId &&
-          node.peerId.length > 43 &&
-          index ===
-            self.findIndex(
-              (item: { peerId: any }) => item.peerId === node.peerId
-            )
-      );
+      const peers = registryPeers.map((node) => {
+        const fallbackTimestamp = node.lastSeenAt
+          ? Math.floor(Date.parse(node.lastSeenAt) / 1000)
+          : Math.floor(Date.now() / 1000);
+
+        return {
+          peerId: node.peerId,
+          timestamp: node.metadata?.timestamp ?? fallbackTimestamp,
+        };
+      });
 
       // First, add all peers - use cached data if available, otherwise "Unknown"
       const initialPeers: { [key: string]: PeerLocation } = {};
@@ -360,16 +557,64 @@ const Peers = () => {
     };
 
     loadAllGeoData();
-  }, [nodesData.data]);
+  }, [registryPeers]);
 
-  // Get all peers with location data
-  const peersWithLocation = useMemo(() => {
-    return Object.values(peerLocations);
-  }, [peerLocations]);
+  const registryByPeerId = useMemo(() => {
+    return registryPeers.reduce<Record<string, NodeRegistryApiEntry>>(
+      (acc, node) => {
+        acc[node.peerId] = node;
+        return acc;
+      },
+      {}
+    );
+  }, [registryPeers]);
+
+  // Merge GeoIP state with node registry metadata.
+  const peersWithLocation = useMemo<PeerViewModel[]>(() => {
+    return Object.values(peerLocations).map((peer) => {
+      const registryEntry = registryByPeerId[peer.peerId];
+      const metadata = registryEntry?.metadata;
+
+      return {
+        ...peer,
+        nickname: metadata?.nickname,
+        resourceStatus: metadata?.resourceStatus,
+        uptimeSeconds: metadata?.uptimeSeconds,
+        version: metadata?.version,
+        os: metadata?.os,
+        skypierId: metadata?.skypierId,
+        nodeStatus: metadata?.status,
+        statusHex: metadata?.statusHex,
+        firstSeenAt: registryEntry?.firstSeenAt,
+        lastSeenAt: registryEntry?.lastSeenAt,
+        lastValidSignatureAt: registryEntry?.lastValidSignatureAt,
+        sourceTopic: registryEntry?.sourceTopic,
+        ageSeconds: registryEntry?.ageSeconds,
+        stale: registryEntry?.stale,
+      };
+    });
+  }, [peerLocations, registryByPeerId]);
+
+  const availableStabilityFilters = useMemo<StabilityFilter[]>(() => {
+    const statuses = new Set<StabilityFilter>();
+    peersWithLocation.forEach((peer) => {
+      const normalized = (peer.resourceStatus || "unknown").toLowerCase() as StabilityFilter;
+      if (["stable", "degraded", "critical", "unknown"].includes(normalized)) {
+        statuses.add(normalized);
+      }
+    });
+    return ["all", ...Array.from(statuses)];
+  }, [peersWithLocation]);
 
   // Filter and search peers
   const filteredPeers = useMemo(() => {
     let peers = peersWithLocation;
+
+    if (stabilityFilter !== "all") {
+      peers = peers.filter(
+        (peer) => (peer.resourceStatus || "unknown").toLowerCase() === stabilityFilter
+      );
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -391,17 +636,40 @@ const Peers = () => {
           if (peer.status?.toLowerCase().includes(query)) return true;
         }
 
+        // Search by nickname
+        if (filterType === "nickname" || filterType === "all") {
+          if (peer.nickname?.toLowerCase().includes(query)) return true;
+        }
+
+        // Search by stability/resource state
+        if (filterType === "stability" || filterType === "all") {
+          if (peer.resourceStatus?.toLowerCase().includes(query)) return true;
+        }
+
+        // Include version and OS in broad search mode.
+        if (filterType === "all") {
+          if (peer.version?.toLowerCase().includes(query)) return true;
+          if (peer.os?.toLowerCase().includes(query)) return true;
+        }
+
         return false;
       });
     }
 
     return peers;
-  }, [peersWithLocation, searchQuery, filterType]);
+  }, [peersWithLocation, searchQuery, filterType, stabilityFilter]);
+
+  const selectedPeerDetails = useMemo(() => {
+    if (!detailsPeerId) {
+      return null;
+    }
+    return peersWithLocation.find((peer) => peer.peerId === detailsPeerId) || null;
+  }, [detailsPeerId, peersWithLocation]);
 
   // Group peers by country (sorted alphabetically, Unknown at end)
   const peersByCountry = useMemo(() => {
     const grouped: {
-      [country: string]: { countryCode: string; peers: PeerLocation[] };
+      [country: string]: { countryCode: string; peers: PeerViewModel[] };
     } = {};
 
     filteredPeers.forEach((peer) => {
@@ -458,7 +726,7 @@ const Peers = () => {
     return <Checkout network={configuredNetworkID} connector={connector} />;
   }
 
-  return nodesData.loading ? (
+  return nodesLoading ? (
     <Container
       maxWidth="xl"
       sx={{
@@ -482,7 +750,7 @@ const Peers = () => {
               <LinearProgress />
             </Box>
             <Typography variant="body1" mb={2}>
-              Getting on-chain peers data...
+              Getting peers data from node registry...
             </Typography>
           </Stack>
         </Item>
@@ -513,7 +781,7 @@ const Peers = () => {
           selectedPeerId={selectedPeerId}
           connectedPeerId={connectedPeerId}
           userLocation={userLocation}
-          onPeerSelect={handlePeerSelect}
+          onPeerSelect={handlePeerOpenDetails}
           fullscreen
         />
       </Box>
@@ -615,6 +883,12 @@ const Peers = () => {
               <MenuItem onClick={() => handleFilterSelect("status")}>
                 Status
               </MenuItem>
+              <MenuItem onClick={() => handleFilterSelect("nickname")}>
+                Nickname
+              </MenuItem>
+              <MenuItem onClick={() => handleFilterSelect("stability")}>
+                Stability
+              </MenuItem>
             </Menu>
             <Divider orientation="vertical" flexItem />
             <InputBase
@@ -668,8 +942,40 @@ const Peers = () => {
                   variant="outlined"
                 />
               )}
+              {stabilityFilter !== "all" && (
+                <Chip
+                  label={`Stability: ${stabilityFilter}`}
+                  size="small"
+                  onDelete={() => setStabilityFilter("all")}
+                  color={getStabilityChipColor(stabilityFilter)}
+                  variant="outlined"
+                />
+              )}
             </Stack>
           )}
+
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ mt: 1.5 }}
+            flexWrap="wrap"
+            useFlexGap
+          >
+            {availableStabilityFilters.map((status) => (
+              <Chip
+                key={status}
+                label={status === "all" ? "All Stability" : status}
+                size="small"
+                clickable
+                color={
+                  status === "all" ? "default" : getStabilityChipColor(status)
+                }
+                variant={stabilityFilter === status ? "filled" : "outlined"}
+                onClick={() => setStabilityFilter(status)}
+                sx={{ textTransform: "capitalize" }}
+              />
+            ))}
+          </Stack>
           </Box>
 
           {/* Results count */}
@@ -745,12 +1051,186 @@ const Peers = () => {
                   connectedPeerId={connectedPeerId}
                   onPeerSelect={handlePeerSelect}
                   onPeerConnect={handlePeerConnect}
+                  onPeerOpenDetails={handlePeerOpenDetails}
                 />
               ))
             )}
           </Box>
         </Paper>
       </Box>
+
+      <Drawer
+        anchor="bottom"
+        open={detailsDrawerOpen}
+        onClose={handleDrawerClose}
+        PaperProps={{
+          sx: {
+            width: { xs: "100%", md: "min(860px, calc(100vw - 64px))" },
+            maxHeight: "70vh",
+            left: { xs: 0, md: "50%" },
+            right: { xs: 0, md: "auto" },
+            transform: { xs: "none", md: "translateX(-50%)" },
+            mb: { xs: 0, md: 2 },
+            borderTopLeftRadius: { xs: 16, md: 18 },
+            borderTopRightRadius: { xs: 16, md: 18 },
+            borderBottomLeftRadius: { xs: 0, md: 18 },
+            borderBottomRightRadius: { xs: 0, md: 18 },
+            border: 1,
+            borderColor: "divider",
+            backdropFilter: "blur(12px)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(23, 24, 27, 0.94)"
+                : "rgba(255, 255, 255, 0.94)",
+            backgroundImage: "none",
+            overflow: "hidden",
+          },
+        }}
+      >
+        <Box sx={{ overflowY: "auto", p: { xs: 2, sm: 3 } }}>
+          {selectedPeerDetails ? (
+            <Stack spacing={2.5}>
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
+                  <JazziconAvatar peerId={selectedPeerDetails.peerId} size={42} />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.25 }}>
+                      <Typography variant="h6" sx={{ lineHeight: 1.15 }}>
+                        {selectedPeerDetails.nickname || "Unnamed Node"}
+                      </Typography>
+                      {selectedPeerDetails.countryCode &&
+                        selectedPeerDetails.countryCode !== "xx" && (
+                          <ReactCountryFlag
+                            countryCode={selectedPeerDetails.countryCode.toUpperCase()}
+                            svg
+                            style={{ width: "1.15rem", height: "0.95rem", borderRadius: 2 }}
+                          />
+                        )}
+                    </Stack>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontFamily: "monospace", opacity: 0.9, wordBreak: "break-all" }}
+                    >
+                      {selectedPeerDetails.peerId}
+                    </Typography>
+                  </Box>
+                </Stack>
+
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
+                  <Chip
+                    label={selectedPeerDetails.status || "Unknown"}
+                    color={selectedPeerDetails.status === "Online" ? "success" : "default"}
+                    size="small"
+                    sx={{ fontWeight: 600 }}
+                  />
+                  <Chip
+                    label={selectedPeerDetails.resourceStatus || "unknown"}
+                    color={getStabilityChipColor(selectedPeerDetails.resourceStatus)}
+                    variant="outlined"
+                    size="small"
+                    sx={{ textTransform: "capitalize" }}
+                  />
+                </Stack>
+              </Stack>
+
+              <Button
+                onClick={() => handleDrawerConnectionAction(selectedPeerDetails.peerId)}
+                disabled={drawerActionLoading}
+                startIcon={
+                  connectedPeerId === selectedPeerDetails.peerId ? (
+                    <LinkOffIcon />
+                  ) : (
+                    <ElectricalServicesIcon />
+                  )
+                }
+                sx={{
+                  alignSelf: "flex-start",
+                  px: 2.2,
+                  py: 1,
+                  borderRadius: 999,
+                  fontWeight: 700,
+                  textTransform: "none",
+                  letterSpacing: 0.2,
+                  color: "#fff",
+                  bgcolor:
+                    connectedPeerId === selectedPeerDetails.peerId
+                      ? "#dc2626"
+                      : "#0f766e",
+                  boxShadow:
+                    connectedPeerId === selectedPeerDetails.peerId
+                      ? "0 10px 22px rgba(220, 38, 38, 0.28)"
+                      : "0 10px 22px rgba(15, 118, 110, 0.28)",
+                  "&:hover": {
+                    bgcolor:
+                      connectedPeerId === selectedPeerDetails.peerId
+                        ? "#b91c1c"
+                        : "#0d6660",
+                  },
+                }}
+              >
+                {drawerActionLoading
+                  ? "Working..."
+                  : connectedPeerId === selectedPeerDetails.peerId
+                  ? "Disconnect"
+                  : "Connect"}
+              </Button>
+
+              <Divider />
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} useFlexGap flexWrap="wrap">
+                <Chip
+                  icon={getOsFingerprintIcon(selectedPeerDetails.os)}
+                  label={selectedPeerDetails.os || "unknown os"}
+                  variant="outlined"
+                  size="small"
+                  sx={{ textTransform: "capitalize" }}
+                />
+                <Chip
+                  label={`Uptime ${formatUptime(selectedPeerDetails.uptimeSeconds)}`}
+                  variant="outlined"
+                  size="small"
+                />
+                <Chip
+                  label={selectedPeerDetails.version || "Version N/A"}
+                  variant="outlined"
+                  size="small"
+                />
+              </Stack>
+
+              <Stack spacing={1}>
+                <Typography variant="body2">
+                  Location: {selectedPeerDetails.city || "Unknown"}, {selectedPeerDetails.country || "Unknown"}
+                </Typography>
+                <Typography variant="body2">
+                  Node Status: {selectedPeerDetails.nodeStatus || "N/A"}
+                </Typography>
+                <Typography variant="body2" sx={{ fontFamily: "monospace", wordBreak: "break-all" }}>
+                  Skypier ID: {selectedPeerDetails.skypierId || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Last Seen: {selectedPeerDetails.lastSeenAt ? new Date(selectedPeerDetails.lastSeenAt).toLocaleString() : "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  First Seen: {selectedPeerDetails.firstSeenAt ? new Date(selectedPeerDetails.firstSeenAt).toLocaleString() : "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Last Valid Signature: {selectedPeerDetails.lastValidSignatureAt ? new Date(selectedPeerDetails.lastValidSignatureAt).toLocaleString() : "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Source Topic: {selectedPeerDetails.sourceTopic || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  Age Seconds: {selectedPeerDetails.ageSeconds ?? "N/A"}
+                </Typography>
+              </Stack>
+            </Stack>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              Select a peer to view details.
+            </Typography>
+          )}
+        </Box>
+      </Drawer>
     </Box>
   );
 };
