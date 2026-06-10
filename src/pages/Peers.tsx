@@ -25,13 +25,12 @@ import DnsOutlinedIcon from "@mui/icons-material/DnsOutlined";
 import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
 import LinkOffIcon from "@mui/icons-material/LinkOff";
 import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
 import Drawer from "@mui/material/Drawer";
 import Skeleton from "@mui/material/Skeleton";
-import { styled } from "@mui/material/styles";
+import { styled, keyframes } from "@mui/material/styles";
 import { PublicLockV14 } from "@unlock-protocol/contracts";
 import networks from "@unlock-protocol/networks";
 import { Paywall } from "@unlock-protocol/paywall";
@@ -59,6 +58,64 @@ const Item = styled(Paper)(({ theme }: { theme: any }) => ({
   flexGrow: 1,
   maxWidth: 550,
   minHeight: "20vh",
+}));
+
+const aiRotate = keyframes`
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+`;
+
+const aiGlow = keyframes`
+  0%, 100% {
+    box-shadow: 0 0 18px rgba(66, 133, 244, 0.55),
+                0 0 40px rgba(139, 92, 246, 0.3),
+                0 0 70px rgba(6, 182, 212, 0.12);
+  }
+  33% {
+    box-shadow: 0 0 22px rgba(139, 92, 246, 0.65),
+                0 0 46px rgba(236, 72, 153, 0.32),
+                0 0 70px rgba(66, 133, 244, 0.12);
+  }
+  66% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.6),
+                0 0 44px rgba(66, 133, 244, 0.32),
+                0 0 70px rgba(139, 92, 246, 0.12);
+  }
+`;
+
+const AIHaloContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active?: boolean }>(({ active }) => ({
+  position: "relative",
+  borderRadius: "14px",
+  padding: active ? "2px" : "0",
+  overflow: active ? "hidden" : "visible",
+  transition: "box-shadow 0.5s ease",
+  ...(active && {
+    animation: `${aiGlow} 3s ease-in-out infinite`,
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      width: "200%",
+      height: "200%",
+      background: `conic-gradient(
+        from 0deg,
+        #4285F4,
+        #8B5CF6,
+        #EC4899,
+        #06B6D4,
+        #3B82F6,
+        #4285F4
+      )`,
+      animation: `${aiRotate} 4s linear infinite`,
+    },
+    "& > *": {
+      position: "relative",
+      zIndex: 1,
+    },
+  }),
 }));
 
 const JazziconAvatar = ({ peerId, size = 40 }: { peerId: string; size?: number }) => {
@@ -209,6 +266,9 @@ const formatUptime = (uptimeSeconds?: number): string => {
 
 // Cache for peer geo data
 const geoCache: { [key: string]: PeerLocation } = {};
+const VPN_STATUS_POLL_MS = 5000;
+const NODES_POLL_MS = 20000;
+const PEER_STATUS_POLL_MS = 120000;
 
 const Peers = () => {
   const configuredNetworkID = sepolia.id;
@@ -248,7 +308,8 @@ const Peers = () => {
     longitude: number;
   } | null>(null);
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const vpnStatusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const peerStatusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Fetch user's location
   useEffect(() => {
@@ -285,11 +346,11 @@ const Peers = () => {
     };
 
     fetchVPNStatus();
-    intervalRef.current = setInterval(fetchVPNStatus, 5000);
+    vpnStatusIntervalRef.current = setInterval(fetchVPNStatus, VPN_STATUS_POLL_MS);
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (vpnStatusIntervalRef.current) {
+        clearInterval(vpnStatusIntervalRef.current);
       }
     };
   }, []);
@@ -317,7 +378,7 @@ const Peers = () => {
     };
 
     fetchNodes();
-    const nodesPoller = setInterval(fetchNodes, 20000);
+    const nodesPoller = setInterval(fetchNodes, NODES_POLL_MS);
 
     return () => {
       clearInterval(nodesPoller);
@@ -431,6 +492,29 @@ const Peers = () => {
     }
   };
 
+  const refreshPeerStatuses = async (peers: NodeRegistryApiEntry[]) => {
+    if (!peers.length) {
+      return;
+    }
+
+    const statusPromises = peers.map(async (peer) => {
+      const status = await checkPeerStatus(peer.peerId);
+      return { peerId: peer.peerId, status };
+    });
+
+    const statusResults = await Promise.all(statusPromises);
+
+    setPeerLocations((prev) => {
+      const updated = { ...prev };
+      statusResults.forEach(({ peerId, status }) => {
+        if (updated[peerId]) {
+          updated[peerId] = { ...updated[peerId], status };
+        }
+      });
+      return updated;
+    });
+  };
+
   const handleDrawerConnectionAction = async (peerId: string) => {
     setDrawerActionLoading(true);
     try {
@@ -462,7 +546,10 @@ const Peers = () => {
 
   // Load all peers immediately, then fetch geo data
   useEffect(() => {
-    if (!registryPeers.length) return;
+    if (!registryPeers.length) {
+      setIsGeoLoading(false);
+      return;
+    }
 
     const loadAllGeoData = async () => {
       setIsGeoLoading(true);
@@ -534,29 +621,52 @@ const Peers = () => {
       if (Object.keys(geoUpdates).length > 0) {
         setPeerLocations((prev) => ({ ...prev, ...geoUpdates }));
       }
-
-      // Now check status for all peers in parallel
-      const statusPromises = peers.map(async (peer: any) => {
-        const status = await checkPeerStatus(peer.peerId);
-        return { peerId: peer.peerId, status };
-      });
-
-      const statusResults = await Promise.all(statusPromises);
-      
-      // Batch update status
-      setPeerLocations((prev) => {
-        const updated = { ...prev };
-        statusResults.forEach(({ peerId, status }) => {
-          if (updated[peerId]) {
-            updated[peerId] = { ...updated[peerId], status };
-          }
-        });
-        return updated;
-      });
       setIsGeoLoading(false);
     };
 
     loadAllGeoData();
+  }, [registryPeers]);
+
+  useEffect(() => {
+    const stopPeerStatusPolling = () => {
+      if (peerStatusIntervalRef.current) {
+        clearInterval(peerStatusIntervalRef.current);
+        peerStatusIntervalRef.current = null;
+      }
+    };
+
+    const runPeerStatusRefresh = () => {
+      refreshPeerStatuses(registryPeers);
+    };
+
+    const startPeerStatusPolling = () => {
+      stopPeerStatusPolling();
+      if (document.hidden || !registryPeers.length) {
+        return;
+      }
+
+      runPeerStatusRefresh();
+      peerStatusIntervalRef.current = setInterval(() => {
+        runPeerStatusRefresh();
+      }, PEER_STATUS_POLL_MS);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopPeerStatusPolling();
+        return;
+      }
+
+      startPeerStatusPolling();
+    };
+
+    startPeerStatusPolling();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopPeerStatusPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [registryPeers]);
 
   const registryByPeerId = useMemo(() => {
@@ -741,19 +851,18 @@ const Peers = () => {
         alignItems="center"
         minHeight="90vh"
       >
-        <Item>
-          <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
-            <Typography variant="h6" mb={2}>
-              Loading...
-            </Typography>
-            <Box sx={{ width: "100%" }}>
-              <LinearProgress />
-            </Box>
-            <Typography variant="body1" mb={2}>
-              Getting peers data from node registry...
-            </Typography>
-          </Stack>
-        </Item>
+        <AIHaloContainer active>
+          <Item sx={{ borderRadius: "12px" }}>
+            <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
+              <Typography variant="h6" mb={2}>
+                Loading...
+              </Typography>
+              <Typography variant="body1" mb={2}>
+                Getting peers data from node registry...
+              </Typography>
+            </Stack>
+          </Item>
+        </AIHaloContainer>
       </Box>
     </Container>
   ) : (
@@ -822,20 +931,26 @@ const Peers = () => {
         )}
 
         {/* Floating Peer Selection Panel */}
+        <AIHaloContainer
+          active={isGeoLoading}
+          sx={{
+            pointerEvents: "auto",
+            width: { xs: "100%", sm: 400, md: 420 },
+          }}
+        >
         <Paper
           elevation={8}
           sx={{
-            pointerEvents: 'auto',
-            width: { xs: '100%', sm: 400, md: 420 },
+            width: "100%",
             maxHeight: { xs: 'calc(100vh - 200px)', md: 'calc(100vh - 180px)' },
             display: 'flex',
             flexDirection: 'column',
-            borderRadius: 3,
+            borderRadius: "12px",
             overflow: 'hidden',
             backdropFilter: 'blur(10px)',
-            bgcolor: (theme) => 
-              theme.palette.mode === 'dark' 
-                ? 'rgba(23, 24, 27, 0.95)' 
+            bgcolor: (theme) =>
+              theme.palette.mode === 'dark'
+                ? 'rgba(23, 24, 27, 0.95)'
                 : 'rgba(255, 255, 255, 0.95)',
           }}
         >
@@ -979,7 +1094,7 @@ const Peers = () => {
           </Box>
 
           {/* Results count */}
-          <Box sx={{ px: 2, py: 1, borderBottom: 1, borderColor: 'divider' }}>
+          <Box sx={{ px: 2, py: 1, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography variant="body2" color="text.secondary">
               {filteredPeers.length === 0
                 ? "No peers found"
@@ -989,6 +1104,11 @@ const Peers = () => {
                     peersByCountry.length !== 1 ? "ies" : "y"
                   }`}
             </Typography>
+            {isGeoLoading && (
+              <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7, fontStyle: 'italic' }}>
+                Fetching latest nodes data…
+              </Typography>
+            )}
           </Box>
 
           {/* Country Accordions */}
@@ -1019,16 +1139,6 @@ const Peers = () => {
               </Stack>
             )}
 
-            {/* Show skeleton alongside accordions when still loading */}
-            {isGeoLoading && peersByCountry.length > 0 && (
-              <Box sx={{ mb: 2 }}>
-                <LinearProgress sx={{ borderRadius: 1, height: 4 }} />
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
-                  Resolving remaining peer locations...
-                </Typography>
-              </Box>
-            )}
-
             {peersByCountry.length === 0 && !isGeoLoading ? (
               <Paper sx={{ p: 4, textAlign: "center" }}>
                 <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -1057,6 +1167,7 @@ const Peers = () => {
             )}
           </Box>
         </Paper>
+        </AIHaloContainer>
       </Box>
 
       <Drawer
