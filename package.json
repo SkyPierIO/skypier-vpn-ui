@@ -16,7 +16,7 @@
 		"@metamask/jazzicon": "^2.0.0",
 		"@mui/icons-material": "^9.0.0",
 		"@mui/material": "^9.0.0",
-		"@mui/styled-engine-sc": "9.1.1",
+		"@mui/styled-engine-sc": "9.3.0",
 		"@mui/x-charts": "^9.0.0",
 		"@mui/x-data-grid": "^9.0.0",
 		"@reown/appkit": "^1.8.19",
