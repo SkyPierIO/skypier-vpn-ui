@@ -57,8 +57,8 @@ importers:
         specifier: ^0.0.25
         version: 0.0.25(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       '@unlock-protocol/paywall':
-        specifier: ^0.7.1
-        version: 0.7.1
+        specifier: ^0.8.0
+        version: 0.8.1
       axios:
         specifier: ^1.13.2
         version: 1.18.0
@@ -1858,8 +1858,8 @@ packages:
   '@unlock-protocol/networks@0.0.25':
     resolution: {integrity: sha512-Qe478N4o9gCYY3EzYC+TG1M4x8r5t7P7VKYEQg0YrkELqvDYij1sVTTqReV5EpD1YC3sbRGiAmQwCeDxWpYFNA==}
 
-  '@unlock-protocol/paywall@0.7.1':
-    resolution: {integrity: sha512-tL8f4sHhkm+OvNabqFRYz4ntzj+2OHf7AueDCXrLEHk51KJ6UYA5TmtaRmm7eI7htf45vJycNTbIgo02cBWifQ==}
+  '@unlock-protocol/paywall@0.8.1':
+    resolution: {integrity: sha512-V7228yztC2oiGEHUlWiJCgU1ntkvT41tVz3oIKYdW7vVG/DEZ6TJQfE+/LVHy4fzT5qDZbflPWp0+bcRQqHgmQ==}
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -6536,7 +6536,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@unlock-protocol/paywall@0.7.1':
+  '@unlock-protocol/paywall@0.8.1':
     dependencies:
       postmate: 1.5.2
 
