@@ -123,11 +123,13 @@ const ActiveConnection = ({ peer, onDisconnect }: ActiveConnectionProps) => {
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={2}
-          alignItems={{ xs: 'stretch', sm: 'center' }}
-          justifyContent="space-between"
+          sx={{
+            alignItems: { xs: 'stretch', sm: 'center' },
+            justifyContent: 'space-between',
+          }}
         >
           {/* Left: Connection Status */}
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
             <Avatar
               sx={{
                 width: 56,
@@ -171,10 +173,10 @@ const ActiveConnection = ({ peer, onDisconnect }: ActiveConnectionProps) => {
             <Typography variant="body2" sx={{ opacity: 0.8, mb: 0.5 }}>
               Connected to
             </Typography>
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
               {/* <JazziconAvatar peerId={peer.peerId} size={32} /> */}
               <Box>
-                <Stack direction="row" spacing={1} alignItems="center">
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                   {peer.countryCode && (
                     <ReactCountryFlag
                       countryCode={peer.countryCode}
@@ -186,7 +188,7 @@ const ActiveConnection = ({ peer, onDisconnect }: ActiveConnectionProps) => {
                       }}
                     />
                   )}
-                  <Typography variant="body2" fontWeight={500}>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
                     {peer.city ? `${peer.city}, ${peer.country}` : peer.country || 'Unknown Location'}
                   </Typography>
                 </Stack>

@@ -180,7 +180,7 @@ function MyApp() {
             </a>
           </Typography>
           <Box>
-            <Stack direction="row" spacing={{ xs: 0.5, sm: 1 }} alignItems="center">
+            <Stack direction="row" spacing={{ xs: 0.5, sm: 1 }} sx={{ alignItems: 'center' }}>
               <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <IpLocation />
               </Box>

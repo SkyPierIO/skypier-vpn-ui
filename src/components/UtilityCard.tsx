@@ -28,17 +28,19 @@ const UtilityCard = ({ title, content }: Props) => {
     <>
         <Container sx={{textAlign: 'center'}}>
           <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="90vh"
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '90vh',
+          }}
           >
-            <Item> 
-                <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
-                    <Typography variant='h4' mb={2}>
+            <Item>
+                <Stack sx={{ alignItems: 'center', gap: 2, mt: 4, mb: 4 }}>
+                    <Typography variant='h4' sx={{ mb: 2 }}>
                       {title}
                     </Typography>
-                    <Typography variant='body1' mb={1}>
+                    <Typography variant='body1' sx={{ mb: 1 }}>
                       {content}
                     </Typography>
                 </Stack>

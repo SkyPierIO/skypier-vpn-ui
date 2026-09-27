@@ -15,7 +15,7 @@ const Goodbye = () => {
   const c = () => {
     return(
       <>
-        <Typography mb={4}>
+        <Typography sx={{ mb: 4 }}>
           Thank you for using Skypier.
           Please come back soon.
         </Typography>

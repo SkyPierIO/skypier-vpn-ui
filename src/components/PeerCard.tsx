@@ -290,11 +290,10 @@ const PeerCard = ({ node, onMetadataUpdate, isVpnConnected = false, connectedPee
 
         <CardContent sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 1, sm: 2 } }}>
           {/* Header: Flag + Location */}
-          <Stack 
-            direction="row" 
-            spacing={1.5} 
-            alignItems="center"
-            sx={{ mb: 2 }}
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{ alignItems: 'center', mb: 2 }}
           >
             <Box 
               sx={{ 
@@ -347,11 +346,10 @@ const PeerCard = ({ node, onMetadataUpdate, isVpnConnected = false, connectedPee
           </Box>
 
           {/* Jazzicon and Peer Info Side by Side */}
-          <Stack 
-            direction="row" 
-            spacing={2} 
-            alignItems="center"
-            sx={{ mb: 2 }}
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ alignItems: 'center', mb: 2 }}
           >
             {/* Jazzicon */}
             <Box

@@ -277,12 +277,14 @@ const SavedPeers = () => {
         py: { xs: 2, sm: 3 }
       }}
     >
-      <Stack 
+      <Stack
         direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "stretch", sm: "center" }}
         spacing={2}
-        sx={{ mb: 3 }}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          mb: 3,
+        }}
       >
         <Box>
           <Typography 
@@ -371,12 +373,12 @@ const SavedPeers = () => {
                 >
                   <TableCell>
                     {peer.loading ? (
-                      <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                         <Skeleton variant="rectangular" width={24} height={18} sx={{ borderRadius: '2px' }} />
                         <Skeleton width={130} />
                       </Stack>
                     ) : (
-                      <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                         <Box 
                           sx={{ 
                             fontSize: '1.5rem', 
@@ -408,12 +410,12 @@ const SavedPeers = () => {
                   </TableCell>
                   <TableCell>
                     {peer.loading ? (
-                      <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                         <Skeleton variant="circular" width={32} height={32} />
                         <Skeleton width={180} />
                       </Stack>
                     ) : (
-                      <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                         <JazziconAvatar peerId={peer.peerId} size={32} />
                         <Tooltip title={peer.peerId} arrow>
                           <Typography 
@@ -453,7 +455,7 @@ const SavedPeers = () => {
                     )}
                   </TableCell>
                   <TableCell align="center">
-                    <Stack direction="row" spacing={1} justifyContent="center">
+                    <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
                       <Tooltip title="Ping">
                         <IconButton 
                           size="small"
