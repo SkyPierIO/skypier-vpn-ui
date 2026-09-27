@@ -177,7 +177,7 @@ const Dashboard: React.FC = () => {
       />
 
       <CardContent sx={{ position: 'relative', zIndex: 1, p: { xs: 3, md: 4 } }}>
-        <Grid container spacing={3} alignItems="center">
+        <Grid container spacing={3} sx={{ alignItems: 'center' }}>
           <Grid size={{ xs: 12, md: 7 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Avatar
@@ -404,7 +404,7 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 6 }}>
                 <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
                   <DevicesIcon sx={{ color: 'text.secondary', mb: 0.5 }} />
-                  <Typography variant="caption" display="block" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                     Platform
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>
@@ -415,7 +415,7 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 6 }}>
                 <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
                   <DataUsageIcon sx={{ color: 'text.secondary', mb: 0.5 }} />
-                  <Typography variant="caption" display="block" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                     Version
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>

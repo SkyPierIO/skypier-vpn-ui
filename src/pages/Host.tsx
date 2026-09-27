@@ -15,10 +15,10 @@ const Host = () => {
   const c = () => {
     return(
       <>
-        <Typography mb={1}>
-          Node hosting is not available yet. 
+        <Typography sx={{ mb: 1 }}>
+          Node hosting is not available yet.
         </Typography>
-        <Typography mb={4}>
+        <Typography sx={{ mb: 4 }}>
           We're working on providing the Skypier Node Host Kit as soon as possible. 
           Stay tuned to our socials to find out when you can become a member of the Skypier network and start earning rewards.
         </Typography>

@@ -32,19 +32,21 @@ export default function Login() {
             {account.status === 'connected' ? <SkypierRouter/> : 
                 <Container sx={{textAlign: 'center'}}>
                     <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    minHeight="90vh"
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '90vh',
+                    }}
                     >
-                        <Item> 
-                            <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
+                        <Item>
+                            <Stack sx={{ alignItems: 'center', gap: 2, mt: 4, mb: 4 }}>
                                 <img
                                     src="/logo.svg"
                                     alt="Skypier Logo"
                                     height="75"
                                 />
-                                <Typography variant='h6' mb={2}>
+                                <Typography variant='h6' sx={{ mb: 2 }}>
                                     Please connect your wallet to be able to use the app.
                                 </Typography>
                                 <ConnectWalletButton />

@@ -157,7 +157,7 @@ const Subscription = () => {
           {/* Membership Status */}
           <Card elevation={3}>
             <CardContent>
-              <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 2 }}>
                 <CheckCircleIcon color="success" fontSize="large" />
                 <Typography variant="h5" component="h2">
                   Active Membership
@@ -180,7 +180,7 @@ const Subscription = () => {
           {tokenId !== undefined && tokenId !== null && (
             <Card elevation={3}>
               <CardContent>
-                <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 2 }}>
                   <ImageIcon color="primary" />
                   <Typography variant="h6" component="h3">
                     Your Skypier NFT
@@ -195,7 +195,7 @@ const Subscription = () => {
                   </Box>
 
                   {isLoadingMetadata && (
-                    <Box display="flex" alignItems="center" gap={1}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <CircularProgress size={20} />
                       <Typography variant="body2" color="text.secondary">
                         Loading NFT metadata...
@@ -239,7 +239,7 @@ const Subscription = () => {
                       )}
 
                       {nftMetadata.description && (
-                        <Typography variant="body2" color="text.secondary" paragraph>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                           {nftMetadata.description}
                         </Typography>
                       )}
@@ -249,7 +249,7 @@ const Subscription = () => {
                           <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
                             Attributes:
                           </Typography>
-                          <Stack direction="row" flexWrap="wrap" gap={1}>
+                          <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
                             {nftMetadata.attributes.map((attr, index) => (
                               <Chip
                                 key={index}
@@ -280,7 +280,7 @@ const Subscription = () => {
 
                   {tokenURI && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="caption" color="text.secondary" display="block">
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                         Metadata URI:
                       </Typography>
                       <Typography
@@ -371,14 +371,16 @@ const Checkout = ({ network }: { network: number }) => {
     <section>
       <Container sx={{ textAlign: 'center' }}>
         <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="90vh"
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '90vh',
+          }}
         >
           <Item>
-            <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
-              <Typography variant='h4' mb={2}>
+            <Stack sx={{ alignItems: 'center', gap: 2, mt: 4, mb: 4 }}>
+              <Typography variant='h4' sx={{ mb: 2 }}>
                 Before accessing our service...
               </Typography>
               <Typography variant='subtitle1'>

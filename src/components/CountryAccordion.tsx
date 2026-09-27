@@ -238,7 +238,7 @@ const PeerRow = ({
         )}
       </Box>
 
-      <Stack spacing={0.5} alignItems="flex-end">
+      <Stack spacing={0.5} sx={{ alignItems: 'flex-end' }}>
         {status === 'Online' ? (
           <Tooltip title="Online">
             <Box
@@ -366,7 +366,7 @@ const CountryAccordion = ({
         <Typography sx={{ fontWeight: 500, flex: 1 }}>
           {countryName}
         </Typography>
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
           <Chip
             label={`${peers.length} peer${peers.length !== 1 ? 's' : ''}`}
             size="small"

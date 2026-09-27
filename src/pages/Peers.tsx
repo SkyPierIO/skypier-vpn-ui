@@ -30,7 +30,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
 import Drawer from "@mui/material/Drawer";
 import Skeleton from "@mui/material/Skeleton";
-import { styled, keyframes } from "@mui/material/styles";
+import { styled, keyframes, Theme } from "@mui/material/styles";
 import { PublicLockV14 } from "@unlock-protocol/contracts";
 import networks from "@unlock-protocol/networks";
 import { Paywall } from "@unlock-protocol/paywall";
@@ -812,7 +812,7 @@ const Peers = () => {
     const c = () => {
       return (
         <>
-          <Typography mb={1}>Please reload the page!</Typography>
+          <Typography sx={{ mb: 1 }}>Please reload the page!</Typography>
           <Typography>
             There was an error checking your membership status. Please reload
             the page!
@@ -846,18 +846,20 @@ const Peers = () => {
       }}
     >
       <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="90vh"
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '90vh',
+        }}
       >
         <AIHaloContainer active>
           <Item sx={{ borderRadius: "12px" }}>
-            <Stack alignItems={"center"} gap={2} mt={4} mb={4}>
-              <Typography variant="h6" mb={2}>
+            <Stack sx={{ alignItems: 'center', gap: 2, mt: 4, mb: 4 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
                 Loading...
               </Typography>
-              <Typography variant="body1" mb={2}>
+              <Typography variant="body1" sx={{ mb: 2 }}>
                 Getting peers data from node registry...
               </Typography>
             </Stack>
@@ -1035,8 +1037,7 @@ const Peers = () => {
             <Stack
               direction="row"
               spacing={1}
-              sx={{ mt: 1.5 }}
-              flexWrap="wrap"
+              sx={{ mt: 1.5, flexWrap: 'wrap' }}
               useFlexGap
             >
               {filterType !== "all" && (
@@ -1072,8 +1073,7 @@ const Peers = () => {
           <Stack
             direction="row"
             spacing={1}
-            sx={{ mt: 1.5 }}
-            flexWrap="wrap"
+            sx={{ mt: 1.5, flexWrap: 'wrap' }}
             useFlexGap
           >
             {availableStabilityFilters.map((status) => (
@@ -1174,38 +1174,40 @@ const Peers = () => {
         anchor="bottom"
         open={detailsDrawerOpen}
         onClose={handleDrawerClose}
-        PaperProps={{
-          sx: {
-            width: { xs: "100%", md: "min(860px, calc(100vw - 64px))" },
-            maxHeight: "70vh",
-            left: { xs: 0, md: "50%" },
-            right: { xs: 0, md: "auto" },
-            transform: { xs: "none", md: "translateX(-50%)" },
-            mb: { xs: 0, md: 2 },
-            borderTopLeftRadius: { xs: 16, md: 18 },
-            borderTopRightRadius: { xs: 16, md: 18 },
-            borderBottomLeftRadius: { xs: 0, md: 18 },
-            borderBottomRightRadius: { xs: 0, md: 18 },
-            border: 1,
-            borderColor: "divider",
-            backdropFilter: "blur(12px)",
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(23, 24, 27, 0.94)"
-                : "rgba(255, 255, 255, 0.94)",
-            backgroundImage: "none",
-            overflow: "hidden",
+        slotProps={{
+          paper: {
+            sx: {
+              width: { xs: "100%", md: "min(860px, calc(100vw - 64px))" },
+              maxHeight: "70vh",
+              left: { xs: 0, md: "50%" },
+              right: { xs: 0, md: "auto" },
+              transform: { xs: "none", md: "translateX(-50%)" },
+              mb: { xs: 0, md: 2 },
+              borderTopLeftRadius: { xs: 16, md: 18 },
+              borderTopRightRadius: { xs: 16, md: 18 },
+              borderBottomLeftRadius: { xs: 0, md: 18 },
+              borderBottomRightRadius: { xs: 0, md: 18 },
+              border: 1,
+              borderColor: "divider",
+              backdropFilter: "blur(12px)",
+              bgcolor: (theme: Theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(23, 24, 27, 0.94)"
+                  : "rgba(255, 255, 255, 0.94)",
+              backgroundImage: "none",
+              overflow: "hidden",
+            },
           },
         }}
       >
         <Box sx={{ overflowY: "auto", p: { xs: 2, sm: 3 } }}>
           {selectedPeerDetails ? (
             <Stack spacing={2.5}>
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
+              <Stack direction="row" spacing={2} sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', minWidth: 0 }}>
                   <JazziconAvatar peerId={selectedPeerDetails.peerId} size={42} />
                   <Box sx={{ minWidth: 0 }}>
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.25 }}>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 0.25 }}>
                       <Typography variant="h6" sx={{ lineHeight: 1.15 }}>
                         {selectedPeerDetails.nickname || "Unnamed Node"}
                       </Typography>
@@ -1227,7 +1229,7 @@ const Peers = () => {
                   </Box>
                 </Stack>
 
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexShrink: 0 }}>
                   <Chip
                     label={selectedPeerDetails.status || "Unknown"}
                     color={selectedPeerDetails.status === "Online" ? "success" : "default"}
@@ -1288,7 +1290,7 @@ const Peers = () => {
 
               <Divider />
 
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} useFlexGap flexWrap="wrap">
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
                 <Chip
                   icon={getOsFingerprintIcon(selectedPeerDetails.os)}
                   label={selectedPeerDetails.os || "unknown os"}
@@ -1405,22 +1407,25 @@ const Checkout = ({
         }}
       >
         <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="90vh"
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '90vh',
+          }}
         >
           <CheckoutItem>
             <Stack
-              alignItems={"center"}
-              gap={2}
-              mt={{ xs: 2, sm: 4 }}
-              mb={{ xs: 2, sm: 4 }}
+              sx={{
+                alignItems: 'center',
+                gap: 2,
+                mt: { xs: 2, sm: 4 },
+                mb: { xs: 2, sm: 4 },
+              }}
             >
               <Typography
                 variant="h4"
-                mb={2}
-                sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" } }}
+                sx={{ mb: 2, fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" } }}
               >
                 Before accessing our service...
               </Typography>

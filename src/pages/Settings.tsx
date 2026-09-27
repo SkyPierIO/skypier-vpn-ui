@@ -376,7 +376,7 @@ const Settings = () => {
                     fullWidth
                     type="password"
                     helperText="Your node's private key — keep this secure!"
-                    InputProps={{ sx: { fontFamily: 'monospace', borderRadius: 2 } }}
+                    slotProps={{ input: { sx: { fontFamily: 'monospace', borderRadius: 2 } } }}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                   />
                 </Stack>
@@ -395,7 +395,7 @@ const Settings = () => {
                   onChange={(e) => handleConfigChange('logLevel', e.target.value)}
                   fullWidth
                   select
-                  SelectProps={{ native: true }}
+                  slotProps={{ select: { native: true } }}
                   helperText="Set the verbosity of logs"
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 >
@@ -464,7 +464,7 @@ const Settings = () => {
 
               {/* Raw JSON Editor */}
               <Box>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5 }}>
                   <Chip
                     icon={<CodeIcon />}
                     label={showRawJson ? "Hide Raw JSON" : "Edit Raw JSON"}
@@ -496,7 +496,7 @@ const Settings = () => {
               </Box>
 
               {/* Action Buttons */}
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} pt={0.5}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ pt: 0.5 }}>
                 <Button
                   variant="contained"
                   startIcon={isSaving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
