@@ -70,7 +70,7 @@ importers:
         version: 3.1.1
       ipfs-geoip:
         specifier: ^9.2.0
-        version: 9.2.0
+        version: 9.3.0
       react:
         specifier: ^19.0.0
         version: 19.3.0
@@ -2876,8 +2876,8 @@ packages:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
     engines: {node: '>=12'}
 
-  ipfs-geoip@9.2.0:
-    resolution: {integrity: sha512-f7lS2YppDVxbyDrcIz1G8QmKBOuFdCxyIDpN03/DF13XjnMnyV2YooFswOv+DBlcS4EMyuHTHn6+UvRf6K2gcg==}
+  ipfs-geoip@9.3.0:
+    resolution: {integrity: sha512-OL9GJdxaSOzHK2DKEQZq/0MU9ggj/uVAV6UrNeKyHaPKST32cg0dkvgyNtScH5l4kix/H4yLaQDwzxVfkUOklQ==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
 
   iron-webcrypto@1.2.1:
@@ -8275,7 +8275,7 @@ snapshots:
 
   internmap@2.0.3: {}
 
-  ipfs-geoip@9.2.0: {}
+  ipfs-geoip@9.3.0: {}
 
   iron-webcrypto@1.2.1: {}
 
@@ -8921,7 +8921,7 @@ snapshots:
       '@types/uuid': 10.0.0
       '@types/ws': 8.18.1
       buffer: 6.0.3
-      eventemitter3: 5.0.4
+      eventemitter3: 5.0.1
       uuid: 11.1.0
       ws: 8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     optionalDependencies:
