@@ -70,7 +70,7 @@ importers:
         version: 3.1.1
       ipfs-geoip:
         specifier: ^9.2.0
-        version: 9.2.0
+        version: 9.3.0
       react:
         specifier: ^19.0.0
         version: 19.3.0
@@ -2876,8 +2876,8 @@ packages:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
     engines: {node: '>=12'}
 
-  ipfs-geoip@9.2.0:
-    resolution: {integrity: sha512-f7lS2YppDVxbyDrcIz1G8QmKBOuFdCxyIDpN03/DF13XjnMnyV2YooFswOv+DBlcS4EMyuHTHn6+UvRf6K2gcg==}
+  ipfs-geoip@9.3.0:
+    resolution: {integrity: sha512-OL9GJdxaSOzHK2DKEQZq/0MU9ggj/uVAV6UrNeKyHaPKST32cg0dkvgyNtScH5l4kix/H4yLaQDwzxVfkUOklQ==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
 
   iron-webcrypto@1.2.1:
@@ -3505,6 +3505,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  semver@7.8.6:
+    resolution: {integrity: sha512-9lpSSU4Mly3mrtruwLs1eLK6+gzbzqeBFwRNjIjE+9LuDpWdYctrQlQ3ej1Ilgi7gknpsTRnPoLP8DpCHqHIJw==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
 
@@ -3648,6 +3653,9 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  tslib@2.9.1:
+    resolution: {integrity: sha512-a4Ux9VKuIMHsOS7ENbEq6hK2ZGYIT27Rtl0E4eD9KqwxhKiQeMZE/9xb3IdYwWaSOyIBQLExhQgXDTYoiCxnWA==}
 
   tsx@4.19.2:
     resolution: {integrity: sha512-pOUl6Vo2LUq/bSa8S5q7b91cgNSjctn9ugq/+Mvow99qW6x/UZYwzxy/3NmqoT66eHYfCVvFvACC58UBPFf28g==}
@@ -4769,7 +4777,7 @@ snapshots:
       '@ethereumjs/tx': 4.2.0
       '@types/debug': 4.1.13
       debug: 4.4.3
-      semver: 7.8.5
+      semver: 7.8.6
       superstruct: 1.0.4
     transitivePeerDependencies:
       - supports-color
@@ -6278,7 +6286,7 @@ snapshots:
 
   '@swc/helpers@0.5.19':
     dependencies:
-      tslib: 2.8.1
+      tslib: 2.9.1
 
   '@tanstack/query-core@5.90.20': {}
 
@@ -7464,7 +7472,7 @@ snapshots:
 
   async-mutex@0.2.6:
     dependencies:
-      tslib: 2.8.1
+      tslib: 2.9.1
 
   asynckit@0.4.0: {}
 
@@ -8275,7 +8283,7 @@ snapshots:
 
   internmap@2.0.3: {}
 
-  ipfs-geoip@9.2.0: {}
+  ipfs-geoip@9.3.0: {}
 
   iron-webcrypto@1.2.1: {}
 
@@ -8921,7 +8929,7 @@ snapshots:
       '@types/uuid': 10.0.0
       '@types/ws': 8.18.1
       buffer: 6.0.3
-      eventemitter3: 5.0.4
+      eventemitter3: 5.0.1
       uuid: 11.1.0
       ws: 8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     optionalDependencies:
@@ -8953,6 +8961,8 @@ snapshots:
   semver@7.7.4: {}
 
   semver@7.8.5: {}
+
+  semver@7.8.6: {}
 
   set-blocking@2.0.0: {}
 
@@ -9101,6 +9111,8 @@ snapshots:
   tslib@2.7.0: {}
 
   tslib@2.8.1: {}
+
+  tslib@2.9.1: {}
 
   tsx@4.19.2:
     dependencies:
